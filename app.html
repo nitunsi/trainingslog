@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Trainingslog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg:#12201B;
+    --surface:#1B2B24;
+    --surface-2:#22362D;
+    --line:#2C4038;
+    --accent:#49B8A6;
+    --accent-dim:#2E6F65;
+    --text:#EDEDE4;
+    --text-muted:#8FA79B;
+    --amber:#D9A441;
+    --danger:#D9705A;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;}
+  body{padding-bottom:60px;}
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;}
+  .header{padding:22px 16px 10px;}
+  .header h1{font-size:22px;font-weight:700;letter-spacing:0.2px;}
+  .header p{margin:4px 0 0;color:var(--text-muted);font-size:13px;}
+
+  .daytabs{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 14px;-webkit-overflow-scrolling:touch;}
+  .daytab{flex:0 0 auto;padding:8px 13px;border-radius:20px;background:var(--surface);border:1px solid var(--line);color:var(--text-muted);font-size:12.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;white-space:nowrap;}
+  .daytab.active{background:var(--accent-dim);color:var(--text);border-color:var(--accent);}
+
+  .streak{display:flex;align-items:center;gap:7px;padding:0 16px 14px;}
+  .streak .dot{width:9px;height:9px;border-radius:50%;background:var(--line);}
+  .streak .dot.filled{background:var(--accent);}
+  .streak .label{font-size:11px;color:var(--text-muted);margin-left:4px;}
+
+  .datebar{display:flex;align-items:center;gap:10px;padding:0 16px 16px;}
+  .datebar input[type=date]{background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;flex:1;}
+  .datebar select{background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:12.5px;padding:8px 10px;border-radius:8px;font-family:'Inter',sans-serif;}
+
+  .warmup-toggle{margin:0 16px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text-muted);}
+  .warmup-toggle summary{cursor:pointer;font-weight:600;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;}
+  .warmup-toggle table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px;}
+  .warmup-toggle td{padding:3px 4px;border-bottom:1px solid var(--line);}
+  .warmup-toggle td:last-child{text-align:right;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
+
+  .block{margin:0 16px 16px;}
+  .block-title{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;font-family:'Space Grotesk',sans-serif;margin:0 0 8px 2px;display:flex;align-items:center;gap:6px;}
+  .block-title::before{content:"";width:10px;height:2px;background:var(--accent);display:inline-block;}
+
+  .exrow{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;}
+  .exrow.stretch{background:transparent;border-style:dashed;}
+  .exrow .exname{font-size:14px;font-weight:600;}
+  .exrow.stretch .exname{font-style:italic;font-weight:500;color:var(--text-muted);}
+  .exrow .exziel{font-size:12px;color:var(--text-muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+  .setboxes{display:flex;gap:6px;margin-top:9px;}
+  .setboxes input{flex:1;width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;text-align:center;border-radius:7px;padding:9px 2px;}
+  .setboxes input::placeholder{color:#4E6459;font-weight:500;}
+  .setboxes input:focus{outline:none;border-color:var(--accent);}
+
+  .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px 18px;}
+  .savebtn{width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
+  .savebtn:active{background:var(--accent-dim);color:var(--text);}
+  .savebtn.saved{background:#3B5147;color:var(--accent);}
+
+  .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--accent);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .toast.show{opacity:1;}
+
+  .last-hint{font-size:10.5px;color:var(--text-muted);margin-top:5px;}
+</style>
+</head>
+<body>
+
+<div id="weeklyGoalsHolder"></div>
+
+<div class="header">
+  <h1>Trainingslog</h1>
+  <p>Berg-Struktur · Kraft &amp; Skill im Wechsel</p>
+</div>
+
+<div id="nextSessionHolder"></div>
+
+<div class="daytabs" id="daytabs"></div>
+<div class="streak" id="streak"></div>
+<div class="datebar">
+  <input type="date" id="dateInput">
+  <select id="historySelect"><option value="">Letzte Sessions…</option></select>
+</div>
+<div id="editModeHolder"></div>
+
+<div id="calendarHolder"></div>
+<div id="orphanedHolder"></div>
+<div id="warmupHolder"></div>
+<div id="blocksHolder"></div>
+
+<div style="margin:0 16px 16px;">
+  <div class="block-title" style="margin-bottom:6px;">Notizen zur Session</div>
+  <textarea id="sessionNotes" placeholder="Allgemeines zur Session (optional) – z. B. wie es sich angefühlt hat, Auffälligkeiten, Ideen für Anpassungen…" style="width:100%;min-height:70px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:10px;padding:11px 13px;resize:vertical;"></textarea>
+</div>
+
+<div style="margin:0 16px 16px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
+  <div class="block-title" style="margin-bottom:10px;">🏃 Laufen &amp; Schwimmen</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;">
+    <button id="cardioTypeLauf" class="cardioTypeBtn" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-dim);color:var(--text);font-weight:600;font-size:13px;">Laufen</button>
+    <button id="cardioTypeSchwimmen" class="cardioTypeBtn" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-muted);font-weight:600;font-size:13px;">Schwimmen</button>
+  </div>
+  <input type="date" id="cardioDate" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:8px;">
+  <textarea id="cardioComment" placeholder="Kommentar (z. B. Distanz, Zeit, wie es sich angefühlt hat)…" style="width:100%;min-height:60px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:8px;padding:10px 12px;resize:vertical;margin-bottom:8px;"></textarea>
+  <button id="cardioSaveBtn" style="width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Eintrag speichern</button>
+  <button id="cardioHistBtn" style="width:100%;background:none;border:none;color:var(--text-muted);font-size:11.5px;cursor:pointer;padding:6px 0;margin-top:4px;">⏱ Verlauf anzeigen</button>
+  <div id="cardioHistoryHolder" style="margin-top:8px;display:none;"></div>
+</div>
+
+<div style="margin:0 16px 16px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
+  <div class="block-title" style="margin-bottom:10px;">⚖️ Körperwerte</div>
+  <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <input type="date" id="bodyDate" style="flex:1;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;">
+    <input type="time" id="bodyTime" style="flex:0 0 100px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;">
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <div style="flex:1;">
+      <label style="font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:3px;">Gewicht (kg)</label>
+      <input type="number" step="0.1" id="bodyWeight" placeholder="71.5" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:9px 2px;border-radius:7px;">
+    </div>
+    <div style="flex:1;">
+      <label style="font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:3px;">Oberarm li. (cm)</label>
+      <input type="number" step="0.1" id="bodyArm" placeholder="31.5" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:9px 2px;border-radius:7px;">
+    </div>
+    <div style="flex:1;">
+      <label style="font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:3px;">Bauch (cm)</label>
+      <input type="number" step="0.1" id="bodyWaist" placeholder="85" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:9px 2px;border-radius:7px;">
+    </div>
+  </div>
+  <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">Bauchumfang auf Nabelhöhe · am besten immer zur gleichen Zeit relativ zum Training messen</div>
+  <button id="bodySaveBtn" style="width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Eintrag speichern</button>
+  <button id="bodyHistBtn" style="width:100%;background:none;border:none;color:var(--text-muted);font-size:11.5px;cursor:pointer;padding:6px 0;margin-top:4px;">⏱ Verlauf anzeigen</button>
+  <div id="bodyHistoryHolder" style="margin-top:8px;display:none;"></div>
+</div>
+
+<div style="margin:0 16px 16px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
+  <div class="block-title" style="margin-bottom:10px;">📝 Sonstiges</div>
+  <input type="date" id="miscDate" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:8px;">
+  <textarea id="miscComment" placeholder="Was hast du gemacht? (z. B. Bouldern, Rad, Yoga…)" style="width:100%;min-height:60px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:8px;padding:10px 12px;resize:vertical;margin-bottom:8px;"></textarea>
+  <button id="miscSaveBtn" style="width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Eintrag speichern</button>
+</div>
+
+<div style="margin:0 16px 90px;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <label for="exportWeeks" style="font-size:12px;color:var(--text-muted);">Letzte</label>
+    <input type="number" id="exportWeeks" value="6" min="1" max="52" style="width:52px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px;border-radius:6px;text-align:center;">
+    <label for="exportWeeks" style="font-size:12px;color:var(--text-muted);">Wochen exportieren</label>
+  </div>
+  <button id="exportBtn" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text-muted);border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;">Log als Markdown exportieren</button>
+  <textarea id="exportArea" readonly style="display:none;width:100%;height:220px;margin-top:10px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11.5px;border-radius:8px;padding:10px;"></textarea>
+
+  <button id="manageSessionsBtn" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text-muted);border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;margin-top:10px;">Alle Sessions anzeigen / löschen</button>
+  <div id="sessionsListHolder" style="display:none;margin-top:10px;"></div>
+</div>
+
+<div class="toast" id="toast">Gespeichert</div>
+<div class="savebar"><button class="savebtn" id="saveBtn">Session speichern</button></div>
+
+<script>
+const ALLGEMEIN_WARMUP = [
+  { title:"Allgemeines Aufwärmen (1x)", rows:[
+    ["Arm Swing Forward","20 Wdh"],["Arm Swing Backward","20 Wdh"],["Air Squat","20 Wdh"],
+    ["Scapula Push-up","10 Wdh"],["Deep Squat + Fold","8 Wdh"],["Wrist Circle","15 Wdh"],
+    ["Supinated Wrist Stretch","30s"],["Flipped Wrist Stretch","30s"],["Flipped Wrist Squeeze","30s"],
+    ["BWS-Mobilisation auf Rolle (Wirbel für Wirbel)","8-10 Wdh"],
+  ]},
+  { title:"Pre-Workout Mobility (2 Sätze)", rows:[
+    ["Pronated Dislocation (Towel)","10 Wdh"],["Supinated Dislocation (Towel)","10 Wdh"],
+    ["1st Knuckle Wrist Flexion","5 Wdh"],["Fingertip Wrist Flexion","5 Wdh"],
+    ["Flipped Wrist Extension","5 Wdh"],["Active-passive Hang","30s"],
+    ["Reverse Table Top (vereinfacht)","5 Wdh"],["Downward Facing Dog","60s"],
+  ]},
+];
+const HS_WARMUP = [
+  { title:"Allgemeines Warm-up (1x)", rows:[
+    ["Arm Swing Forward","20 Wdh"],["Arm Swing Backward","20 Wdh"],["Deep Squat + Fold","8 Wdh"],
+    ["Standing Back Bend Lvl3","10 Wdh"],["Standing Side Bend Lvl3","10 Wdh je Seite"],
+    ["BWS-Mobilisation auf Rolle (Wirbel für Wirbel)","8-10 Wdh"],
+  ]},
+  { title:"Specific Warm-up (1x)", rows:[
+    ["Wrist Circle","15 Wdh"],["Supinated Wrist Stretch","30s"],["Flipped Wrist Stretch","30s"],["Flipped Wrist Squeeze","30s"],
+  ]},
+  { title:"Mobility & Joint Strength (2 Sätze)", rows:[
+    ["Pronated Dislocation (Towel)","15 Wdh"],["Supinated Dislocation (Towel)","15 Wdh"],
+    ["1st Knuckle Wrist Flexion","10 Wdh"],["Fingertip Wrist Flexion","10 Wdh"],
+    ["Flipped Wrist Extension","10 Wdh"],["Downward Facing Dog","60s"],
+    ["Prone Y-Raise (Bauchlage)","10–15 Wdh"],
+  ]},
+];
+
+const TRAVEL_WARMUP = [
+  { title:"Pulserhoehung (1x)", rows:[
+    ["Hampelmaenner / auf der Stelle huepfen","60s"],
+  ]},
+  { title:"Handgelenke (1x)", rows:[
+    ["Handgelenkskreisen","15 Wdh je Richtung"],["Wrist Rocks (Vierfuesslerstand, Gewicht vor/zurueck)","10 Wdh"],
+    ["Handruecken-Dehnung","20s"],["Handinnenflaechen-Dehnung","20s"],
+  ]},
+  { title:"Schultern (1x)", rows:[
+    ["Armkreisen gross","10 Wdh je Richtung"],["Scapula Push-up","10 Wdh"],["Cat-Cow","8 Wdh"],
+  ]},
+  { title:"Huefte/Knie/Sprunggelenk (1x)", rows:[
+    ["Beinschwingen vor/zurueck","10 Wdh je Seite"],["Beinschwingen seitlich","10 Wdh je Seite"],
+    ["Ausfallschritt mit Rotation","2 Wdh je Seite"],["Air Squat","10 Wdh"],["Wadenheben","10 Wdh"],
+  ]},
+  { title:"Einschleichen (1x)", rows:[
+    ["Liegestuetz locker","3 Wdh"],["Wandkontakt-Handstand-Aufbau","2x 5-10s"],
+  ]},
+];
+
+function ex(uebung, saetze, ziel, stretch){ return {uebung, saetze, ziel, stretch: !!stretch}; }
+
+// Alias-Liste für umbenannte Übungen: neuer Name -> Liste früherer Namen.
+// So bleiben alte Session-Daten mit der umbenannten Übung verknüpft (Platzhalter + Verlauf).
+const RENAMES = {
+  // Nur für echte Umbenennungen (gleiche Übung, gleiches Ziel, nur Tippfehler o.ä. korrigiert).
+  // Für Progressions-Wechsel (neue Stufe, neues Ziel) NICHT eintragen - die sollen wie jeder
+  // andere Übungswechsel eine eigene, saubere Historie bekommen.
+};
+function namesFor(exName){
+  return [exName, ...(RENAMES[exName] || [])];
+}
+const KOPFSTAND = ex("Headstand an der Wand (Wandkontakt lösen)", "3", "sammeln, Ziel 10s ohne Wandkontakt");
+
+const DAYS = {
+  l2a: { label: "L2A", title: "Full Body L2A", warmup: ALLGEMEIN_WARMUP, blocks: [
+    { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
+    { name:"Push + Pull-ups", items:[
+      ex("One Arm Push-up (links)","3","5–10, bis Muskelversagen"),
+      ex("Negative Archer Pull-up","3","5–15, bis Muskelversagen"),
+      ex("One Arm Push-up (rechts)","3","5–10, bis Muskelversagen"),
+      ex("Taube (Pigeon Pose)","-","20–30s je Seite",true),
+    ]},
+    { name:"Straight Arm & Core", items:[
+      ex("Elephant Stance","3","sammeln, Ziel 20s"),
+      ex("One Leg Front Lever","3","sammeln, Ziel 20s"),
+      ex("Toes to Bar (3s runter, 1s halten, 3s hoch)","3","8, bis Muskelversagen"),
+      KOPFSTAND,
+      ex("Stehende Vorbeuge","-","20–30s",true),
+    ]},
+    { name:"Dips, Rows & Squats", items:[
+      ex("Hip Up Dip (3s runter, 1s halten, 3s hoch)","3","8–10, bis Muskelversagen"),
+      ex("One Leg Squat (links)","3","10–15, bis Muskelversagen"),
+      ex("Wadenheben (links)","3","15–20, bis Muskelversagen"),
+      ex("One Arm Row (1s Pause oben, jede Wdh)","3","8–10, bis Muskelversagen"),
+      ex("One Leg Squat (rechts)","3","10–15, bis Muskelversagen"),
+      ex("Wadenheben (rechts)","3","15–20, bis Muskelversagen"),
+    ]},
+  ]},
+  l2b: { label: "L2B", title: "Full Body L2B", warmup: ALLGEMEIN_WARMUP, blocks: [
+    { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
+    { name:"Push + Pull-ups", items:[
+      ex("One Arm Push-up (links)","3","5–10, bis Muskelversagen"),
+      ex("Negative Archer Pull-up","3","5–15, bis Muskelversagen"),
+      ex("One Arm Push-up (rechts)","3","5–10, bis Muskelversagen"),
+      ex("Schneidersitz-Vorbeuge","-","20–30s",true),
+    ]},
+    { name:"Straight Arm & Core", items:[
+      ex("Tuck Planche Press-up","3","sammeln, Ziel 10 Wdh"),
+      ex("Tucked Front Lever Raise (1s Pause oben, jede Wdh)","3","sammeln, Ziel 10 Wdh"),
+      ex("Toes to Bar (3s runter, 1s halten, 3s hoch)","3","8, bis Muskelversagen"),
+      KOPFSTAND,
+      ex("Stehende Vorbeuge","-","20–30s",true),
+    ]},
+    { name:"Dips, Rows & Squats", items:[
+      ex("Facing Wall Hspu","3","5–15, bis Muskelversagen"),
+      ex("Sissy Squat","3","5–15, bis Muskelversagen"),
+      ex("One Arm Row (1s Pause oben, jede Wdh)","3","8–10, bis Muskelversagen"),
+      ex("One Leg Hamstring Chair Curl","3","5–15, bis Muskelversagen"),
+    ]},
+  ]},
+  l2c: { label: "L2C", title: "Full Body L2C", warmup: ALLGEMEIN_WARMUP, blocks: [
+    { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
+    { name:"Push + Pull-ups", items:[
+      ex("Facing Wall Hspu","3","5–15, bis Muskelversagen"),
+      ex("Negative Archer Pull-up","3","5–15, bis Muskelversagen"),
+      ex("Schneidersitz-Vorbeuge","-","20–30s",true),
+    ]},
+    { name:"Straight Arm & Core", items:[
+      ex("One Leg Front Lever","3","sammeln, Ziel 20s"),
+      ex("Tucked Front Lever Raise (1s Pause oben, jede Wdh)","3","sammeln, Ziel 10 Wdh"),
+      ex("World's Greatest Stretch","-","je Seite 20–30s",true),
+    ]},
+    { name:"Rows & Squats", items:[
+      ex("One Leg Squat (links)","3","10–15, bis Muskelversagen"),
+      ex("One Arm Row (1s Pause oben, jede Wdh)","3","8–10, bis Muskelversagen"),
+      ex("One Leg Squat (rechts)","3","10–15, bis Muskelversagen"),
+      ex("Negative Nordic Curl","3","5–8, bis Muskelversagen"),
+    ]},
+  ]},
+  skill: { label: "Skill", title: "Skill Day L2", warmup: ALLGEMEIN_WARMUP, blocks: [
+    { name:"Skill Play", items:[ ex("Double Half Lay Elbow Lever (Hspu)","-","so lange sauber") ]},
+    { name:"HSPU Strength/Technique", items:[
+      ex("Crow to Tuck Headstand Press","2","sammeln, Ziel 10 Wdh"),
+      ex("Stehende Vorbeuge","-","20–30s",true),
+      ex("Facing Wall Hspu (3s runter, 1s halten, 3s hoch)","2","sammeln, Ziel 10 Wdh"),
+      ex("Back to Wall Hspu","2","5–10, bis Muskelversagen"),
+      ex("Schneidersitz-Vorbeuge","-","20–30s",true),
+    ]},
+    { name:"Front Lever", items:[
+      ex("One Leg Front Lever","2","sammeln, Ziel 20s"),
+      ex("Tucked Front Lever Raise (1s Pause oben, jede Wdh)","2","sammeln, Ziel 10 Wdh"),
+      ex("Brustöffnung (Türrahmen/Wand)","-","20–30s",true),
+    ]},
+    { name:"Muscle-up Technik & Kraft", items:[
+      ex("Navel Up Explosive Pull-Up","2","5–15, bis Muskelversagen"),
+      ex("Hip to Bar","2","5–15, bis Muskelversagen"),
+      ex("Kniestand-Rückbeuge","2","20–30s",true),
+    ]},
+  ]},
+  hs2: { label: "HS2", title: "Handstand 2 (Full)", warmup: HS_WARMUP, blocks: [
+    { name:"Balance Play", items:[ ex("Forearm Stand","-","so lange sauber") ]},
+    { name:"Handstand-Versuche", items:[
+      ex("Handstand Hold (Entry Back to Wall)","3","bis Ermüdung, Anzahl Versuche"),
+      ex("Freistehender Handstand-Versuch (Shoulder Focus)","3","sammeln, Ziel 15s"),
+      ex("Loaded Chair Bend","3","10s anspannen + 10s dehnen",true),
+    ]},
+    { name:"Balance", items:[
+      ex("Wall Push Out + Balance (Facing Wall)","3","sammeln, Ziel 5–10 Versuche"),
+      ex("Wall Push Out + Balance (Back 2 Wall)","3","sammeln, Ziel 5–10 Versuche"),
+      ex("Nacken-/oberer Trapezius-Dehnung","-","20–30s je Seite",true),
+    ]},
+    { name:"Wandunabhängigkeit", items:[ KOPFSTAND ]},
+    { name:"", items:[ ex("Schneidersitz-Vorbeuge","-","20–30s",true) ]},
+    { name:"Entries", items:[
+      ex("Wall Assisted Handstand Kick-up + Balance","3","sammeln, Ziel 5–10 Versuche"),
+      ex("Hollow Body Walk Out + Halten (2-3s am Ende)","3","10 Wdh"),
+    ]},
+    { name:"Strength", items:[
+      ex("Wall Supported Handstand Shrug","2","bis Muskelversagen"),
+      ex("Stehende Vorbeuge","-","20–30s",true),
+    ]},
+  ]},
+  deload: { label: "Deload", title: "Deload & Mobility (Review-Woche)", warmup: ALLGEMEIN_WARMUP, blocks: [
+    { name:"Mobility-Zirkel (2 Runden, länger halten als sonst)", items:[
+      ex("Schneidersitz-Vorbeuge","2","30–45s",true),
+      ex("Taube (Pigeon Pose)","2","30–45s je Seite",true),
+      ex("World's Greatest Stretch","2","30–45s je Seite",true),
+      ex("Kniestand-Rückbeuge","2","30–45s",true),
+      ex("Stehende Vorbeuge","2","30–45s",true),
+      ex("Brustöffnung (Türrahmen/Wand)","2","30–45s",true),
+      ex("Nacken-/oberer Trapezius-Dehnung","2","30–45s je Seite",true),
+    ]},
+  ]},
+  travel: { label: "Reise", title: "Reise-Session (ohne Wand/Bar moeglich)", warmup: TRAVEL_WARMUP, blocks: [
+    { name:"Push & Handstand", items:[
+      ex("Facing Wall Hspu / Pike Push-up (falls keine Wand)","3","Hspu 5-15 oder Pike Push-up 8-12, bis Muskelversagen"),
+      ex("One Arm Push-up (links)","3","5-10, bis Muskelversagen"),
+      ex("One Arm Push-up (rechts)","3","5-10, bis Muskelversagen"),
+    ]},
+    { name:"Beine & Core", items:[
+      ex("One Leg Squat (links)","3","10-12, bis Muskelversagen"),
+      ex("One Leg Squat (rechts)","3","10-12, bis Muskelversagen"),
+      ex("Sissy Squat","3","6-7, bis Muskelversagen"),
+      ex("Hollow Body Walk Out + Halten (2-3s am Ende)","3","5-6 Wdh"),
+    ]},
+    { name:"Zusatz (optional, falls Zeit/Energie)", items:[
+      ex("Headstand an der Wand (Wandkontakt loesen) / Pike Push-up (falls keine Wand)","2","Headstand 3-4 bzw. Pike Push-up 5-6"),
+      ex("Wadenheben","2","10, bis Muskelversagen"),
+    ]},
+    { name:"Optional, nur falls Bar/Gelaender vorhanden", items:[
+      ex("Pull-up / Negative Pull-up (falls Bar)","2","so viele sauber wie moeglich"),
+      ex("Australian Row (falls niedrige Bar/Gelaender)","2","8-12, bis Muskelversagen"),
+    ]},
+    { name:"", items:[
+      ex("Taube (Pigeon Pose)","-","20-30s je Seite",true),
+      ex("World's Greatest Stretch","-","je Seite 20-30s",true),
+    ]},
+  ]},
+};
+
+// Cooldown-Übung (von der Osteopathie) an jeden Tag anhängen
+const COOLDOWN_BLOCK = { name:"Nach dem Workout", items:[
+  ex("Rumpfrotation im aufrechten Kniestand (beide Knie unten), Gewicht quer bewegen, Richtung wechselnd","2-3","5-8 Wdh je Richtung, sehr sauber"),
+]};
+Object.keys(DAYS).forEach(key => DAYS[key].blocks.push(COOLDOWN_BLOCK));
+
+// Typ eines Ziels grob klassifizieren, um Platzhalter aus anderen Tagestypen nur
+// zu übernehmen, wenn der Übungstyp (sammeln vs. bis Muskelversagen) übereinstimmt.
+function zielType(ziel){
+  if(!ziel) return null;
+  if(ziel.startsWith("sammeln")) return "sammeln";
+  if(ziel.includes("bis Muskelversagen")) return "max";
+  return null;
+}
+// Ziel-Text einer Übung (per aktuellem Namen/Alias) innerhalb eines bestimmten Tagestyps finden.
+function findZielFor(name, dayKey){
+  const day = DAYS[dayKey];
+  if(!day) return null;
+  for(const block of day.blocks){
+    for(const item of block.items){
+      if(namesFor(item.uebung).includes(name)) return item.ziel;
+    }
+  }
+  return null;
+}
+
+let currentDay = "l2a";
+let lastSessionValues = {};
+
+const SUPABASE_URL = "https://dnziimlhlvpmizrqkxte.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuemlpbWxobHZwbWl6cnFreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MDA2MzgsImV4cCI6MjA5OTM3NjYzOH0.r6g0_IsU8tDxtKVgFjKAnLkiE-Md0tq2KVKTbYwv6qI";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const PERSON = "nils"; // Personen-Kennung für die gemeinsam genutzte Supabase-Tabelle
+
+const WEEK_PLAN = [
+  { woche:"1", tage:["l2a","hs2","l2b","skill"] },
+  { woche:"2", tage:["l2c","hs2","l2a","skill"] },
+  { woche:"3", tage:["l2b","hs2","l2c","skill"] },
+  { woche:"4", tage:["l2a","hs2","l2b","skill"] },
+  { woche:"5", tage:["l2c","hs2","l2a","skill"] },
+  { woche:"6 (Review/Deload)", tage:["l2b","hs2","skill","deload"] },
+];
+const SEQUENCE = WEEK_PLAN.flatMap(w => w.tage); // 24 Slots
+
+// Zeiger wird als Meta-Zeile in derselben Tabelle gespeichert (day_key="__meta__"), kein zusätzliches SQL nötig
+const META_KEY = "__meta__";
+const META_DATE = "1970-01-01";
+
+async function getPointer(){
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("data")
+      .eq("person", PERSON)
+      .eq("day_key", META_KEY)
+      .eq("session_date", META_DATE)
+      .maybeSingle();
+    if(error) throw error;
+    if(data && data.data && typeof data.data.idx === "number") return data.data.idx;
+  }catch(e){ console.error("getPointer", e); }
+  return 0;
+}
+
+async function setPointer(idx){
+  idx = ((idx % SEQUENCE.length) + SEQUENCE.length) % SEQUENCE.length;
+  try{
+    await sb.from("training_sessions").upsert(
+      { person: PERSON, day_key: META_KEY, session_date: META_DATE, data: { idx }, updated_at: new Date().toISOString() },
+      { onConflict: "person,day_key,session_date" }
+    );
+  }catch(e){ console.error("setPointer", e); }
+  return idx;
+}
+
+async function renderNextSession(){
+  const holder = document.getElementById("nextSessionHolder");
+  const idx = await getPointer();
+  const w = Math.floor(idx/4), d = idx%4;
+  const nextKey = SEQUENCE[idx];
+  const note = nextKey === null ? " – kein Training, danach wieder Full Body L2A" : "";
+  const label = nextKey ? DAYS[nextKey].title : "Review";
+
+  const weekOptions = WEEK_PLAN.map((wk,i)=>`<option value="${i}" ${i===w?"selected":""}>Woche ${wk.woche}</option>`).join("");
+  const dayOptions = [0,1,2,3].map(i=>`<option value="${i}" ${i===d?"selected":""}>Tag ${i+1}</option>`).join("");
+
+  holder.innerHTML = `
+    <div style="margin:0 16px 12px;padding:11px 14px;background:var(--surface-2);border:1px solid var(--accent-dim);border-radius:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+          <div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Als nächstes dran</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14.5px;">${label}${note}</div>
+        </div>
+        <button id="goNextBtn" style="background:var(--accent);color:#0D1813;border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:12px;font-family:'Space Grotesk',sans-serif;white-space:nowrap;">Öffnen</button>
+      </div>
+      <details style="margin-top:9px;">
+        <summary style="font-size:11.5px;color:var(--text-muted);cursor:pointer;">Zeiger manuell korrigieren</summary>
+        <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">
+          <select id="pointerWeek" style="background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:12px;padding:6px;border-radius:6px;">${weekOptions}</select>
+          <select id="pointerDay" style="background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:12px;padding:6px;border-radius:6px;">${dayOptions}</select>
+          <button id="setPointerBtn" style="background:var(--surface);border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:7px 10px;font-size:11.5px;font-weight:600;">Setzen</button>
+        </div>
+      </details>
+    </div>`;
+
+  document.getElementById("goNextBtn").onclick = ()=>{ if(nextKey){ currentDay = nextKey; document.getElementById("dateInput").value = todayStr(); init(); } };
+  document.getElementById("setPointerBtn").onclick = async ()=>{
+    const wSel = parseInt(document.getElementById("pointerWeek").value,10);
+    const dSel = parseInt(document.getElementById("pointerDay").value,10);
+    await setPointer(wSel*4 + dSel);
+    showToast("Zeiger gesetzt");
+    await renderNextSession();
+  };
+}
+
+async function renderCalendar(){
+  const holder = document.getElementById("calendarHolder");
+  const idx = await getPointer();
+  const curWeek = Math.floor(idx/4), curDay = idx%4;
+  const rows = WEEK_PLAN.map((w,wi)=>{
+    const cells = w.tage.map((t,di)=>{
+      const isCurrent = (wi === curWeek && di === curDay);
+      const style = isCurrent
+        ? `background:var(--accent-dim);color:var(--text);font-weight:700;border-radius:6px;`
+        : (t ? "" : "color:var(--text-muted)");
+      const label = t ? DAYS[t].title : "Review – kein Training";
+      return `<td style="${style}">${isCurrent ? "▶ " : ""}${label}</td>`;
+    }).join("");
+    return `<tr><td style="font-weight:600">Woche ${w.woche}</td>${cells}</tr>`;
+  }).join("");
+  holder.innerHTML = `<details class="warmup-toggle"><summary>6-Wochen-Kalender anzeigen</summary>
+    <table><tr><td></td><td>Tag 1</td><td>Tag 2</td><td>Tag 3</td><td>Tag 4</td></tr>${rows}</table>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Woche 6: Tag 2 (HS2) bewusst 1 Satz weniger pro Block, Tag 4 = Deload &amp; Mobility statt normalem Training.</div>
+  </details>`;
+}
+
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 1600);
+}
+
+function renderTabs(){
+  const holder = document.getElementById("daytabs");
+  holder.innerHTML = "";
+  Object.keys(DAYS).forEach(key=>{
+    const btn = document.createElement("button");
+    btn.className = "daytab" + (key===currentDay ? " active" : "");
+    btn.textContent = DAYS[key].label;
+    btn.onclick = ()=>{ currentDay = key; document.getElementById("dateInput").value = todayStr(); init(); };
+    holder.appendChild(btn);
+  });
+}
+
+function renderWarmup(){
+  const holder = document.getElementById("warmupHolder");
+  const day = DAYS[currentDay];
+  const groups = day.warmup.map(group=>{
+    const rows = group.rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
+    return `<div style="font-weight:600;color:var(--text);font-size:11.5px;margin:8px 0 4px;">${group.title}</div><table>${rows}</table>`;
+  }).join("");
+  holder.innerHTML = `<details class="warmup-toggle"><summary>Aufwärmen anzeigen</summary>${groups}</details>`;
+}
+
+function renderBlocks(){
+  const holder = document.getElementById("blocksHolder");
+  holder.innerHTML = "";
+  const day = DAYS[currentDay];
+  day.blocks.forEach(block=>{
+    if(block.name) {
+      const bt = document.createElement("div");
+      bt.className = "block-title";
+      bt.textContent = block.name;
+      const wrap = document.createElement("div");
+      wrap.className = "block";
+      wrap.appendChild(bt);
+      block.items.forEach(it=> wrap.appendChild(renderExRow(it)));
+      holder.appendChild(wrap);
+    } else {
+      const wrap = document.createElement("div");
+      wrap.className = "block";
+      block.items.forEach(it=> wrap.appendChild(renderExRow(it)));
+      holder.appendChild(wrap);
+    }
+  });
+}
+
+function renderExRow(it){
+  const row = document.createElement("div");
+  row.className = "exrow" + (it.stretch ? " stretch" : "");
+  const currentType = zielType(it.ziel);
+  const prevKey = namesFor(it.uebung).find(n => lastSessionValues[n] !== undefined);
+  let prev = [];
+  if(prevKey){
+    const entry = lastSessionValues[prevKey];
+    const sourceType = zielType(findZielFor(prevKey, entry.dayKey));
+    // Nur übernehmen, wenn kein eindeutiger Typkonflikt vorliegt (sammeln vs. bis Muskelversagen).
+    if(!(currentType && sourceType && currentType !== sourceType)){
+      prev = entry.value;
+    }
+  }
+
+  if(it.stretch){
+    const ph = prev[0] !== undefined && prev[0] !== "" ? prev[0] : "leer = alles ok";
+    row.innerHTML = `
+      <div class="exname">${it.uebung} <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button></div>
+      <div class="exziel">${it.ziel}</div>
+      <div class="setboxes">
+        <input type="text" data-ex="${escapeAttr(it.uebung)}" data-idx="0" placeholder="${escapeAttr(ph)}" style="text-align:left;font-family:'Inter',sans-serif;font-weight:400;font-size:13px;">
+      </div>
+    `;
+    attachHistoryButton(row, it.uebung);
+    return row;
+  }
+
+  const n = it.saetze === "-" ? 1 : parseInt(it.saetze,10);
+  let boxes = "";
+  for(let i=0;i<n;i++){
+    const ph = prev[i] !== undefined ? prev[i] : "";
+    boxes += `<input type="text" data-ex="${escapeAttr(it.uebung)}" data-idx="${i}" placeholder="${ph}">`;
+  }
+  row.innerHTML = `
+    <div class="exname">${it.uebung} <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button></div>
+    <div class="exziel">${it.ziel}${it.saetze!=="-" ? " · "+it.saetze+" Sätze" : ""}</div>
+    <div class="setboxes">${boxes}</div>
+  `;
+  attachHistoryButton(row, it.uebung);
+  return row;
+}
+
+function attachHistoryButton(row, exName){
+  const btn = row.querySelector(".histBtn");
+  const panel = document.createElement("div");
+  panel.style.display = "none";
+  panel.style.marginTop = "8px";
+  panel.style.paddingTop = "8px";
+  panel.style.borderTop = "1px dashed var(--line)";
+  row.appendChild(panel);
+  btn.onclick = async (e)=>{
+    e.preventDefault();
+    if(panel.style.display === "none"){
+      panel.style.display = "block";
+      panel.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Lade…</div>';
+      const results = await fetchExerciseHistory(exName);
+      if(results.length === 0){
+        panel.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Noch keine weiteren Einträge für diese Übung.</div>';
+      } else {
+        panel.innerHTML = results.map(r=>
+          `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}</div>`
+        ).join("");
+      }
+    } else {
+      panel.style.display = "none";
+    }
+  };
+}
+
+async function fetchExerciseHistory(exName){
+  const names = namesFor(exName);
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("day_key, session_date, data")
+      .eq("person", PERSON)
+      .neq("day_key", META_KEY)
+      .order("session_date", { ascending: false })
+      .limit(60);
+    if(error) throw error;
+    const rows = (data || [])
+      .map(r => ({ r, matchName: names.find(n => r.data && r.data[n] !== undefined) }))
+      .filter(x => x.matchName)
+      .slice(0, 8);
+    return rows.map(({r, matchName}) => ({
+      date: r.session_date,
+      dayTitle: DAYS[r.day_key] ? DAYS[r.day_key].label : r.day_key,
+      values: Array.isArray(r.data[matchName]) ? r.data[matchName].map(v => v || "–").join(" / ") : r.data[matchName],
+      renamedNote: matchName !== exName ? ` (damals: "${matchName}")` : "",
+    }));
+  }catch(e){ console.error("fetchExerciseHistory", e); return []; }
+}
+
+function escapeAttr(s){ return s.replace(/"/g,"&quot;"); }
+
+function isEmptyTrackedValue(v){
+  if(Array.isArray(v)) return v.every(x => !x || String(x).trim() === "");
+  return !v || String(v).trim() === "";
+}
+
+async function loadLastSession(){
+  lastSessionValues = {};
+  try{
+    // Über alle Tagestypen suchen (nicht nur currentDay), damit Übungen, die in
+    // mehreren Mustern vorkommen (z. B. Superman Push-up in L2A/L2B/L2C), immer
+    // den zeitlich neuesten Wert als Platzhalter zeigen, egal aus welchem Tag.
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("day_key, data")
+      .eq("person", PERSON)
+      .neq("day_key", META_KEY)
+      .order("session_date", { ascending: false })
+      .order("updated_at", { ascending: false })
+      .limit(60);
+    if(error) throw error;
+    (data || []).forEach(row=>{
+      if(!row.data) return;
+      Object.keys(row.data).forEach(exName=>{
+        if(exName === "_notes") return;
+        const rawVal = row.data[exName];
+        if(!Array.isArray(rawVal)){
+          if(lastSessionValues[exName] !== undefined) return;
+          if(isEmptyTrackedValue(rawVal)) return;
+          lastSessionValues[exName] = { value: rawVal, dayKey: row.day_key };
+          return;
+        }
+        if(!lastSessionValues[exName]){
+          lastSessionValues[exName] = { value: [], dayKey: row.day_key };
+        }
+        const entry = lastSessionValues[exName];
+        rawVal.forEach((v, idx)=>{
+          const already = entry.value[idx];
+          const alreadyFilled = already !== undefined && String(already).trim() !== "";
+          if(!alreadyFilled && v !== undefined && v !== null && String(v).trim() !== ""){
+            entry.value[idx] = v;
+          }
+        });
+      });
+    });
+  }catch(e){ console.error("loadLastSession", e); }
+}
+
+async function populateHistory(){
+  const sel = document.getElementById("historySelect");
+  sel.innerHTML = '<option value="">Letzte Sessions…</option>';
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("session_date")
+      .eq("person", PERSON)
+      .eq("day_key", currentDay)
+      .order("session_date", { ascending: false })
+      .limit(10);
+    if(error) throw error;
+    (data || []).forEach(row=>{
+      const opt = document.createElement("option");
+      opt.value = row.session_date; opt.textContent = row.session_date;
+      sel.appendChild(opt);
+    });
+  }catch(e){ console.error("populateHistory", e); }
+}
+
+async function renderStreak(){
+  const holder = document.getElementById("streak");
+  let dates = [];
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("session_date")
+      .eq("person", PERSON)
+      .eq("day_key", currentDay)
+      .order("session_date", { ascending: false })
+      .limit(6);
+    if(error) throw error;
+    dates = (data || []).map(r=>r.session_date);
+  }catch(e){ console.error("renderStreak", e); }
+  let dots = "";
+  for(let i=5;i>=0;i--){
+    dots += `<span class="dot ${i<dates.length ? "filled":""}"></span>`;
+  }
+  holder.innerHTML = dots + `<span class="label">letzte ${DAYS[currentDay].label}-Sessions</span>`;
+}
+
+async function loadSessionInto(date){
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("data")
+      .eq("person", PERSON)
+      .eq("day_key", currentDay)
+      .eq("session_date", date)
+      .maybeSingle();
+    if(error) throw error;
+    if(!data || !data.data) return;
+    const sessionData = data.data;
+    document.getElementById("sessionNotes").value = sessionData["_notes"] || "";
+    const matchedNames = new Set(["_notes"]);
+    document.querySelectorAll("#blocksHolder input").forEach(inp=>{
+      const exName = inp.getAttribute("data-ex");
+      const idx = parseInt(inp.getAttribute("data-idx"),10);
+      const srcKey = namesFor(exName).find(n => sessionData[n] !== undefined);
+      if(srcKey && sessionData[srcKey][idx] !== undefined){ inp.value = sessionData[srcKey][idx]; }
+      if(srcKey) matchedNames.add(srcKey);
+    });
+    const orphaned = Object.keys(sessionData).filter(name => !matchedNames.has(name));
+    const box = document.getElementById("orphanedHolder");
+    if(orphaned.length > 0){
+      const rows = orphaned.map(name => `<div style="margin-bottom:4px;"><strong>${name}:</strong> ${sessionData[name].map(v=>v||"–").join(" / ")}</div>`).join("");
+      box.innerHTML = `<div style="margin:0 16px 14px;padding:10px 14px;background:var(--surface);border:1px dashed var(--line);border-radius:10px;font-size:12px;color:var(--text-muted);">
+        <div style="font-weight:600;color:var(--text);margin-bottom:6px;">Diese Session vom ${date} enthielt auch Übungen, die nicht mehr im aktuellen Plan stehen:</div>
+        ${rows}
+      </div>`;
+    } else {
+      box.innerHTML = "";
+    }
+    showToast("Session vom " + date + " geladen");
+    const editBanner = document.getElementById("editModeHolder");
+    if(date !== todayStr()){
+      editBanner.innerHTML = `<div style="margin:0 16px 12px;padding:9px 14px;background:rgba(217,164,65,0.12);border:1px solid var(--amber);border-radius:9px;font-size:12px;color:var(--amber);font-weight:600;">
+        ✎ Du bearbeitest die Session vom ${date} – nicht heute. Speichern überschreibt diesen Termin.
+      </div>`;
+    } else {
+      editBanner.innerHTML = "";
+    }
+  }catch(e){ console.error("loadSessionInto", e); showToast("Fehler beim Laden: " + e.message); }
+}
+
+async function saveSession(){
+  const date = document.getElementById("dateInput").value || todayStr();
+  const data = {};
+  document.querySelectorAll("#blocksHolder input").forEach(inp=>{
+    const exName = inp.getAttribute("data-ex");
+    const idx = parseInt(inp.getAttribute("data-idx"),10);
+    if(!data[exName]) data[exName] = [];
+    data[exName][idx] = inp.value || "";
+  });
+  const notesVal = document.getElementById("sessionNotes").value.trim();
+  if(notesVal) data["_notes"] = notesVal;
+  try{
+    // Vorher prüfen, ob für diesen Tag+Datum schon eine Session existiert -> nur bei neuer Session zählt es für den Zeiger
+    const { data: existing, error: checkError } = await sb
+      .from("training_sessions")
+      .select("day_key")
+      .eq("person", PERSON)
+      .eq("day_key", currentDay)
+      .eq("session_date", date)
+      .maybeSingle();
+    if(checkError) throw checkError;
+    const isNewSession = !existing;
+
+    // Prüfen, ob an diesem Datum bereits ein ANDERER Tagestyp gespeichert wurde -> nicht zwei Sessions an einem Tag
+    if(isNewSession){
+      const { data: otherDayRows, error: otherError } = await sb
+        .from("training_sessions")
+        .select("day_key")
+        .eq("person", PERSON)
+        .eq("session_date", date)
+        .neq("day_key", META_KEY)
+        .neq("day_key", currentDay)
+        .in("day_key", Object.keys(DAYS)); // nur andere Trainingstag-Typen zählen, nicht Cardio/Sonstiges/Körperwerte
+      if(otherError) throw otherError;
+      const otherDay = (otherDayRows && otherDayRows.length > 0) ? otherDayRows[0] : null;
+      if(otherDay){
+        const otherTitle = DAYS[otherDay.day_key] ? DAYS[otherDay.day_key].title : otherDay.day_key;
+        const proceed = confirm(`Für den ${date} ist bereits "${otherTitle}" gespeichert. Trotzdem zusätzlich "${DAYS[currentDay].title}" für denselben Tag anlegen?`);
+        if(!proceed){ showToast("Abgebrochen"); return; }
+      }
+    }
+
+    const { error } = await sb
+      .from("training_sessions")
+      .upsert(
+        { person: PERSON, day_key: currentDay, session_date: date, data: data, updated_at: new Date().toISOString() },
+        { onConflict: "person,day_key,session_date" }
+      );
+    if(error) throw error;
+    const btn = document.getElementById("saveBtn");
+    btn.classList.add("saved");
+    btn.textContent = "Gespeichert ✓";
+    setTimeout(()=>{ btn.classList.remove("saved"); btn.textContent = "Session speichern"; }, 1800);
+    showToast(isNewSession ? "Gespeichert für " + date : "Session vom " + date + " aktualisiert (Zeiger unverändert)");
+    await populateHistory();
+    await renderStreak();
+    if(isNewSession && SEQUENCE.includes(currentDay)){
+      const curIdx = await getPointer();
+      await setPointer(curIdx + 1);
+    }
+    await renderNextSession();
+    await renderWeeklyGoals();
+  }catch(e){
+    console.error(e);
+    showToast("Fehler: " + (e && e.message ? e.message : "unbekannt"));
+  }
+}
+
+async function init(){
+  renderTabs();
+  document.querySelector(".header p").textContent = DAYS[currentDay].title;
+  await renderCalendar();
+  document.getElementById("orphanedHolder").innerHTML = "";
+  document.getElementById("editModeHolder").innerHTML = "";
+  document.getElementById("sessionNotes").value = "";
+  await loadLastSession();
+  renderWarmup();
+  renderBlocks();
+  await populateHistory();
+  await renderStreak();
+  await maybeLoadTodaySession();
+}
+
+// Wenn für heute schon eine Session zu diesem Tag existiert, direkt anzeigen statt leer zu lassen
+async function maybeLoadTodaySession(){
+  const today = todayStr();
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("session_date")
+      .eq("person", PERSON)
+      .eq("day_key", currentDay)
+      .eq("session_date", today)
+      .maybeSingle();
+    if(error) throw error;
+    if(data){
+      document.getElementById("dateInput").value = today;
+      await loadSessionInto(today);
+    }
+  }catch(e){ console.error("maybeLoadTodaySession", e); }
+}
+
+document.getElementById("saveBtn").addEventListener("click", saveSession);
+document.getElementById("historySelect").addEventListener("change", (e)=>{
+  if(e.target.value){
+    document.getElementById("dateInput").value = e.target.value;
+    loadSessionInto(e.target.value);
+  }
+});
+document.getElementById("dateInput").value = todayStr();
+document.getElementById("dateInput").addEventListener("change", ()=>{
+  document.getElementById("editModeHolder").innerHTML = "";
+});
+
+async function exportMarkdown(){
+  const weeks = parseInt(document.getElementById("exportWeeks").value, 10) || 6;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - weeks * 7);
+  const cutoffStr = cutoff.getFullYear() + "-" + String(cutoff.getMonth()+1).padStart(2,"0") + "-" + String(cutoff.getDate()).padStart(2,"0");
+
+  let entries = [];
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("day_key, session_date, data")
+      .eq("person", PERSON)
+      .gte("session_date", cutoffStr)
+      .order("session_date", { ascending: true });
+    if(error) throw error;
+    entries = (data || []).map(row => ({ date: row.session_date, dayKey: row.day_key, data: row.data }));
+  }catch(e){
+    console.error("exportMarkdown", e);
+    showToast("Fehler beim Export: " + e.message);
+    return;
+  }
+
+  let md = `# Trainingslog Export – letzte ${weeks} Wochen (ab ${cutoffStr})\n\n`;
+  if(entries.length === 0){
+    md += "_Keine Sessions in diesem Zeitraum gespeichert._\n";
+  } else {
+    for(const entry of entries){
+      md += `## ${entry.date} – ${DAYS[entry.dayKey] ? DAYS[entry.dayKey].title : entry.dayKey}\n\n`;
+      const exNames = Object.keys(entry.data).filter(k => k !== "_notes");
+      if(exNames.length > 0){
+        md += "| Übung | Werte |\n|---|---|\n";
+        exNames.forEach(exName=>{
+          const vals = entry.data[exName].map(v => v==="" || v===undefined ? "–" : v).join(" / ");
+          md += `| ${exName} | ${vals} |\n`;
+        });
+        md += "\n";
+      }
+      if(entry.data["_notes"]){
+        md += `**Notizen:** ${entry.data["_notes"]}\n\n`;
+      }
+    }
+  }
+
+  const area = document.getElementById("exportArea");
+  area.style.display = "block";
+  area.value = md;
+  area.focus();
+  area.select();
+
+  try{
+    const blob = new Blob([md], {type:"text/markdown"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "trainingslog-export.md";
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(entries.length + " Sessions exportiert");
+  }catch(e){
+    showToast("Text unten markiert – kopieren mit Strg/Cmd+C");
+  }
+}
+document.getElementById("exportBtn").addEventListener("click", exportMarkdown);
+
+async function renderSessionsList(){
+  const holder = document.getElementById("sessionsListHolder");
+  holder.innerHTML = `<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">Lade…</div>`;
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("day_key, session_date, data")
+      .eq("person", PERSON)
+      .neq("day_key", META_KEY)
+      .order("session_date", { ascending: false });
+    if(error) throw error;
+    if(!data || data.length === 0){
+      holder.innerHTML = `<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">Noch keine Sessions gespeichert.</div>`;
+      return;
+    }
+    holder.innerHTML = data.map(row=>{
+      const title = DAYS[row.day_key] ? DAYS[row.day_key].title : row.day_key;
+      const exCount = Object.keys(row.data || {}).filter(k => k !== "_notes").length;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:6px;">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;">${row.session_date}</div>
+            <div style="font-size:11.5px;color:var(--text-muted);">${title} · ${exCount} Übungen</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="editSessBtn" data-day="${row.day_key}" data-date="${row.session_date}" style="background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:7px;padding:7px 10px;font-size:11.5px;font-weight:600;">Bearbeiten</button>
+            <button class="delSessBtn" data-day="${row.day_key}" data-date="${row.session_date}" style="background:transparent;border:1px solid var(--danger);color:var(--danger);border-radius:7px;padding:7px 10px;font-size:11.5px;font-weight:600;">Löschen</button>
+          </div>
+        </div>`;
+    }).join("");
+    holder.querySelectorAll(".delSessBtn").forEach(btn=>{
+      btn.onclick = ()=> deleteSession(btn.getAttribute("data-day"), btn.getAttribute("data-date"));
+    });
+    holder.querySelectorAll(".editSessBtn").forEach(btn=>{
+      btn.onclick = ()=> editSession(btn.getAttribute("data-day"), btn.getAttribute("data-date"));
+    });
+  }catch(e){
+    console.error("renderSessionsList", e);
+    holder.innerHTML = `<div style="font-size:12px;color:var(--danger);">Fehler beim Laden: ${e.message}</div>`;
+  }
+}
+
+async function editSession(dayKey, date){
+  currentDay = dayKey;
+  document.getElementById("sessionsListHolder").style.display = "none";
+  sessionsListOpen = false;
+  await init();
+  document.getElementById("dateInput").value = date;
+  await loadSessionInto(date);
+  window.scrollTo({top:0, behavior:"smooth"});
+  showToast("Session vom " + date + " zum Bearbeiten geladen");
+}
+
+async function deleteSession(dayKey, date){
+  const title = DAYS[dayKey] ? DAYS[dayKey].title : dayKey;
+  if(!confirm(`Session ${date} (${title}) wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) return;
+  try{
+    const { error } = await sb
+      .from("training_sessions")
+      .delete()
+      .eq("person", PERSON)
+      .eq("day_key", dayKey)
+      .eq("session_date", date);
+    if(error) throw error;
+    showToast("Gelöscht");
+    await renderSessionsList();
+    if(dayKey === currentDay){
+      await populateHistory();
+      await renderStreak();
+      await loadLastSession();
+    }
+  }catch(e){
+    console.error("deleteSession", e);
+    showToast("Fehler beim Löschen: " + e.message);
+  }
+}
+
+let sessionsListOpen = false;
+document.getElementById("manageSessionsBtn").addEventListener("click", async ()=>{
+  sessionsListOpen = !sessionsListOpen;
+  const holder = document.getElementById("sessionsListHolder");
+  holder.style.display = sessionsListOpen ? "block" : "none";
+  if(sessionsListOpen) await renderSessionsList();
+});
+
+// ---------- Laufen & Schwimmen (einfacher Cardio-Log) ----------
+let cardioType = "lauf";
+
+function setCardioType(type){
+  cardioType = type;
+  const laufBtn = document.getElementById("cardioTypeLauf");
+  const schwimmBtn = document.getElementById("cardioTypeSchwimmen");
+  const active = { border:"1px solid var(--accent)", background:"var(--accent-dim)", color:"var(--text)" };
+  const inactive = { border:"1px solid var(--line)", background:"var(--surface-2)", color:"var(--text-muted)" };
+  const apply = (el, styles) => { el.style.border = styles.border; el.style.background = styles.background; el.style.color = styles.color; };
+  apply(laufBtn, type === "lauf" ? active : inactive);
+  apply(schwimmBtn, type === "schwimmen" ? active : inactive);
+}
+document.getElementById("cardioTypeLauf").addEventListener("click", ()=> setCardioType("lauf"));
+document.getElementById("cardioTypeSchwimmen").addEventListener("click", ()=> setCardioType("schwimmen"));
+document.getElementById("cardioDate").value = todayStr();
+
+async function saveCardio(){
+  const date = document.getElementById("cardioDate").value || todayStr();
+  const comment = document.getElementById("cardioComment").value.trim();
+  const dayKey = "cardio_" + cardioType;
+  try{
+    const { error } = await sb.from("training_sessions").upsert(
+      { person: PERSON, day_key: dayKey, session_date: date, data: { comment }, updated_at: new Date().toISOString() },
+      { onConflict: "person,day_key,session_date" }
+    );
+    if(error) throw error;
+    showToast((cardioType === "lauf" ? "Lauf" : "Schwimmen") + " gespeichert für " + date);
+    document.getElementById("cardioComment").value = "";
+    if(document.getElementById("cardioHistoryHolder").style.display !== "none"){
+      await renderCardioHistory();
+    }
+    await renderWeeklyGoals();
+  }catch(e){
+    console.error("saveCardio", e);
+    showToast("Fehler: " + e.message);
+  }
+}
+document.getElementById("cardioSaveBtn").addEventListener("click", saveCardio);
+
+// ---------- Körperwerte (Gewicht, Oberarm, Bauchumfang) ----------
+document.getElementById("bodyDate").value = todayStr();
+(function(){
+  const t = new Date();
+  const hh = String(t.getHours()).padStart(2,"0");
+  const mm = String(t.getMinutes()).padStart(2,"0");
+  document.getElementById("bodyTime").value = hh + ":" + mm;
+})();
+
+async function saveBody(){
+  const date = document.getElementById("bodyDate").value || todayStr();
+  const time = document.getElementById("bodyTime").value;
+  const weight = document.getElementById("bodyWeight").value.trim();
+  const arm = document.getElementById("bodyArm").value.trim();
+  const waist = document.getElementById("bodyWaist").value.trim();
+  if(!weight && !arm && !waist){ showToast("Bitte mindestens einen Wert eintragen"); return; }
+  try{
+    const { error } = await sb.from("training_sessions").upsert(
+      { person: PERSON, day_key: "koerperwerte", session_date: date, data: {
+          uhrzeit: time, gewicht_kg: weight, oberarm_links_cm: arm, bauchumfang_nabel_cm: waist
+        }, updated_at: new Date().toISOString() },
+      { onConflict: "person,day_key,session_date" }
+    );
+    if(error) throw error;
+    showToast("Körperwerte gespeichert für " + date);
+    if(document.getElementById("bodyHistoryHolder").style.display !== "none"){
+      await renderBodyHistory();
+    }
+  }catch(e){
+    console.error("saveBody", e);
+    showToast("Fehler: " + e.message);
+  }
+}
+document.getElementById("bodySaveBtn").addEventListener("click", saveBody);
+
+async function renderBodyHistory(){
+  const holder = document.getElementById("bodyHistoryHolder");
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("session_date, data")
+      .eq("person", PERSON)
+      .eq("day_key", "koerperwerte")
+      .order("session_date", { ascending: false })
+      .limit(15);
+    if(error) throw error;
+    if(!data || data.length === 0){
+      holder.innerHTML = `<div style="font-size:11.5px;color:var(--text-muted);">Noch keine Einträge.</div>`;
+      return;
+    }
+    holder.innerHTML = data.map((row, i)=>{
+      const d = row.data || {};
+      const prev = data[i+1] ? data[i+1].data : null;
+      const delta = (curr, prevVal) => {
+        if(curr === undefined || curr === "" || !prevVal || prevVal === "") return "";
+        const diff = parseFloat(curr) - parseFloat(prevVal);
+        if(isNaN(diff) || diff === 0) return "";
+        const sign = diff > 0 ? "+" : "";
+        const color = diff > 0 ? "var(--danger)" : "var(--accent)";
+        return ` <span style="color:${color};font-size:10.5px;">(${sign}${diff.toFixed(1)})</span>`;
+      };
+      const parts = [];
+      if(d.gewicht_kg) parts.push(`⚖️ ${d.gewicht_kg} kg${delta(d.gewicht_kg, prev && prev.gewicht_kg)}`);
+      if(d.oberarm_links_cm) parts.push(`💪 ${d.oberarm_links_cm} cm${delta(d.oberarm_links_cm, prev && prev.oberarm_links_cm)}`);
+      if(d.bauchumfang_nabel_cm) parts.push(`📏 ${d.bauchumfang_nabel_cm} cm${delta(d.bauchumfang_nabel_cm, prev && prev.bauchumfang_nabel_cm)}`);
+      return `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--line);">
+        <strong style="font-family:'IBM Plex Mono',monospace;">${row.session_date}</strong>${d.uhrzeit ? " · " + d.uhrzeit : ""}<br>
+        <span style="color:var(--text);">${parts.join(" · ") || "<i style='color:var(--text-muted)'>keine Werte</i>"}</span>
+      </div>`;
+    }).join("");
+  }catch(e){
+    console.error("renderBodyHistory", e);
+    holder.innerHTML = `<div style="font-size:11.5px;color:var(--danger);">Fehler beim Laden: ${e.message}</div>`;
+  }
+}
+
+let bodyHistOpen = false;
+document.getElementById("bodyHistBtn").addEventListener("click", async ()=>{
+  bodyHistOpen = !bodyHistOpen;
+  const holder = document.getElementById("bodyHistoryHolder");
+  holder.style.display = bodyHistOpen ? "block" : "none";
+  if(bodyHistOpen) await renderBodyHistory();
+});
+
+// ---------- Sonstiges (freie Texteingabe, einfacher Logeintrag) ----------
+document.getElementById("miscDate").value = todayStr();
+
+async function saveMisc(){
+  const date = document.getElementById("miscDate").value || todayStr();
+  const comment = document.getElementById("miscComment").value.trim();
+  if(!comment){ showToast("Bitte kurz beschreiben, was du gemacht hast"); return; }
+  try{
+    const { error } = await sb.from("training_sessions").upsert(
+      { person: PERSON, day_key: "sonstiges", session_date: date, data: { comment }, updated_at: new Date().toISOString() },
+      { onConflict: "person,day_key,session_date" }
+    );
+    if(error) throw error;
+    showToast("Gespeichert für " + date);
+    document.getElementById("miscComment").value = "";
+  }catch(e){
+    console.error("saveMisc", e);
+    showToast("Fehler: " + e.message);
+  }
+}
+document.getElementById("miscSaveBtn").addEventListener("click", saveMisc);
+
+async function renderCardioHistory(){
+  const holder = document.getElementById("cardioHistoryHolder");
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("day_key, session_date, data")
+      .eq("person", PERSON)
+      .in("day_key", ["cardio_lauf", "cardio_schwimmen"])
+      .order("session_date", { ascending: false })
+      .limit(15);
+    if(error) throw error;
+    if(!data || data.length === 0){
+      holder.innerHTML = `<div style="font-size:11.5px;color:var(--text-muted);">Noch keine Einträge.</div>`;
+      return;
+    }
+    holder.innerHTML = data.map(row=>{
+      const label = row.day_key === "cardio_lauf" ? "🏃 Laufen" : "🏊 Schwimmen";
+      const comment = (row.data && row.data.comment) ? row.data.comment : "<i style='color:var(--text-muted)'>kein Kommentar</i>";
+      return `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--line);">
+        <strong style="font-family:'IBM Plex Mono',monospace;">${row.session_date}</strong> · ${label}<br>
+        <span style="color:var(--text-muted);">${comment}</span>
+      </div>`;
+    }).join("");
+  }catch(e){
+    console.error("renderCardioHistory", e);
+    holder.innerHTML = `<div style="font-size:11.5px;color:var(--danger);">Fehler beim Laden: ${e.message}</div>`;
+  }
+}
+
+let cardioHistOpen = false;
+document.getElementById("cardioHistBtn").addEventListener("click", async ()=>{
+  cardioHistOpen = !cardioHistOpen;
+  const holder = document.getElementById("cardioHistoryHolder");
+  holder.style.display = cardioHistOpen ? "block" : "none";
+  if(cardioHistOpen) await renderCardioHistory();
+});
+
+// ---------- Wochenziel-Übersicht (letzte 3 Wochen, Montag-Start) ----------
+function mondayOf(dateObj){
+  const d = new Date(dateObj);
+  const day = d.getDay(); // 0=So, 1=Mo, ...
+  const diff = (day === 0 ? -6 : 1) - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function fmtDate(d){
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+async function renderWeeklyGoals(){
+  const holder = document.getElementById("weeklyGoalsHolder");
+  const thisMonday = mondayOf(new Date());
+  const WEEK_COUNT = 12;
+  const weekStarts = Array.from({length: WEEK_COUNT}, (_,i) => { const d = new Date(thisMonday); d.setDate(d.getDate() - i*7); return d; });
+  const earliestMonday = weekStarts[weekStarts.length-1];
+
+  try{
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("day_key, session_date")
+      .eq("person", PERSON)
+      .neq("day_key", META_KEY)
+      .gte("session_date", fmtDate(earliestMonday))
+      .order("session_date", { ascending: false });
+    if(error) throw error;
+
+    const weeks = weekStarts.map(start=>{
+      const end = new Date(start); end.setDate(end.getDate() + 7);
+      const rows = (data || []).filter(r => r.session_date >= fmtDate(start) && r.session_date < fmtDate(end));
+      const lauf = rows.filter(r => r.day_key === "cardio_lauf").length;
+      const schwimmen = rows.filter(r => r.day_key === "cardio_schwimmen").length;
+      const koerper = rows.filter(r => r.day_key === "koerperwerte").length;
+      const training = rows.filter(r => Object.keys(DAYS).includes(r.day_key)).length;
+      return { start, lauf, schwimmen, koerper, training };
+    });
+
+    const weekRowHtml = (w, label, showTop)=>{
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;${!showTop ? 'border-top:1px solid var(--line);' : ''}">
+        <span style="font-size:11.5px;color:var(--text-muted);">${label} <span style="font-family:'IBM Plex Mono',monospace;">(${fmtDate(w.start)})</span></span>
+        <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;">${w.koerper ? "⚖️ " + w.koerper + " · " : ""}🏋️ ${w.training} · 🏃 ${w.lauf} · 🏊 ${w.schwimmen}</span>
+      </div>`;
+    };
+
+    const recentLabels = ["Diese Woche", "Letzte Woche", "Vor 2 Wochen"];
+    const rowsHtml = weeks.slice(0,3).map((w,i)=> weekRowHtml(w, recentLabels[i], i===0)).join("");
+    const olderHtml = weeks.slice(3).map((w,i)=> weekRowHtml(w, "Vor " + (i+3) + " Wochen", false)).join("");
+
+    holder.innerHTML = `<div style="margin:14px 16px 0;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;">
+      <div style="font-size:10.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:4px;">Wochenziel (letzte 3 Wochen)</div>
+      ${rowsHtml}
+      <button id="weeklyHistBtn" style="width:100%;background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;padding:6px 0 0;margin-top:2px;text-align:left;">⏱ Verlauf anzeigen (${WEEK_COUNT - 3} weitere Wochen)</button>
+      <div id="weeklyHistoryHolder" style="display:none;">${olderHtml}</div>
+    </div>`;
+
+    let weeklyHistOpen = false;
+    document.getElementById("weeklyHistBtn").addEventListener("click", ()=>{
+      weeklyHistOpen = !weeklyHistOpen;
+      const h = document.getElementById("weeklyHistoryHolder");
+      h.style.display = weeklyHistOpen ? "block" : "none";
+      document.getElementById("weeklyHistBtn").textContent = weeklyHistOpen ? "⏱ Verlauf ausblenden" : `⏱ Verlauf anzeigen (${WEEK_COUNT - 3} weitere Wochen)`;
+    });
+  }catch(e){
+    console.error("renderWeeklyGoals", e);
+    holder.innerHTML = "";
+  }
+}
+
+async function bootstrap(){
+  const idx = await getPointer();
+  const key = SEQUENCE[idx];
+  currentDay = key || "l2a"; // Review-Slot -> Fallback L2A
+
+  // Max. eine normale Trainingseinheit pro Tag: falls für heute schon EIN Tag (egal welcher)
+  // geloggt wurde, den direkt öffnen statt des Zeiger-Vorschlags.
+  try{
+    const dayKeys = Object.keys(DAYS);
+    const { data, error } = await sb
+      .from("training_sessions")
+      .select("day_key")
+      .eq("person", PERSON)
+      .eq("session_date", todayStr())
+      .in("day_key", dayKeys)
+      .maybeSingle();
+    if(!error && data){ currentDay = data.day_key; }
+  }catch(e){ console.error("bootstrap today-check", e); }
+
+  await renderNextSession();
+  await init();
+}
+bootstrap();
+renderWeeklyGoals();
+</script>
+</body>
+</html>
