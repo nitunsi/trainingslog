@@ -614,6 +614,9 @@ function renderExRow(it){
   return row;
 }
 
+const HISTORY_PAGE_SIZE = 40;
+const HISTORY_INITIAL_TARGET = 8;
+
 function attachHistoryButton(row, exName){
   const btn = row.querySelector(".histBtn");
   const panel = document.createElement("div");
@@ -622,26 +625,66 @@ function attachHistoryButton(row, exName){
   panel.style.paddingTop = "8px";
   panel.style.borderTop = "1px dashed var(--line)";
   row.appendChild(panel);
+
+  const state = { offset: 0, matches: [], exhausted: false, loading: false };
+
+  function renderPanel(){
+    const list = state.matches.map(r=>
+      `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}</div>`
+    ).join("");
+    const empty = state.matches.length === 0
+      ? '<div style="font-size:11px;color:var(--text-muted);">Noch keine weiteren Einträge für diese Übung.</div>'
+      : "";
+    const footer = state.exhausted
+      ? (state.matches.length > 0 ? '<div style="font-size:10.5px;color:var(--text-muted);margin-top:6px;">Ende der Historie</div>' : "")
+      : `<button class="loadMoreBtn" style="background:none;border:1px solid var(--line);color:var(--text-muted);font-size:11px;cursor:pointer;padding:5px 10px;border-radius:6px;margin-top:6px;">${state.loading ? "Lade…" : "Mehr laden"}</button>`;
+    panel.innerHTML = list + empty + footer;
+    const loadMoreBtn = panel.querySelector(".loadMoreBtn");
+    if(loadMoreBtn) loadMoreBtn.onclick = (e)=>{ e.preventDefault(); loadNextPage(); };
+  }
+
+  async function loadNextPage(){
+    if(state.loading || state.exhausted) return;
+    state.loading = true;
+    renderPanel();
+    const startCount = state.matches.length;
+    // Solange Rohdaten-Seiten nachladen, bis mind. 1 neuer Treffer dazukommt oder die Historie zu Ende ist
+    // (Treffer sind je nach Übung dünn gesät, eine einzelne Seite kann leer ausgehen).
+    while(state.matches.length === startCount && !state.exhausted){
+      const { matches, fetchedCount } = await fetchExerciseHistoryPage(exName, state.offset, HISTORY_PAGE_SIZE);
+      state.matches.push(...matches);
+      state.offset += fetchedCount;
+      if(fetchedCount < HISTORY_PAGE_SIZE){ state.exhausted = true; }
+    }
+    state.loading = false;
+    renderPanel();
+  }
+
   btn.onclick = async (e)=>{
     e.preventDefault();
     if(panel.style.display === "none"){
       panel.style.display = "block";
-      panel.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Lade…</div>';
-      const results = await fetchExerciseHistory(exName);
-      if(results.length === 0){
-        panel.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Noch keine weiteren Einträge für diese Übung.</div>';
-      } else {
-        panel.innerHTML = results.map(r=>
-          `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}</div>`
-        ).join("");
+      if(state.matches.length === 0 && !state.exhausted){
+        panel.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Lade…</div>';
+        // Erstes Laden: so lange in Seiten nachladen, bis genug Treffer da sind oder Ende erreicht.
+        while(state.matches.length < HISTORY_INITIAL_TARGET && !state.exhausted){
+          const { matches, fetchedCount } = await fetchExerciseHistoryPage(exName, state.offset, HISTORY_PAGE_SIZE);
+          state.matches.push(...matches);
+          state.offset += fetchedCount;
+          if(fetchedCount < HISTORY_PAGE_SIZE){ state.exhausted = true; }
+        }
       }
+      renderPanel();
     } else {
       panel.style.display = "none";
     }
   };
 }
 
-async function fetchExerciseHistory(exName){
+// Lädt einen Rohdaten-Block (nach Datum absteigend) und filtert ihn auf Treffer für diese Übung.
+// Über offset/HISTORY_PAGE_SIZE seitenweise aufrufbar, damit "Mehr laden" die komplette
+// Historie erreichen kann, nicht nur ein festes Fenster der letzten N Sessions.
+async function fetchExerciseHistoryPage(exName, offset, pageSize){
   const names = namesFor(exName);
   try{
     const { data, error } = await sb
@@ -650,19 +693,20 @@ async function fetchExerciseHistory(exName){
       .eq("person", PERSON)
       .neq("day_key", META_KEY)
       .order("session_date", { ascending: false })
-      .limit(60);
+      .range(offset, offset + pageSize - 1);
     if(error) throw error;
-    const rows = (data || [])
+    const fetchedCount = (data || []).length;
+    const matches = (data || [])
       .map(r => ({ r, matchName: names.find(n => r.data && r.data[n] !== undefined) }))
       .filter(x => x.matchName)
-      .slice(0, 8);
-    return rows.map(({r, matchName}) => ({
-      date: r.session_date,
-      dayTitle: DAYS[r.day_key] ? DAYS[r.day_key].label : r.day_key,
-      values: Array.isArray(r.data[matchName]) ? r.data[matchName].map(v => v || "–").join(" / ") : r.data[matchName],
-      renamedNote: matchName !== exName ? ` (damals: "${matchName}")` : "",
-    }));
-  }catch(e){ console.error("fetchExerciseHistory", e); return []; }
+      .map(({r, matchName}) => ({
+        date: r.session_date,
+        dayTitle: DAYS[r.day_key] ? DAYS[r.day_key].label : r.day_key,
+        values: Array.isArray(r.data[matchName]) ? r.data[matchName].map(v => v || "–").join(" / ") : r.data[matchName],
+        renamedNote: matchName !== exName ? ` (damals: "${matchName}")` : "",
+      }));
+    return { matches, fetchedCount };
+  }catch(e){ console.error("fetchExerciseHistoryPage", e); return { matches: [], fetchedCount: 0 }; }
 }
 
 function escapeAttr(s){ return s.replace(/"/g,"&quot;"); }
