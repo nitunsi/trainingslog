@@ -62,6 +62,17 @@
   .setboxes input:not(:placeholder-shown){border-color:var(--accent-dim);}
   .setboxes input:focus{outline:none;border-color:var(--accent);}
   .exrow .extempo{font-size:12px;color:var(--amber);margin-top:2px;font-weight:500;}
+  .setboxes .sb{position:relative;flex:1;min-width:0;}
+  .setboxes .sb .dlt{position:absolute;top:2px;right:6px;font-size:9.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;pointer-events:none;}
+  .last-hint:empty,.prevnote:empty{display:none;}
+  .last-hint .takeBtn{background:none;border:none;padding:0;color:var(--accent);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+  .prevnote{margin-top:7px;padding-left:8px;border-left:2px solid var(--amber);font-size:12px;line-height:1.4;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
+  .noteBtn{background:none;border:none;font-size:12px;cursor:pointer;vertical-align:middle;opacity:.5;padding:0 3px;}
+  .noteBtn.has{opacity:1;}
+  .exnote{width:100%;margin-top:8px;min-height:46px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:8px;padding:8px 10px;resize:vertical;}
+  .exnote[hidden]{display:none;}
+  .exnote:focus{outline:none;border-color:var(--accent);}
+  .hnote{margin-top:2px;padding-left:8px;border-left:2px solid var(--amber);font-style:italic;white-space:pre-wrap;}
   .exrow .goalhint{display:none;margin-top:7px;font-size:11.5px;font-weight:600;color:var(--accent);background:rgba(73,184,166,0.10);border:1px solid var(--accent-dim);border-radius:7px;padding:5px 9px;}
   .exrow .goalhint.show{display:block;}
   .more-toggle{margin:0 16px 16px;}
@@ -480,6 +491,7 @@ function findZielFor(name, dayKey){
 let currentDay = "l2a";
 let lastSessionValues = {};
 let lastSessionsByEx = {}; // exName -> [{date, value}] (neueste zuerst, max. 2)
+let lastNotesByEx = {};    // exName -> [{date, text}] Übungsnotizen früherer Sessions (neueste zuerst, max. 2)
 
 const SUPABASE_URL = "https://dnziimlhlvpmizrqkxte.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuemlpbWxobHZwbWl6cnFreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MDA2MzgsImV4cCI6MjA5OTM3NjYzOH0.r6g0_IsU8tDxtKVgFjKAnLkiE-Md0tq2KVKTbYwv6qI";
@@ -662,48 +674,111 @@ function renderExRow(it){
     }
   }
 
+  const n = it.stretch || it.saetze === "-" ? 1 : parseInt(it.saetze,10);
+  let boxes = "";
   if(it.stretch){
     const ph = prev[0] !== undefined && prev[0] !== "" ? prev[0] : "leer = alles ok";
-    row.innerHTML = `
-      <div class="exname">${it.uebung} <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button></div>
-      <div class="exziel">${it.ziel}</div>
-      <div class="setboxes">
-        <input type="text" data-ex="${escapeAttr(it.uebung)}" data-idx="0" placeholder="${escapeAttr(ph)}" style="text-align:left;font-family:'Inter',sans-serif;font-weight:400;font-size:13px;">
-      </div>
-    `;
-    attachHistoryButton(row, it.uebung);
-    return row;
+    boxes = `<input type="text" data-ex="${escapeAttr(it.uebung)}" data-idx="0" placeholder="${escapeAttr(ph)}" style="text-align:left;font-family:'Inter',sans-serif;font-weight:400;font-size:13px;">`;
+  } else {
+    for(let i=0;i<n;i++){
+      const ph = prev[i] !== undefined ? prev[i] : "";
+      boxes += `<div class="sb"><input type="text" data-ex="${escapeAttr(it.uebung)}" data-idx="${i}" placeholder="${ph}"><span class="dlt"></span></div>`;
+    }
   }
-
-  const n = it.saetze === "-" ? 1 : parseInt(it.saetze,10);
-  let boxes = "";
-  for(let i=0;i<n;i++){
-    const ph = prev[i] !== undefined ? prev[i] : "";
-    boxes += `<input type="text" data-ex="${escapeAttr(it.uebung)}" data-idx="${i}" placeholder="${ph}">`;
-  }
-  // Letzte Session mit Werten (nicht das gerade geöffnete Datum) – für Datum-Hinweis und Ziel-Check.
-  const last = prev.length ? lastRealSession(it.uebung) : null;
-  const { base, tempo } = splitExName(it.uebung);
+  const { base, tempo } = it.stretch ? { base: it.uebung, tempo: null } : splitExName(it.uebung);
+  const zielLine = it.stretch ? it.ziel : it.ziel + (it.saetze!=="-" ? " · "+it.saetze+" Sätze" : "");
   row.innerHTML = `
-    <div class="exname">${base} <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button></div>
+    <div class="exname">${base} <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">📝</button></div>
     ${tempo ? `<div class="extempo">${tempo}</div>` : ""}
-    <div class="exziel">${it.ziel}${it.saetze!=="-" ? " · "+it.saetze+" Sätze" : ""}</div>
+    <div class="exziel">${zielLine}</div>
+    <div class="prevnote"></div>
     <div class="setboxes">${boxes}</div>
-    ${last ? `<div class="last-hint">zuletzt am ${fmtShort(last.date)}</div>` : ""}
-    <div class="goalhint">✓ Obergrenze in allen Sätzen erreicht – Zeit für die nächste Stufe?</div>
+    <div class="last-hint"></div>
+    ${it.stretch ? "" : `<div class="goalhint">✓ Obergrenze in allen Sätzen erreicht – Zeit für die nächste Stufe?</div>`}
+    <textarea class="exnote" data-ex="${escapeAttr(it.uebung)}" rows="2" placeholder="Notiz zu dieser Übung – wird beim nächsten Mal angezeigt" hidden></textarea>
   `;
   const inputs = [...row.querySelectorAll(".setboxes input")];
-  const updateGoalHint = ()=>{
-    const typed = inputs.map(inp => inp.value.trim());
-    // Sobald etwas eingetragen ist, zählen die eingetragenen Werte; sonst die letzte Session.
-    const values = typed.some(v => v !== "") ? typed : (last ? last.value : []);
-    row.querySelector(".goalhint").classList.toggle("show", goalReached(it.ziel, values, n));
+  const hintEl = row.querySelector(".last-hint");
+  const prevNoteEl = row.querySelector(".prevnote");
+  const goalEl = row.querySelector(".goalhint");
+  let last = null; // letzte echte Session (nicht das gerade geöffnete Datum)
+
+  // Live: ▲/▼ gegenüber dem letzten Mal pro Satz, Ziel-Hinweis
+  const live = ()=>{
+    inputs.forEach((inp, i)=>{
+      const el = inp.parentElement.querySelector(".dlt");
+      if(!el) return;
+      const cur = numTotal(inp.value), old = last ? numTotal(last.value[i]) : null;
+      if(cur !== null && old !== null && cur !== old){
+        el.textContent = (cur > old ? "▲" : "▼") + fmtNum(Math.abs(cur - old));
+        el.style.color = cur > old ? "var(--accent)" : "var(--amber)";
+      } else {
+        el.textContent = "";
+      }
+    });
+    if(goalEl){
+      const typed = inputs.map(inp => inp.value.trim());
+      // Sobald etwas eingetragen ist, zählen die eingetragenen Werte; sonst die letzte Session.
+      const values = typed.some(v => v !== "") ? typed : (last ? last.value : []);
+      goalEl.classList.toggle("show", goalReached(it.ziel, values, n));
+    }
   };
-  inputs.forEach(inp => inp.addEventListener("input", updateGoalHint));
-  row._updateGoalHint = updateGoalHint;
-  updateGoalHint();
+
+  // Statisch (bei Aufbau, Datumswechsel, Laden einer Session): "zuletzt am …" + Übernehmen, letzte Notiz
+  const refresh = ()=>{
+    last = (!it.stretch && prev.length) ? lastRealSession(it.uebung) : null;
+    hintEl.innerHTML = last ? `zuletzt am ${fmtShort(last.date)} · <button type="button" class="takeBtn">↺ wie letztes Mal übernehmen</button>` : "";
+    const take = hintEl.querySelector(".takeBtn");
+    if(take) take.onclick = ()=>{
+      let filled = 0;
+      inputs.forEach((inp, i)=>{
+        const v = last.value[i];
+        if(inp.value.trim() === "" && v !== undefined && String(v).trim() !== ""){ inp.value = v; filled++; }
+      });
+      live();
+      showToast(filled ? "Werte vom " + fmtShort(last.date) + " übernommen" : "Alle Felder sind schon ausgefüllt");
+    };
+    const pn = lastRealNote(it.uebung);
+    prevNoteEl.textContent = pn ? `📝 ${fmtShort(pn.date)} · ${pn.text}` : "";
+    live();
+  };
+  inputs.forEach(inp => inp.addEventListener("input", live));
+  row._refresh = refresh;
+
+  // Notiz zu dieser Übung (für diese Session). Ohne Text bleibt nur der kleine Knopf sichtbar.
+  const noteBtn = row.querySelector(".noteBtn");
+  const noteTa = row.querySelector(".exnote");
+  const syncNote = ()=> noteBtn.classList.toggle("has", noteTa.value.trim() !== "");
+  noteBtn.onclick = (e)=>{
+    e.preventDefault();
+    if(noteTa.hidden){ noteTa.hidden = false; noteTa.focus(); }
+    else if(noteTa.value.trim() === ""){ noteTa.hidden = true; }
+    else noteTa.focus();
+  };
+  noteTa.addEventListener("input", syncNote);
+  row._setNote = (text)=>{ noteTa.value = text || ""; noteTa.hidden = noteTa.value.trim() === ""; syncNote(); };
+
+  refresh();
   attachHistoryButton(row, it.uebung);
   return row;
+}
+
+// Zahl bzw. Summe aus einem Satzwert: "10" -> 10, "6+5" -> 11, "20s" -> 20. Alles andere (z. B. "5x6kg") -> null.
+function numTotal(v){
+  const t = String(v ?? "").trim();
+  if(!/^\d+(?:[.,]\d+)?\s*(?:s|sek|wdh)?(?:\s*\+\s*\d+(?:[.,]\d+)?\s*(?:s|sek|wdh)?)*$/i.test(t)) return null;
+  return [...t.matchAll(/\d+(?:[.,]\d+)?/g)].reduce((a, m) => a + parseFloat(m[0].replace(",", ".")), 0);
+}
+function fmtNum(x){ return String(Math.round(x * 10) / 10).replace(".", ","); }
+
+// Letzte Übungsnotiz aus einer früheren Session (nicht das gerade geöffnete Datum)
+function lastRealNote(exName){
+  const openDate = document.getElementById("dateInput").value;
+  for(const nm of namesFor(exName)){
+    const hit = (lastNotesByEx[nm] || []).find(x => x.date !== openDate);
+    if(hit) return hit;
+  }
+  return null;
 }
 
 // Klammer-Zusatz mit Tempo/Pause (z. B. "(3s runter, 1s halten, 3s hoch)") nur für die
@@ -764,7 +839,7 @@ function attachHistoryButton(row, exName){
 
   function renderPanel(){
     const list = state.matches.map(r=>
-      `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}</div>`
+      `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}${r.note ? `<div class="hnote">📝 ${escapeHtml(r.note)}</div>` : ""}</div>`
     ).join("");
     const empty = state.matches.length === 0
       ? '<div style="font-size:11px;color:var(--text-muted);">Noch keine weiteren Einträge für diese Übung.</div>'
@@ -838,6 +913,7 @@ async function fetchExerciseHistoryPage(exName, offset, pageSize){
         dayTitle: DAYS[r.day_key] ? DAYS[r.day_key].label : r.day_key,
         values: Array.isArray(r.data[matchName]) ? r.data[matchName].map(v => v || "–").join(" / ") : r.data[matchName],
         renamedNote: matchName !== exName ? ` (damals: "${matchName}")` : "",
+        note: (r.data._exnotes && r.data._exnotes[matchName]) || "",
       }));
     return { matches, fetchedCount };
   }catch(e){ console.error("fetchExerciseHistoryPage", e); return { matches: [], fetchedCount: 0 }; }
@@ -853,6 +929,7 @@ function isEmptyTrackedValue(v){
 async function loadLastSession(){
   lastSessionValues = {};
   lastSessionsByEx = {};
+  lastNotesByEx = {};
   try{
     // Über alle Tagestypen suchen (nicht nur currentDay), damit Übungen, die in
     // mehreren Mustern vorkommen (z. B. Superman Push-up in L2A/L2B/L2C), immer
@@ -868,8 +945,17 @@ async function loadLastSession(){
     if(error) throw error;
     (data || []).forEach(row=>{
       if(!row.data) return;
+      const exn = row.data["_exnotes"];
+      if(exn && typeof exn === "object"){
+        Object.keys(exn).forEach(name=>{
+          const t = String(exn[name] || "").trim();
+          if(!t) return;
+          const list = lastNotesByEx[name] || (lastNotesByEx[name] = []);
+          if(list.length < 2) list.push({ date: row.session_date, text: t });
+        });
+      }
       Object.keys(row.data).forEach(exName=>{
-        if(exName === "_notes") return;
+        if(exName === "_notes" || exName === "_exnotes") return;
         const rawVal = row.data[exName];
         // Die zwei neuesten Sessions mit echten Werten je Übung (für "zuletzt am" und den Ziel-Check).
         if(Array.isArray(rawVal) && !isEmptyTrackedValue(rawVal)){
@@ -952,7 +1038,12 @@ async function loadSessionInto(date){
     if(!data || !data.data) return;
     const sessionData = data.data;
     document.getElementById("sessionNotes").value = sessionData["_notes"] || "";
-    const matchedNames = new Set(["_notes"]);
+    const matchedNames = new Set(["_notes", "_exnotes"]);
+    const exn = sessionData["_exnotes"] || {};
+    document.querySelectorAll("#blocksHolder textarea.exnote").forEach(ta=>{
+      const k = namesFor(ta.getAttribute("data-ex")).find(nm => exn[nm] !== undefined);
+      if(k) ta.closest(".exrow")._setNote(exn[k]);
+    });
     document.querySelectorAll("#blocksHolder input").forEach(inp=>{
       const exName = inp.getAttribute("data-ex");
       const idx = parseInt(inp.getAttribute("data-idx"),10);
@@ -960,7 +1051,7 @@ async function loadSessionInto(date){
       if(srcKey && sessionData[srcKey][idx] !== undefined){ inp.value = sessionData[srcKey][idx]; }
       if(srcKey) matchedNames.add(srcKey);
     });
-    document.querySelectorAll("#blocksHolder .exrow").forEach(r => r._updateGoalHint && r._updateGoalHint());
+    document.querySelectorAll("#blocksHolder .exrow").forEach(r => r._refresh && r._refresh());
     const orphaned = Object.keys(sessionData).filter(name => !matchedNames.has(name));
     const box = document.getElementById("orphanedHolder");
     if(orphaned.length > 0){
@@ -995,6 +1086,12 @@ async function saveSession(){
   });
   const notesVal = document.getElementById("sessionNotes").value.trim();
   if(notesVal) data["_notes"] = notesVal;
+  const exnotes = {};
+  document.querySelectorAll("#blocksHolder textarea.exnote").forEach(ta=>{
+    const v = ta.value.trim();
+    if(v) exnotes[ta.getAttribute("data-ex")] = v;
+  });
+  if(Object.keys(exnotes).length) data["_exnotes"] = exnotes;
   try{
     // Vorher prüfen, ob für diesen Tag+Datum schon eine Session existiert -> nur bei neuer Session zählt es für den Zeiger
     const { data: existing, error: checkError } = await sb
@@ -1098,6 +1195,7 @@ document.getElementById("historySelect").addEventListener("change", (e)=>{
 document.getElementById("dateInput").value = todayStr();
 document.getElementById("dateInput").addEventListener("change", ()=>{
   document.getElementById("editModeHolder").innerHTML = "";
+  document.querySelectorAll("#blocksHolder .exrow").forEach(r => r._refresh && r._refresh());
   updateDayCard();
 });
 
@@ -1129,7 +1227,7 @@ async function exportMarkdown(){
   } else {
     for(const entry of entries){
       md += `## ${entry.date} – ${DAYS[entry.dayKey] ? DAYS[entry.dayKey].title : entry.dayKey}\n\n`;
-      const exNames = Object.keys(entry.data).filter(k => k !== "_notes");
+      const exNames = Object.keys(entry.data).filter(k => k !== "_notes" && k !== "_exnotes");
       if(exNames.length > 0){
         md += "| Übung | Werte |\n|---|---|\n";
         exNames.forEach(exName=>{
@@ -1137,6 +1235,9 @@ async function exportMarkdown(){
           md += `| ${exName} | ${vals} |\n`;
         });
         md += "\n";
+      }
+      if(entry.data["_exnotes"]){
+        md += "**Übungsnotizen:**\n" + Object.keys(entry.data["_exnotes"]).map(k => `- ${k}: ${entry.data["_exnotes"][k]}`).join("\n") + "\n\n";
       }
       if(entry.data["_notes"]){
         md += `**Notizen:** ${entry.data["_notes"]}\n\n`;
@@ -1183,7 +1284,7 @@ async function renderSessionsList(){
     holder.innerHTML = data.map(row=>{
       const et = typeOfKey(row.day_key) ? ENTRY_TYPES[typeOfKey(row.day_key)] : null;
       const title = DAYS[row.day_key] ? DAYS[row.day_key].title : (et ? et.icon + " " + et.label : row.day_key);
-      const exCount = Object.keys(row.data || {}).filter(k => k !== "_notes").length;
+      const exCount = Object.keys(row.data || {}).filter(k => k !== "_notes" && k !== "_exnotes").length;
       const sub = et ? summarizeEntry(row.day_key, row.data) : `${title} · ${exCount} Übungen`;
       return `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:6px;">
