@@ -58,8 +58,20 @@
   .exrow .exziel{font-size:12px;color:var(--text-muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
   .setboxes{display:flex;gap:6px;margin-top:9px;}
   .setboxes input{flex:1;width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;text-align:center;border-radius:7px;padding:9px 2px;}
-  .setboxes input::placeholder{color:#4E6459;font-weight:500;}
+  .setboxes input::placeholder{color:#7F978B;font-weight:500;}
+  .setboxes input:not(:placeholder-shown){border-color:var(--accent-dim);}
   .setboxes input:focus{outline:none;border-color:var(--accent);}
+  .exrow .extempo{font-size:12px;color:var(--amber);margin-top:2px;font-weight:500;}
+  .exrow .goalhint{display:none;margin-top:7px;font-size:11.5px;font-weight:600;color:var(--accent);background:rgba(73,184,166,0.10);border:1px solid var(--accent-dim);border-radius:7px;padding:5px 9px;}
+  .exrow .goalhint.show{display:block;}
+  .more-toggle{margin:0 16px 16px;}
+  .more-toggle > summary{cursor:pointer;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 14px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:var(--text);}
+  .more-toggle > summary::-webkit-details-marker{display:none;}
+  .more-toggle > summary::before{content:"▸ ";color:var(--text-muted);}
+  .more-toggle[open] > summary::before{content:"▾ ";}
+  .more-toggle > summary span{color:var(--text-muted);font-family:'Inter',sans-serif;font-weight:400;font-size:11.5px;}
+  .more-toggle > .more-body{margin-top:12px;}
+  .more-toggle > .more-body > div{margin-left:0 !important;margin-right:0 !important;}
 
   .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px 18px;}
   .savebtn{width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
@@ -69,17 +81,17 @@
   .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--accent);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .25s;}
   .toast.show{opacity:1;}
 
-  .last-hint{font-size:10.5px;color:var(--text-muted);margin-top:5px;}
+  .last-hint{font-size:11px;color:var(--text-muted);margin-top:5px;}
 </style>
 </head>
 <body>
-
-<div id="weeklyGoalsHolder"></div>
 
 <div class="header">
   <h1>Trainingslog</h1>
   <p>Berg-Struktur · Kraft &amp; Skill im Wechsel</p>
 </div>
+
+<div id="weeklyGoalsHolder"></div>
 
 <div id="nextSessionHolder"></div>
 
@@ -101,6 +113,9 @@
   <textarea id="sessionNotes" placeholder="Allgemeines zur Session (optional) – z. B. wie es sich angefühlt hat, Auffälligkeiten, Ideen für Anpassungen…" style="width:100%;min-height:70px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:10px;padding:11px 13px;resize:vertical;"></textarea>
 </div>
 
+<details class="more-toggle" id="moreEntries" style="margin-bottom:90px;">
+  <summary>Laufen, Körperwerte &amp; mehr <span>· Sonstiges, Export</span></summary>
+  <div class="more-body">
 <div style="margin:0 16px 16px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
   <div class="block-title" style="margin-bottom:10px;">🏃 Laufen &amp; Schwimmen</div>
   <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -147,7 +162,7 @@
   <button id="miscSaveBtn" style="width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Eintrag speichern</button>
 </div>
 
-<div style="margin:0 16px 90px;">
+<div style="margin:0 16px 16px;">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
     <label for="exportWeeks" style="font-size:12px;color:var(--text-muted);">Letzte</label>
     <input type="number" id="exportWeeks" value="6" min="1" max="52" style="width:52px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px;border-radius:6px;text-align:center;">
@@ -159,6 +174,8 @@
   <button id="manageSessionsBtn" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text-muted);border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;margin-top:10px;">Alle Sessions anzeigen / löschen</button>
   <div id="sessionsListHolder" style="display:none;margin-top:10px;"></div>
 </div>
+  </div>
+</details>
 
 <div class="toast" id="toast">Gespeichert</div>
 <div class="savebar"><button class="savebtn" id="saveBtn">Session speichern</button></div>
@@ -406,6 +423,7 @@ function findZielFor(name, dayKey){
 
 let currentDay = "l2a";
 let lastSessionValues = {};
+let lastSessionsByEx = {}; // exName -> [{date, value}] (neueste zuerst, max. 2)
 
 const SUPABASE_URL = "https://dnziimlhlvpmizrqkxte.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuemlpbWxobHZwbWl6cnFreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MDA2MzgsImV4cCI6MjA5OTM3NjYzOH0.r6g0_IsU8tDxtKVgFjKAnLkiE-Md0tq2KVKTbYwv6qI";
@@ -459,6 +477,7 @@ async function renderNextSession(){
   const nextKey = SEQUENCE[idx];
   const note = nextKey === null ? " – kein Training, danach wieder Full Body L2A" : "";
   const label = nextKey ? DAYS[nextKey].title : "Review";
+  const isOpen = nextKey === currentDay; // der nächste Tag ist schon geöffnet -> kein "Öffnen"-Knopf nötig
 
   const weekOptions = WEEK_PLAN.map((wk,i)=>`<option value="${i}" ${i===w?"selected":""}>Woche ${wk.woche}</option>`).join("");
   const dayOptions = [0,1,2,3].map(i=>`<option value="${i}" ${i===d?"selected":""}>Tag ${i+1}</option>`).join("");
@@ -467,10 +486,10 @@ async function renderNextSession(){
     <div style="margin:0 16px 12px;padding:11px 14px;background:var(--surface-2);border:1px solid var(--accent-dim);border-radius:10px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
         <div>
-          <div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Als nächstes dran</div>
+          <div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Als nächstes dran${isOpen ? " · ist geöffnet ✓" : ""}</div>
           <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14.5px;">${label}${note}</div>
         </div>
-        <button id="goNextBtn" style="background:var(--accent);color:#0D1813;border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:12px;font-family:'Space Grotesk',sans-serif;white-space:nowrap;">Öffnen</button>
+        ${isOpen ? "" : `<button id="goNextBtn" style="background:var(--accent);color:#0D1813;border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:12px;font-family:'Space Grotesk',sans-serif;white-space:nowrap;">Öffnen</button>`}
       </div>
       <details style="margin-top:9px;">
         <summary style="font-size:11.5px;color:var(--text-muted);cursor:pointer;">Zeiger manuell korrigieren</summary>
@@ -482,7 +501,7 @@ async function renderNextSession(){
       </details>
     </div>`;
 
-  document.getElementById("goNextBtn").onclick = ()=>{ if(nextKey){ currentDay = nextKey; document.getElementById("dateInput").value = todayStr(); init(); } };
+  if(!isOpen) document.getElementById("goNextBtn").onclick = ()=>{ if(nextKey){ currentDay = nextKey; document.getElementById("dateInput").value = todayStr(); init(); } };
   document.getElementById("setPointerBtn").onclick = async ()=>{
     const wSel = parseInt(document.getElementById("pointerWeek").value,10);
     const dSel = parseInt(document.getElementById("pointerDay").value,10);
@@ -605,13 +624,71 @@ function renderExRow(it){
     const ph = prev[i] !== undefined ? prev[i] : "";
     boxes += `<input type="text" data-ex="${escapeAttr(it.uebung)}" data-idx="${i}" placeholder="${ph}">`;
   }
+  // Letzte Session mit Werten (nicht das gerade geöffnete Datum) – für Datum-Hinweis und Ziel-Check.
+  const last = prev.length ? lastRealSession(it.uebung) : null;
+  const { base, tempo } = splitExName(it.uebung);
   row.innerHTML = `
-    <div class="exname">${it.uebung} <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button></div>
+    <div class="exname">${base} <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button></div>
+    ${tempo ? `<div class="extempo">${tempo}</div>` : ""}
     <div class="exziel">${it.ziel}${it.saetze!=="-" ? " · "+it.saetze+" Sätze" : ""}</div>
     <div class="setboxes">${boxes}</div>
+    ${last ? `<div class="last-hint">zuletzt am ${fmtShort(last.date)}</div>` : ""}
+    <div class="goalhint">✓ Obergrenze in allen Sätzen erreicht – Zeit für die nächste Stufe?</div>
   `;
+  const inputs = [...row.querySelectorAll(".setboxes input")];
+  const updateGoalHint = ()=>{
+    const typed = inputs.map(inp => inp.value.trim());
+    // Sobald etwas eingetragen ist, zählen die eingetragenen Werte; sonst die letzte Session.
+    const values = typed.some(v => v !== "") ? typed : (last ? last.value : []);
+    row.querySelector(".goalhint").classList.toggle("show", goalReached(it.ziel, values, n));
+  };
+  inputs.forEach(inp => inp.addEventListener("input", updateGoalHint));
+  row._updateGoalHint = updateGoalHint;
+  updateGoalHint();
   attachHistoryButton(row, it.uebung);
   return row;
+}
+
+// Klammer-Zusatz mit Tempo/Pause (z. B. "(3s runter, 1s halten, 3s hoch)") nur für die
+// Anzeige in eine eigene Zeile ziehen. Der gespeicherte Übungsname bleibt unverändert.
+function splitExName(name){
+  const m = name.match(/^(.*?)\s*\(([^()]*)\)$/);
+  if(m && /\d\s*s\b|pause|halten/i.test(m[2])) return { base: m[1], tempo: m[2] };
+  return { base: name, tempo: null };
+}
+
+// Obere Grenze aus dem Ziel-Text: "5–15, bis Muskelversagen" -> 15, "sammeln, Ziel 20s" -> 20,
+// "sammeln, Ziel 5–10 Versuche" -> 10, "8, bis Muskelversagen" -> 8, "10 Wdh" -> 10.
+function zielObergrenze(ziel){
+  if(!ziel) return null;
+  const m = ziel.match(/Ziel\s+(\d+)(?:\s*[–-]\s*(\d+))?/) || ziel.match(/^(\d+)(?:\s*[–-]\s*(\d+))?/);
+  if(!m) return null;
+  return parseInt(m[2] || m[1], 10);
+}
+
+// Ziel erreicht = alle Sätze ausgefüllt, jeder als saubere Zahl (ohne "+"-Blöcke) >= Obergrenze.
+function goalReached(ziel, values, n){
+  const top = zielObergrenze(ziel);
+  if(top === null || !values || values.length < n) return false;
+  for(let i=0;i<n;i++){
+    const m = String(values[i] ?? "").trim().match(/^(\d+(?:[.,]\d+)?)\s*s?$/);
+    if(!m || parseFloat(m[1].replace(",", ".")) < top) return false;
+  }
+  return true;
+}
+
+function lastRealSession(exName){
+  const openDate = document.getElementById("dateInput").value;
+  for(const n of namesFor(exName)){
+    const hit = (lastSessionsByEx[n] || []).find(s => s.date !== openDate);
+    if(hit) return hit;
+  }
+  return null;
+}
+
+function fmtShort(iso){
+  const [y,m,d] = iso.split("-");
+  return `${d}.${m}.`;
 }
 
 const HISTORY_PAGE_SIZE = 40;
@@ -718,13 +795,14 @@ function isEmptyTrackedValue(v){
 
 async function loadLastSession(){
   lastSessionValues = {};
+  lastSessionsByEx = {};
   try{
     // Über alle Tagestypen suchen (nicht nur currentDay), damit Übungen, die in
     // mehreren Mustern vorkommen (z. B. Superman Push-up in L2A/L2B/L2C), immer
     // den zeitlich neuesten Wert als Platzhalter zeigen, egal aus welchem Tag.
     const { data, error } = await sb
       .from("training_sessions")
-      .select("day_key, data")
+      .select("day_key, session_date, data")
       .eq("person", PERSON)
       .neq("day_key", META_KEY)
       .order("session_date", { ascending: false })
@@ -736,6 +814,11 @@ async function loadLastSession(){
       Object.keys(row.data).forEach(exName=>{
         if(exName === "_notes") return;
         const rawVal = row.data[exName];
+        // Die zwei neuesten Sessions mit echten Werten je Übung (für "zuletzt am" und den Ziel-Check).
+        if(Array.isArray(rawVal) && !isEmptyTrackedValue(rawVal)){
+          const list = lastSessionsByEx[exName] || (lastSessionsByEx[exName] = []);
+          if(list.length < 2) list.push({ date: row.session_date, value: rawVal });
+        }
         if(!Array.isArray(rawVal)){
           if(lastSessionValues[exName] !== undefined) return;
           if(isEmptyTrackedValue(rawVal)) return;
@@ -820,6 +903,7 @@ async function loadSessionInto(date){
       if(srcKey && sessionData[srcKey][idx] !== undefined){ inp.value = sessionData[srcKey][idx]; }
       if(srcKey) matchedNames.add(srcKey);
     });
+    document.querySelectorAll("#blocksHolder .exrow").forEach(r => r._updateGoalHint && r._updateGoalHint());
     const orphaned = Object.keys(sessionData).filter(name => !matchedNames.has(name));
     const box = document.getElementById("orphanedHolder");
     if(orphaned.length > 0){
@@ -913,6 +997,7 @@ async function saveSession(){
 
 async function init(){
   renderTabs();
+  await renderNextSession();
   document.querySelector(".header p").textContent = DAYS[currentDay].title;
   await renderCalendar();
   document.getElementById("orphanedHolder").innerHTML = "";
@@ -1289,7 +1374,7 @@ document.getElementById("cardioHistBtn").addEventListener("click", async ()=>{
   if(cardioHistOpen) await renderCardioHistory();
 });
 
-// ---------- Wochenziel-Übersicht (letzte 3 Wochen, Montag-Start) ----------
+// ---------- Wochen-Übersicht (diese Woche + aufklappbar 11 weitere, Montag-Start) ----------
 function mondayOf(dateObj){
   const d = new Date(dateObj);
   const day = d.getDay(); // 0=So, 1=Mo, ...
@@ -1297,6 +1382,14 @@ function mondayOf(dateObj){
   d.setDate(d.getDate() + diff);
   d.setHours(0,0,0,0);
   return d;
+}
+// ISO-Kalenderwoche (Montag-Start), z. B. 41
+function isoWeek(dateObj){
+  const d = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
 }
 function fmtDate(d){
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
@@ -1329,31 +1422,20 @@ async function renderWeeklyGoals(){
       return { start, lauf, schwimmen, koerper, training };
     });
 
-    const weekRowHtml = (w, label, showTop)=>{
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;${!showTop ? 'border-top:1px solid var(--line);' : ''}">
-        <span style="font-size:11.5px;color:var(--text-muted);">${label} <span style="font-family:'IBM Plex Mono',monospace;">(${fmtDate(w.start)})</span></span>
-        <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;">${w.koerper ? "⚖️ " + w.koerper + " · " : ""}🏋️ ${w.training} · 🏃 ${w.lauf} · 🏊 ${w.schwimmen}</span>
-      </div>`;
-    };
+    const counts = w => `${w.koerper ? "⚖️ " + w.koerper + " · " : ""}🏋️ ${w.training} · 🏃 ${w.lauf} · 🏊 ${w.schwimmen}`;
+    const weekLabel = (w, i) => i === 0 ? "Diese Woche" : i === 1 ? "Letzte Woche" : `KW ${isoWeek(w.start)}`;
+    const olderHtml = weeks.slice(1).map((w,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid var(--line);">
+        <span style="font-size:11.5px;color:var(--text-muted);">${weekLabel(w, i+1)} <span style="font-family:'IBM Plex Mono',monospace;">· ab ${fmtShort(fmtDate(w.start))}</span></span>
+        <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text);">${counts(w)}</span>
+      </div>`).join("");
 
-    const recentLabels = ["Diese Woche", "Letzte Woche", "Vor 2 Wochen"];
-    const rowsHtml = weeks.slice(0,3).map((w,i)=> weekRowHtml(w, recentLabels[i], i===0)).join("");
-    const olderHtml = weeks.slice(3).map((w,i)=> weekRowHtml(w, "Vor " + (i+3) + " Wochen", false)).join("");
-
-    holder.innerHTML = `<div style="margin:14px 16px 0;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;">
-      <div style="font-size:10.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:4px;">Wochenziel (letzte 3 Wochen)</div>
-      ${rowsHtml}
-      <button id="weeklyHistBtn" style="width:100%;background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;padding:6px 0 0;margin-top:2px;text-align:left;">⏱ Verlauf anzeigen (${WEEK_COUNT - 3} weitere Wochen)</button>
-      <div id="weeklyHistoryHolder" style="display:none;">${olderHtml}</div>
-    </div>`;
-
-    let weeklyHistOpen = false;
-    document.getElementById("weeklyHistBtn").addEventListener("click", ()=>{
-      weeklyHistOpen = !weeklyHistOpen;
-      const h = document.getElementById("weeklyHistoryHolder");
-      h.style.display = weeklyHistOpen ? "block" : "none";
-      document.getElementById("weeklyHistBtn").textContent = weeklyHistOpen ? "⏱ Verlauf ausblenden" : `⏱ Verlauf anzeigen (${WEEK_COUNT - 3} weitere Wochen)`;
-    });
+    holder.innerHTML = `<details class="warmup-toggle" style="margin:0 16px 12px;padding:9px 14px;">
+      <summary style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <span>Diese Woche <span style="color:var(--text-muted);font-weight:400;font-size:11px;">· Verlauf ▾</span></span>
+        <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;">${counts(weeks[0])}</span>
+      </summary>
+      <div style="margin-top:6px;">${olderHtml}</div>
+    </details>`;
   }catch(e){
     console.error("renderWeeklyGoals", e);
     holder.innerHTML = "";
@@ -1379,11 +1461,17 @@ async function bootstrap(){
     if(!error && data){ currentDay = data.day_key; }
   }catch(e){ console.error("bootstrap today-check", e); }
 
-  await renderNextSession();
   await init();
 }
 bootstrap();
 renderWeeklyGoals();
+
+// "Laufen, Körperwerte & mehr": Auf/Zu-Zustand pro Gerät merken (reine Bequemlichkeit).
+(function(){
+  const more = document.getElementById("moreEntries");
+  try{ if(localStorage.getItem("moreEntriesOpen") === "1") more.open = true; }catch(e){}
+  more.addEventListener("toggle", ()=>{ try{ localStorage.setItem("moreEntriesOpen", more.open ? "1" : "0"); }catch(e){} });
+})();
 </script>
 </body>
 </html>
