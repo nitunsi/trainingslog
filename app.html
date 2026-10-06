@@ -72,7 +72,65 @@
   .more-toggle > summary span{color:var(--text-muted);font-family:'Inter',sans-serif;font-weight:400;font-size:11.5px;}
   .more-toggle > .more-body{margin-top:12px;}
   .more-toggle > .more-body > div{margin-left:0 !important;margin-right:0 !important;}
-  #dayTools > summary{margin:0 16px;}
+  .toast{z-index:100;}
+
+  /* Tageskarte: aktueller Trainingstag, Datum, Schnell-Einträge */
+  .daycard{margin:0 16px 14px;padding:13px 14px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
+  .daycard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .daycard-meta{font-size:11.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .chip{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--text);}
+  .chip.warn{background:rgba(217,164,65,0.18);color:var(--amber);}
+  .daycard-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;margin-top:3px;}
+  .daycard-change{flex:0 0 auto;background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:8px;padding:7px 10px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;}
+  .nextchip{display:block;width:100%;text-align:left;margin-top:10px;background:rgba(73,184,166,0.10);border:1px solid var(--accent-dim);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;}
+  .nextchip b{font-family:'Space Grotesk',sans-serif;}
+  div.nextchip{border-style:dashed;color:var(--text-muted);}
+  .quickrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:13px;}
+  .quickrow button{position:relative;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 2px 8px;color:var(--text);font-family:'Inter',sans-serif;}
+  .quickrow .qi{display:block;font-size:19px;line-height:1.1;}
+  .quickrow .ql{display:block;font-size:11px;margin-top:3px;font-weight:600;}
+  .quickrow .qdot{display:none;position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .quickrow button.has{border-color:var(--accent-dim);}
+  .quickrow button.has .qdot{display:block;}
+  .daypanel{margin:0 0 14px;}
+  .daypanel[hidden]{display:none;}
+
+  /* Bottom-Sheet: alle Einträge eines Tages */
+  .sheet{position:fixed;inset:0;z-index:50;display:none;}
+  .sheet.open{display:block;}
+  .sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.6);}
+  .sheet-panel{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-bottom:none;border-radius:16px 16px 0 0;}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;}
+  .sheet-head h2{font-size:16px;}
+  .sheet-x{background:var(--surface);border:1px solid var(--line);color:var(--text-muted);border-radius:8px;width:34px;height:34px;font-size:15px;}
+  .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 16px 8px;}
+  .sheet-foot{padding:10px 16px 16px;border-top:1px solid var(--line);}
+  .sheet-date{display:flex;gap:6px;align-items:center;margin-bottom:12px;}
+  .sheet-date input[type=date]{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;}
+  .sheet-date button{background:var(--surface);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 11px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;}
+  .sheet-date .today{font-size:12px;color:var(--accent);}
+  .sheet-training{margin-bottom:12px;padding:9px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .sheet-training button{background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:7px;padding:6px 10px;font-size:11.5px;font-weight:600;}
+  .sec{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 12px 12px;margin-bottom:10px;}
+  .sec.focus{border-color:var(--accent);}
+  .sec h3{font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+  .sec .st{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;color:var(--text-muted);}
+  .sec .st.ok{color:var(--accent);}
+  .sec textarea{width:100%;min-height:58px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13.5px;border-radius:8px;padding:9px 11px;resize:vertical;}
+  .sec .bodygrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .sec .bodygrid label{font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:3px;}
+  .sec input.num,.sec input.tm{width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:9px 2px;border-radius:7px;}
+  .sec .bodytime{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px;color:var(--text-muted);}
+  .sec .bodytime input{width:110px;}
+  .sec .bodyhint{font-size:10px;color:var(--text-muted);margin-top:8px;}
+  .sec .secdel{margin-top:8px;background:none;border:none;color:var(--danger);font-size:11.5px;padding:2px 0;font-family:'Inter',sans-serif;}
+  .sheet input:focus,.sheet textarea:focus{outline:none;border-color:var(--accent);}
+  .recent{margin:4px 0 6px;}
+  .recent > summary{cursor:pointer;font-size:12.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--text-muted);padding:8px 2px;}
+  .recent-row{display:flex;gap:10px;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--line);padding:8px 2px;color:var(--text);font-family:'Inter',sans-serif;}
+  .recent-row .rd{flex:0 0 74px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-muted);padding-top:1px;}
+  .recent-row .rs{flex:1;font-size:12px;line-height:1.45;}
+  .recent-row.cur{background:rgba(73,184,166,0.08);}
 
   .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px 18px;}
   .savebtn{width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
@@ -89,26 +147,39 @@
 
 <div class="header">
   <h1>Trainingslog</h1>
-  <p>Berg-Struktur · Kraft &amp; Skill im Wechsel</p>
 </div>
 
 <div id="weeklyGoalsHolder"></div>
 
-<!-- Selten gebraucht: Tag wechseln, Datum/ältere Session, Zeiger und Kalender -->
-<details class="more-toggle" id="dayTools" style="margin:0 0 14px;">
-  <summary>Tag, Datum &amp; Kalender <span>· anderen Tag öffnen</span></summary>
-  <div class="more-body">
-    <div id="nextSessionHolder"></div>
-    <div class="daytabs" id="daytabs"></div>
-    <div class="streak" id="streak"></div>
-    <div class="datebar">
-      <input type="date" id="dateInput">
-      <select id="historySelect"><option value="">Letzte Sessions…</option></select>
+<div class="daycard" id="dayCard">
+  <div class="daycard-top">
+    <div>
+      <div class="daycard-meta" id="dayCardMeta"></div>
+      <div class="daycard-title" id="dayCardTitle"></div>
     </div>
-    <div id="calendarHolder"></div>
+    <button class="daycard-change" id="dayPanelBtn" aria-expanded="false">Tag ändern ▾</button>
   </div>
-</details>
+  <div id="dayCardNext"></div>
+  <div class="quickrow" id="quickRow">
+    <button data-type="lauf"><span class="qi">🏃</span><span class="ql">Lauf</span><i class="qdot"></i></button>
+    <button data-type="schwimmen"><span class="qi">🏊</span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
+    <button data-type="koerper"><span class="qi">⚖️</span><span class="ql">Körper</span><i class="qdot"></i></button>
+    <button data-type="sonstiges"><span class="qi">📝</span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+  </div>
+</div>
 <div id="editModeHolder"></div>
+
+<!-- Selten gebraucht: anderen Tag öffnen, Datum/ältere Session, Zeiger, Kalender -->
+<div class="daypanel" id="dayPanel" hidden>
+  <div id="nextSessionHolder"></div>
+  <div class="daytabs" id="daytabs"></div>
+  <div class="streak" id="streak"></div>
+  <div class="datebar">
+    <input type="date" id="dateInput">
+    <select id="historySelect"><option value="">Letzte Sessions…</option></select>
+  </div>
+  <div id="calendarHolder"></div>
+</div>
 
 <div id="orphanedHolder"></div>
 <div id="warmupHolder"></div>
@@ -120,54 +191,8 @@
 </div>
 
 <details class="more-toggle" id="moreEntries" style="margin-bottom:90px;">
-  <summary>Laufen, Körperwerte &amp; mehr <span>· Sonstiges, Export</span></summary>
+  <summary>Export &amp; Sessions verwalten</summary>
   <div class="more-body">
-<div style="margin:0 16px 16px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
-  <div class="block-title" style="margin-bottom:10px;">🏃 Laufen &amp; Schwimmen</div>
-  <div style="display:flex;gap:8px;margin-bottom:10px;">
-    <button id="cardioTypeLauf" class="cardioTypeBtn" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-dim);color:var(--text);font-weight:600;font-size:13px;">Laufen</button>
-    <button id="cardioTypeSchwimmen" class="cardioTypeBtn" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-muted);font-weight:600;font-size:13px;">Schwimmen</button>
-  </div>
-  <input type="date" id="cardioDate" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:8px;">
-  <textarea id="cardioComment" placeholder="Kommentar (z. B. Distanz, Zeit, wie es sich angefühlt hat)…" style="width:100%;min-height:60px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:8px;padding:10px 12px;resize:vertical;margin-bottom:8px;"></textarea>
-  <button id="cardioSaveBtn" style="width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Eintrag speichern</button>
-  <button id="cardioHistBtn" style="width:100%;background:none;border:none;color:var(--text-muted);font-size:11.5px;cursor:pointer;padding:6px 0;margin-top:4px;">⏱ Verlauf anzeigen</button>
-  <div id="cardioHistoryHolder" style="margin-top:8px;display:none;"></div>
-</div>
-
-<div style="margin:0 16px 16px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
-  <div class="block-title" style="margin-bottom:10px;">⚖️ Körperwerte</div>
-  <div style="display:flex;gap:8px;margin-bottom:8px;">
-    <input type="date" id="bodyDate" style="flex:1;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;">
-    <input type="time" id="bodyTime" style="flex:0 0 100px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;">
-  </div>
-  <div style="display:flex;gap:8px;margin-bottom:8px;">
-    <div style="flex:1;">
-      <label style="font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:3px;">Gewicht (kg)</label>
-      <input type="number" step="0.1" id="bodyWeight" placeholder="71.5" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:9px 2px;border-radius:7px;">
-    </div>
-    <div style="flex:1;">
-      <label style="font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:3px;">Oberarm li. (cm)</label>
-      <input type="number" step="0.1" id="bodyArm" placeholder="31.5" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:9px 2px;border-radius:7px;">
-    </div>
-    <div style="flex:1;">
-      <label style="font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:3px;">Bauch (cm)</label>
-      <input type="number" step="0.1" id="bodyWaist" placeholder="85" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:9px 2px;border-radius:7px;">
-    </div>
-  </div>
-  <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">Bauchumfang auf Nabelhöhe · am besten immer zur gleichen Zeit relativ zum Training messen</div>
-  <button id="bodySaveBtn" style="width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Eintrag speichern</button>
-  <button id="bodyHistBtn" style="width:100%;background:none;border:none;color:var(--text-muted);font-size:11.5px;cursor:pointer;padding:6px 0;margin-top:4px;">⏱ Verlauf anzeigen</button>
-  <div id="bodyHistoryHolder" style="margin-top:8px;display:none;"></div>
-</div>
-
-<div style="margin:0 16px 16px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
-  <div class="block-title" style="margin-bottom:10px;">📝 Sonstiges</div>
-  <input type="date" id="miscDate" style="width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:8px;">
-  <textarea id="miscComment" placeholder="Was hast du gemacht? (z. B. Bouldern, Rad, Yoga…)" style="width:100%;min-height:60px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:8px;padding:10px 12px;resize:vertical;margin-bottom:8px;"></textarea>
-  <button id="miscSaveBtn" style="width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Eintrag speichern</button>
-</div>
-
 <div style="margin:0 16px 16px;">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
     <label for="exportWeeks" style="font-size:12px;color:var(--text-muted);">Letzte</label>
@@ -182,6 +207,31 @@
 </div>
   </div>
 </details>
+
+<div class="sheet" id="daySheet" aria-hidden="true">
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet-panel" role="dialog" aria-label="Einträge für den Tag">
+    <div class="sheet-head">
+      <h2>Einträge für den Tag</h2>
+      <button class="sheet-x" id="sheetClose" aria-label="Schließen">✕</button>
+    </div>
+    <div class="sheet-body" id="sheetBody">
+      <div class="sheet-date">
+        <button id="sheetPrev" aria-label="Vortag">‹</button>
+        <input type="date" id="sheetDate">
+        <button id="sheetNext" aria-label="Folgetag">›</button>
+        <button id="sheetToday" class="today">Heute</button>
+      </div>
+      <div id="sheetTraining"></div>
+      <div id="sheetSections"></div>
+      <details class="recent" id="sheetRecentBox">
+        <summary>Letzte Einträge – zum Ändern antippen</summary>
+        <div id="sheetRecent"></div>
+      </details>
+    </div>
+    <div class="sheet-foot"><button class="savebtn" id="sheetSave">Speichern</button></div>
+  </div>
+</div>
 
 <div class="toast" id="toast">Gespeichert</div>
 <div class="savebar"><button class="savebtn" id="saveBtn">Session speichern</button></div>
@@ -478,25 +528,25 @@ async function setPointer(idx){
 
 async function renderNextSession(){
   const holder = document.getElementById("nextSessionHolder");
+  const chip = document.getElementById("dayCardNext");
   const idx = await getPointer();
   const w = Math.floor(idx/4), d = idx%4;
   const nextKey = SEQUENCE[idx];
   const note = nextKey === null ? " – kein Training, danach wieder Full Body L2A" : "";
   const label = nextKey ? DAYS[nextKey].title : "Review";
-  const isOpen = nextKey === currentDay; // der nächste Tag ist schon geöffnet -> kein "Öffnen"-Knopf nötig
+  const isOpen = nextKey === currentDay; // der vorgeschlagene Tag ist schon geöffnet
 
   const weekOptions = WEEK_PLAN.map((wk,i)=>`<option value="${i}" ${i===w?"selected":""}>Woche ${wk.woche}</option>`).join("");
   const dayOptions = [0,1,2,3].map(i=>`<option value="${i}" ${i===d?"selected":""}>Tag ${i+1}</option>`).join("");
 
+  if(isOpen) chip.innerHTML = "";
+  else if(nextKey) chip.innerHTML = `<button class="nextchip" id="goNextBtn">Als nächstes dran: <b>${label}</b> · Öffnen →</button>`;
+  else chip.innerHTML = `<div class="nextchip">Als nächstes dran: <b>${label}</b>${note}</div>`;
+
   holder.innerHTML = `
     <div style="margin:0 16px 12px;padding:11px 14px;background:var(--surface-2);border:1px solid var(--accent-dim);border-radius:10px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <div>
-          <div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Als nächstes dran${isOpen ? " · ist geöffnet ✓" : ""}</div>
-          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14.5px;">${label}${note}</div>
-        </div>
-        ${isOpen ? "" : `<button id="goNextBtn" style="background:var(--accent);color:#0D1813;border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:12px;font-family:'Space Grotesk',sans-serif;white-space:nowrap;">Öffnen</button>`}
-      </div>
+      <div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Als nächstes dran</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14.5px;">${label}${note}</div>
       <details style="margin-top:9px;">
         <summary style="font-size:11.5px;color:var(--text-muted);cursor:pointer;">Zeiger manuell korrigieren</summary>
         <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">
@@ -507,7 +557,8 @@ async function renderNextSession(){
       </details>
     </div>`;
 
-  if(!isOpen) document.getElementById("goNextBtn").onclick = ()=>{ if(nextKey){ currentDay = nextKey; document.getElementById("dateInput").value = todayStr(); init(); } };
+  const goBtn = document.getElementById("goNextBtn");
+  if(goBtn) goBtn.onclick = ()=>{ currentDay = nextKey; document.getElementById("dateInput").value = todayStr(); init(); };
   document.getElementById("setPointerBtn").onclick = async ()=>{
     const wSel = parseInt(document.getElementById("pointerWeek").value,10);
     const dSel = parseInt(document.getElementById("pointerDay").value,10);
@@ -1004,7 +1055,6 @@ async function saveSession(){
 async function init(){
   renderTabs();
   await renderNextSession();
-  document.querySelector(".header p").textContent = DAYS[currentDay].title;
   await renderCalendar();
   document.getElementById("orphanedHolder").innerHTML = "";
   document.getElementById("editModeHolder").innerHTML = "";
@@ -1015,6 +1065,7 @@ async function init(){
   await populateHistory();
   await renderStreak();
   await maybeLoadTodaySession();
+  updateDayCard();
 }
 
 // Wenn für heute schon eine Session zu diesem Tag existiert, direkt anzeigen statt leer zu lassen
@@ -1041,11 +1092,13 @@ document.getElementById("historySelect").addEventListener("change", (e)=>{
   if(e.target.value){
     document.getElementById("dateInput").value = e.target.value;
     loadSessionInto(e.target.value);
+    updateDayCard();
   }
 });
 document.getElementById("dateInput").value = todayStr();
 document.getElementById("dateInput").addEventListener("change", ()=>{
   document.getElementById("editModeHolder").innerHTML = "";
+  updateDayCard();
 });
 
 async function exportMarkdown(){
@@ -1128,13 +1181,15 @@ async function renderSessionsList(){
       return;
     }
     holder.innerHTML = data.map(row=>{
-      const title = DAYS[row.day_key] ? DAYS[row.day_key].title : row.day_key;
+      const et = typeOfKey(row.day_key) ? ENTRY_TYPES[typeOfKey(row.day_key)] : null;
+      const title = DAYS[row.day_key] ? DAYS[row.day_key].title : (et ? et.icon + " " + et.label : row.day_key);
       const exCount = Object.keys(row.data || {}).filter(k => k !== "_notes").length;
+      const sub = et ? summarizeEntry(row.day_key, row.data) : `${title} · ${exCount} Übungen`;
       return `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:6px;">
           <div>
             <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;">${row.session_date}</div>
-            <div style="font-size:11.5px;color:var(--text-muted);">${title} · ${exCount} Übungen</div>
+            <div style="font-size:11.5px;color:var(--text-muted);">${et ? title + " · " : ""}${sub}</div>
           </div>
           <div style="display:flex;gap:6px;">
             <button class="editSessBtn" data-day="${row.day_key}" data-date="${row.session_date}" style="background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:7px;padding:7px 10px;font-size:11.5px;font-weight:600;">Bearbeiten</button>
@@ -1155,12 +1210,20 @@ async function renderSessionsList(){
 }
 
 async function editSession(dayKey, date){
+  if(!DAYS[dayKey]){
+    // Lauf / Schwimmen / Körperwerte / Sonstiges: im Tages-Sheet bearbeiten
+    document.getElementById("sessionsListHolder").style.display = "none";
+    sessionsListOpen = false;
+    await openDaySheet(typeOfKey(dayKey), date);
+    return;
+  }
   currentDay = dayKey;
   document.getElementById("sessionsListHolder").style.display = "none";
   sessionsListOpen = false;
   await init();
   document.getElementById("dateInput").value = date;
   await loadSessionInto(date);
+  updateDayCard();
   window.scrollTo({top:0, behavior:"smooth"});
   showToast("Session vom " + date + " zum Bearbeiten geladen");
 }
@@ -1197,188 +1260,351 @@ document.getElementById("manageSessionsBtn").addEventListener("click", async ()=
   if(sessionsListOpen) await renderSessionsList();
 });
 
-// ---------- Laufen & Schwimmen (einfacher Cardio-Log) ----------
-let cardioType = "lauf";
+// ---------- Tageseinträge: Lauf, Schwimmen, Körperwerte, Sonstiges (alle Einträge eines Tages) ----------
+const ENTRY_TYPES = {
+  lauf:      { key:"cardio_lauf",      label:"Lauf",        icon:"🏃" },
+  schwimmen: { key:"cardio_schwimmen", label:"Schwimmen",   icon:"🏊" },
+  koerper:   { key:"koerperwerte",     label:"Körperwerte", icon:"⚖️" },
+  sonstiges: { key:"sonstiges",        label:"Sonstiges",   icon:"📝" },
+};
+const ENTRY_KEYS = Object.values(ENTRY_TYPES).map(t => t.key);
+const typeOfKey = key => Object.keys(ENTRY_TYPES).find(t => ENTRY_TYPES[t].key === key) || null;
 
-function setCardioType(type){
-  cardioType = type;
-  const laufBtn = document.getElementById("cardioTypeLauf");
-  const schwimmBtn = document.getElementById("cardioTypeSchwimmen");
-  const active = { border:"1px solid var(--accent)", background:"var(--accent-dim)", color:"var(--text)" };
-  const inactive = { border:"1px solid var(--line)", background:"var(--surface-2)", color:"var(--text-muted)" };
-  const apply = (el, styles) => { el.style.border = styles.border; el.style.background = styles.background; el.style.color = styles.color; };
-  apply(laufBtn, type === "lauf" ? active : inactive);
-  apply(schwimmBtn, type === "schwimmen" ? active : inactive);
+function escapeHtml(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
-document.getElementById("cardioTypeLauf").addEventListener("click", ()=> setCardioType("lauf"));
-document.getElementById("cardioTypeSchwimmen").addEventListener("click", ()=> setCardioType("schwimmen"));
-document.getElementById("cardioDate").value = todayStr();
 
-async function saveCardio(){
-  const date = document.getElementById("cardioDate").value || todayStr();
-  const comment = document.getElementById("cardioComment").value.trim();
-  const dayKey = "cardio_" + cardioType;
-  try{
-    const { error } = await sb.from("training_sessions").upsert(
-      { person: PERSON, day_key: dayKey, session_date: date, data: { comment }, updated_at: new Date().toISOString() },
-      { onConflict: "person,day_key,session_date" }
-    );
-    if(error) throw error;
-    showToast((cardioType === "lauf" ? "Lauf" : "Schwimmen") + " gespeichert für " + date);
-    document.getElementById("cardioComment").value = "";
-    if(document.getElementById("cardioHistoryHolder").style.display !== "none"){
-      await renderCardioHistory();
-    }
-    await renderWeeklyGoals();
-  }catch(e){
-    console.error("saveCardio", e);
-    showToast("Fehler: " + e.message);
+function summarizeEntry(dayKey, d){
+  d = d || {};
+  if(dayKey === "koerperwerte"){
+    const parts = [];
+    if(d.gewicht_kg) parts.push(`⚖️ ${escapeHtml(d.gewicht_kg)} kg`);
+    if(d.oberarm_links_cm) parts.push(`💪 ${escapeHtml(d.oberarm_links_cm)} cm`);
+    if(d.bauchumfang_nabel_cm) parts.push(`📏 ${escapeHtml(d.bauchumfang_nabel_cm)} cm`);
+    return parts.join(" · ") || "keine Werte";
   }
+  return d.comment ? escapeHtml(d.comment) : "kein Kommentar";
 }
-document.getElementById("cardioSaveBtn").addEventListener("click", saveCardio);
 
-// ---------- Körperwerte (Gewicht, Oberarm, Bauchumfang) ----------
-document.getElementById("bodyDate").value = todayStr();
-(function(){
-  const t = new Date();
-  const hh = String(t.getHours()).padStart(2,"0");
-  const mm = String(t.getMinutes()).padStart(2,"0");
-  document.getElementById("bodyTime").value = hh + ":" + mm;
-})();
+async function fetchDayEntries(date){
+  const { data, error } = await sb
+    .from("training_sessions")
+    .select("day_key, data")
+    .eq("person", PERSON)
+    .eq("session_date", date)
+    .neq("day_key", META_KEY);
+  if(error) throw error;
+  return data || [];
+}
 
-async function saveBody(){
-  const date = document.getElementById("bodyDate").value || todayStr();
-  const time = document.getElementById("bodyTime").value;
-  const weight = document.getElementById("bodyWeight").value.trim();
-  const arm = document.getElementById("bodyArm").value.trim();
-  const waist = document.getElementById("bodyWaist").value.trim();
-  if(!weight && !arm && !waist){ showToast("Bitte mindestens einen Wert eintragen"); return; }
+// ----- Tageskarte (Titel, Datum, Punkte an den Schnell-Buttons) -----
+let dayCardToken = 0;
+async function updateDayCard(){
+  const date = document.getElementById("dateInput").value || todayStr();
+  document.getElementById("dayCardTitle").textContent = DAYS[currentDay].title;
+  const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
+  const chip = date === todayStr() ? `<span class="chip">Heute</span>` : `<span class="chip warn">anderes Datum</span>`;
+  document.getElementById("dayCardMeta").innerHTML = `${wd} ${fmtShort(date)}${date.slice(0,4)} ${chip}`;
+  const token = ++dayCardToken;
   try{
-    const { error } = await sb.from("training_sessions").upsert(
-      { person: PERSON, day_key: "koerperwerte", session_date: date, data: {
-          uhrzeit: time, gewicht_kg: weight, oberarm_links_cm: arm, bauchumfang_nabel_cm: waist
-        }, updated_at: new Date().toISOString() },
-      { onConflict: "person,day_key,session_date" }
-    );
-    if(error) throw error;
-    showToast("Körperwerte gespeichert für " + date);
-    if(document.getElementById("bodyHistoryHolder").style.display !== "none"){
-      await renderBodyHistory();
-    }
-  }catch(e){
-    console.error("saveBody", e);
-    showToast("Fehler: " + e.message);
-  }
-}
-document.getElementById("bodySaveBtn").addEventListener("click", saveBody);
-
-async function renderBodyHistory(){
-  const holder = document.getElementById("bodyHistoryHolder");
-  try{
-    const { data, error } = await sb
-      .from("training_sessions")
-      .select("session_date, data")
-      .eq("person", PERSON)
-      .eq("day_key", "koerperwerte")
-      .order("session_date", { ascending: false })
-      .limit(15);
-    if(error) throw error;
-    if(!data || data.length === 0){
-      holder.innerHTML = `<div style="font-size:11.5px;color:var(--text-muted);">Noch keine Einträge.</div>`;
-      return;
-    }
-    holder.innerHTML = data.map((row, i)=>{
-      const d = row.data || {};
-      const prev = data[i+1] ? data[i+1].data : null;
-      const delta = (curr, prevVal) => {
-        if(curr === undefined || curr === "" || !prevVal || prevVal === "") return "";
-        const diff = parseFloat(curr) - parseFloat(prevVal);
-        if(isNaN(diff) || diff === 0) return "";
-        const sign = diff > 0 ? "+" : "";
-        const color = diff > 0 ? "var(--danger)" : "var(--accent)";
-        return ` <span style="color:${color};font-size:10.5px;">(${sign}${diff.toFixed(1)})</span>`;
-      };
-      const parts = [];
-      if(d.gewicht_kg) parts.push(`⚖️ ${d.gewicht_kg} kg${delta(d.gewicht_kg, prev && prev.gewicht_kg)}`);
-      if(d.oberarm_links_cm) parts.push(`💪 ${d.oberarm_links_cm} cm${delta(d.oberarm_links_cm, prev && prev.oberarm_links_cm)}`);
-      if(d.bauchumfang_nabel_cm) parts.push(`📏 ${d.bauchumfang_nabel_cm} cm${delta(d.bauchumfang_nabel_cm, prev && prev.bauchumfang_nabel_cm)}`);
-      return `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--line);">
-        <strong style="font-family:'IBM Plex Mono',monospace;">${row.session_date}</strong>${d.uhrzeit ? " · " + d.uhrzeit : ""}<br>
-        <span style="color:var(--text);">${parts.join(" · ") || "<i style='color:var(--text-muted)'>keine Werte</i>"}</span>
-      </div>`;
-    }).join("");
-  }catch(e){
-    console.error("renderBodyHistory", e);
-    holder.innerHTML = `<div style="font-size:11.5px;color:var(--danger);">Fehler beim Laden: ${e.message}</div>`;
-  }
+    const have = new Set((await fetchDayEntries(date)).map(r => r.day_key));
+    if(token !== dayCardToken) return;
+    document.querySelectorAll("#quickRow button").forEach(b => b.classList.toggle("has", have.has(ENTRY_TYPES[b.dataset.type].key)));
+  }catch(e){ console.error("updateDayCard", e); }
 }
 
-let bodyHistOpen = false;
-document.getElementById("bodyHistBtn").addEventListener("click", async ()=>{
-  bodyHistOpen = !bodyHistOpen;
-  const holder = document.getElementById("bodyHistoryHolder");
-  holder.style.display = bodyHistOpen ? "block" : "none";
-  if(bodyHistOpen) await renderBodyHistory();
+document.getElementById("dayPanelBtn").addEventListener("click", ()=>{
+  const panel = document.getElementById("dayPanel");
+  const btn = document.getElementById("dayPanelBtn");
+  panel.hidden = !panel.hidden;
+  btn.setAttribute("aria-expanded", String(!panel.hidden));
+  btn.textContent = panel.hidden ? "Tag ändern ▾" : "Tag ändern ▴";
 });
 
-// ---------- Sonstiges (freie Texteingabe, einfacher Logeintrag) ----------
-document.getElementById("miscDate").value = todayStr();
+// ----- Sheet -----
+let sheetDate = null;
+let sheetLoaded = null;           // Zustand beim Laden (für "geändert?")
+let sheetExisting = {};           // type -> true, wenn für den Tag schon ein Eintrag existiert
+let sheetArmed = new Set();       // Lauf/Schwimmen ohne Kommentar speichern: wer den Button angetippt oder getippt hat
+let sheetBodyTime = "";
 
-async function saveMisc(){
-  const date = document.getElementById("miscDate").value || todayStr();
-  const comment = document.getElementById("miscComment").value.trim();
-  if(!comment){ showToast("Bitte kurz beschreiben, was du gemacht hast"); return; }
+function buildSheetSections(){
+  const box = document.getElementById("sheetSections");
+  const textSec = (type, ph) => `
+    <section class="sec" data-type="${type}">
+      <h3><span>${ENTRY_TYPES[type].icon} ${ENTRY_TYPES[type].label}</span><span class="st" id="sheetSt-${type}"></span></h3>
+      <textarea id="sheetComment-${type}" placeholder="${ph}"></textarea>
+      <button class="secdel" id="sheetDel-${type}" hidden>Eintrag löschen</button>
+    </section>`;
+  box.innerHTML =
+    textSec("lauf", "Distanz, Zeit, wie es sich angefühlt hat …") +
+    textSec("schwimmen", "z. B. 300 m kraulen und 200 m Brust …") +
+    `<section class="sec" data-type="koerper">
+      <h3><span>${ENTRY_TYPES.koerper.icon} ${ENTRY_TYPES.koerper.label}</span><span class="st" id="sheetSt-koerper"></span></h3>
+      <div class="bodytime">Uhrzeit <input class="tm" type="time" id="sheetBodyTime"></div>
+      <div class="bodygrid">
+        <div><label>Gewicht (kg)</label><input class="num" type="number" step="0.1" inputmode="decimal" id="sheetBodyWeight" placeholder="71.5"></div>
+        <div><label>Oberarm li. (cm)</label><input class="num" type="number" step="0.1" inputmode="decimal" id="sheetBodyArm" placeholder="31.5"></div>
+        <div><label>Bauch (cm)</label><input class="num" type="number" step="0.1" inputmode="decimal" id="sheetBodyWaist" placeholder="85"></div>
+      </div>
+      <div class="bodyhint">Bauchumfang auf Nabelhöhe · am besten immer zur gleichen Zeit relativ zum Training messen</div>
+      <button class="secdel" id="sheetDel-koerper" hidden>Eintrag löschen</button>
+    </section>` +
+    textSec("sonstiges", "Was hast du gemacht? (z. B. Bouldern, Rad, Wandern …)");
+  ["lauf","schwimmen"].forEach(t=>{
+    document.getElementById("sheetComment-"+t).addEventListener("input", ()=>{ sheetArmed.add(t); refreshSheetStatus(); });
+  });
+  document.getElementById("sheetComment-sonstiges").addEventListener("input", refreshSheetStatus);
+  ["sheetBodyWeight","sheetBodyArm","sheetBodyWaist"].forEach(id=>document.getElementById(id).addEventListener("input", refreshSheetStatus));
+  Object.keys(ENTRY_TYPES).forEach(t=>{
+    document.getElementById("sheetDel-"+t).addEventListener("click", ()=> deleteSheetEntry(t));
+  });
+}
+buildSheetSections();
+
+function sheetState(){
+  const g = id => document.getElementById(id).value.trim();
+  return {
+    lauf: g("sheetComment-lauf"), schwimmen: g("sheetComment-schwimmen"), sonstiges: g("sheetComment-sonstiges"),
+    gewicht_kg: g("sheetBodyWeight"), oberarm_links_cm: g("sheetBodyArm"), bauchumfang_nabel_cm: g("sheetBodyWaist"),
+  };
+}
+function sheetDirty(){
+  if(!sheetLoaded) return false;
+  const now = sheetState();
+  return Object.keys(now).some(k => now[k] !== sheetLoaded[k]) || [...sheetArmed].some(t => !sheetExisting[t]);
+}
+
+function refreshSheetStatus(){
+  const now = sheetState();
+  const setSt = (type, text, ok) => { const el = document.getElementById("sheetSt-"+type); el.textContent = text; el.classList.toggle("ok", !!ok); };
+  const bodyChanged = ["gewicht_kg","oberarm_links_cm","bauchumfang_nabel_cm"].some(k => now[k] !== sheetLoaded[k]);
+  const changed = {
+    lauf: now.lauf !== sheetLoaded.lauf, schwimmen: now.schwimmen !== sheetLoaded.schwimmen,
+    sonstiges: now.sonstiges !== sheetLoaded.sonstiges, koerper: bodyChanged,
+  };
+  Object.keys(ENTRY_TYPES).forEach(t=>{
+    const isNew = !sheetExisting[t] && (t === "lauf" || t === "schwimmen" ? sheetArmed.has(t) : changed[t]);
+    if(changed[t] && sheetExisting[t]) setSt(t, "geändert – noch nicht gespeichert", false);
+    else if(isNew) setSt(t, "neu – wird gespeichert", false);
+    else if(sheetExisting[t]) setSt(t, "gespeichert ✓", true);
+    else setSt(t, "", false);
+    document.getElementById("sheetDel-"+t).hidden = !sheetExisting[t];
+  });
+}
+
+async function loadSheetDate(date){
+  sheetDate = date;
+  document.getElementById("sheetDate").value = date;
+  const trainingBox = document.getElementById("sheetTraining");
+  trainingBox.innerHTML = "";
+  let rows = [];
+  try{ rows = await fetchDayEntries(date); }
+  catch(e){ console.error("loadSheetDate", e); showToast("Fehler beim Laden: " + e.message); }
+  if(sheetDate !== date) return; // währenddessen anderes Datum gewählt
+  const byKey = Object.fromEntries(rows.map(r => [r.day_key, r.data || {}]));
+  sheetExisting = {};
+  Object.keys(ENTRY_TYPES).forEach(t => { sheetExisting[t] = byKey[ENTRY_TYPES[t].key] !== undefined; });
+  const g = (key, f) => (byKey[key] && byKey[key][f] != null) ? String(byKey[key][f]) : "";
+  const body = byKey.koerperwerte || {};
+  sheetBodyTime = body.uhrzeit || "";
+  if(!sheetExisting.koerper){
+    const t = new Date();
+    sheetBodyTime = String(t.getHours()).padStart(2,"0") + ":" + String(t.getMinutes()).padStart(2,"0");
+  }
+  document.getElementById("sheetComment-lauf").value = g("cardio_lauf","comment");
+  document.getElementById("sheetComment-schwimmen").value = g("cardio_schwimmen","comment");
+  document.getElementById("sheetComment-sonstiges").value = g("sonstiges","comment");
+  document.getElementById("sheetBodyWeight").value = g("koerperwerte","gewicht_kg");
+  document.getElementById("sheetBodyArm").value = g("koerperwerte","oberarm_links_cm");
+  document.getElementById("sheetBodyWaist").value = g("koerperwerte","bauchumfang_nabel_cm");
+  document.getElementById("sheetBodyTime").value = sheetBodyTime;
+  sheetLoaded = sheetState();
+  refreshSheetStatus();
+
+  const trainings = rows.filter(r => DAYS[r.day_key]);
+  trainingBox.innerHTML = trainings.map(r => `
+    <div class="sheet-training">
+      <span>🏋️ ${escapeHtml(DAYS[r.day_key].title)} · gespeichert</span>
+      <button data-day="${r.day_key}">Öffnen</button>
+    </div>`).join("");
+  trainingBox.querySelectorAll("button").forEach(btn => btn.onclick = async ()=>{
+    if(!confirmDiscard()) return;
+    closeDaySheet(true);
+    await editSession(btn.getAttribute("data-day"), date);
+  });
+  document.querySelectorAll("#sheetRecent .recent-row").forEach(r => r.classList.toggle("cur", r.dataset.date === date));
+}
+
+function confirmDiscard(){
+  return !sheetDirty() || confirm("Ungespeicherte Änderungen verwerfen?");
+}
+async function gotoSheetDate(date){
+  if(!date || date === sheetDate) return;
+  if(!confirmDiscard()){ document.getElementById("sheetDate").value = sheetDate; return; }
+  sheetArmed = new Set();
+  await loadSheetDate(date);
+}
+function shiftDate(iso, days){
+  const d = new Date(iso + "T12:00:00");
+  d.setDate(d.getDate() + days);
+  return fmtDate(d);
+}
+
+async function openDaySheet(type, date){
+  const sheet = document.getElementById("daySheet");
+  sheetArmed = new Set();
+  if(type === "lauf" || type === "schwimmen") sheetArmed.add(type);
+  sheet.classList.add("open");
+  sheet.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  await loadSheetDate(date || document.getElementById("dateInput").value || todayStr());
+  // Schon vorhandener Eintrag -> nicht als "neu" markieren
+  [...sheetArmed].forEach(t => { if(sheetExisting[t]) sheetArmed.delete(t); });
+  refreshSheetStatus();
+  document.querySelectorAll("#sheetSections .sec").forEach(sec => sec.classList.toggle("focus", sec.dataset.type === type));
+  const sec = document.querySelector(`#sheetSections .sec[data-type="${type}"]`);
+  if(sec){
+    // Nur scrollen, wenn der Abschnitt nicht ohnehin sichtbar ist (Körper/Sonstiges weiter unten)
+    const body = document.getElementById("sheetBody");
+    const secTop = sec.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop;
+    if(secTop + sec.offsetHeight > body.clientHeight) body.scrollTop = Math.max(0, secTop - 8);
+    const first = sec.querySelector("textarea, input.num");
+    if(first && !sheetExisting[type]) first.focus({ preventScroll:true });
+  }
+  renderSheetRecent();
+}
+
+function closeDaySheet(force){
+  if(!force && !confirmDiscard()) return;
+  const sheet = document.getElementById("daySheet");
+  sheet.classList.remove("open");
+  sheet.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+  sheetLoaded = null;
+}
+
+async function afterEntriesChanged(){
+  await updateDayCard();
+  await renderWeeklyGoals();
+  if(typeof sessionsListOpen !== "undefined" && sessionsListOpen) await renderSessionsList();
+}
+
+async function saveSheet(){
+  const date = sheetDate;
+  const st = sheetState();
+  const now = new Date().toISOString();
+  const rows = [];
+  const names = [];
+  const addRow = (type, data) => {
+    rows.push({ person: PERSON, day_key: ENTRY_TYPES[type].key, session_date: date, data, updated_at: now });
+    names.push(ENTRY_TYPES[type].label);
+  };
+  ["lauf","schwimmen"].forEach(t=>{
+    const changed = st[t] !== sheetLoaded[t];
+    if(changed || (sheetArmed.has(t) && !sheetExisting[t])) addRow(t, { comment: st[t] });
+  });
+  if(st.sonstiges !== sheetLoaded.sonstiges){
+    if(st.sonstiges) addRow("sonstiges", { comment: st.sonstiges });
+    else showToast("Sonstiges ist leer – zum Entfernen „Eintrag löschen“ nutzen");
+  }
+  const bodyKeys = ["gewicht_kg","oberarm_links_cm","bauchumfang_nabel_cm"];
+  if(bodyKeys.some(k => st[k] !== sheetLoaded[k])){
+    if(bodyKeys.some(k => st[k])){
+      addRow("koerper", { uhrzeit: document.getElementById("sheetBodyTime").value, gewicht_kg: st.gewicht_kg, oberarm_links_cm: st.oberarm_links_cm, bauchumfang_nabel_cm: st.bauchumfang_nabel_cm });
+    } else {
+      showToast("Körperwerte sind leer – zum Entfernen „Eintrag löschen“ nutzen");
+    }
+  }
+  if(rows.length === 0){ if(!document.getElementById("toast").classList.contains("show")) showToast("Nichts zu speichern"); return; }
   try{
-    const { error } = await sb.from("training_sessions").upsert(
-      { person: PERSON, day_key: "sonstiges", session_date: date, data: { comment }, updated_at: new Date().toISOString() },
-      { onConflict: "person,day_key,session_date" }
-    );
+    const { error } = await sb.from("training_sessions").upsert(rows, { onConflict: "person,day_key,session_date" });
     if(error) throw error;
-    showToast("Gespeichert für " + date);
-    document.getElementById("miscComment").value = "";
+    closeDaySheet(true);
+    showToast("Gespeichert (" + date.slice(8) + "." + date.slice(5,7) + ".): " + names.join(", "));
+    await afterEntriesChanged();
   }catch(e){
-    console.error("saveMisc", e);
+    console.error("saveSheet", e);
     showToast("Fehler: " + e.message);
   }
 }
-document.getElementById("miscSaveBtn").addEventListener("click", saveMisc);
 
-async function renderCardioHistory(){
-  const holder = document.getElementById("cardioHistoryHolder");
+async function deleteSheetEntry(type){
+  const t = ENTRY_TYPES[type];
+  if(!confirm(`${t.icon} ${t.label} vom ${sheetDate} wirklich löschen?`)) return;
+  try{
+    const { error } = await sb.from("training_sessions").delete()
+      .eq("person", PERSON).eq("day_key", t.key).eq("session_date", sheetDate);
+    if(error) throw error;
+    showToast("Gelöscht");
+    sheetArmed.delete(type);
+    await loadSheetDate(sheetDate);
+    await renderSheetRecent();
+    await afterEntriesChanged();
+  }catch(e){
+    console.error("deleteSheetEntry", e);
+    showToast("Fehler beim Löschen: " + e.message);
+  }
+}
+
+async function renderSheetRecent(){
+  const holder = document.getElementById("sheetRecent");
   try{
     const { data, error } = await sb
       .from("training_sessions")
       .select("day_key, session_date, data")
       .eq("person", PERSON)
-      .in("day_key", ["cardio_lauf", "cardio_schwimmen"])
+      .in("day_key", ENTRY_KEYS)
       .order("session_date", { ascending: false })
-      .limit(15);
+      .limit(80);
     if(error) throw error;
-    if(!data || data.length === 0){
-      holder.innerHTML = `<div style="font-size:11.5px;color:var(--text-muted);">Noch keine Einträge.</div>`;
-      return;
-    }
-    holder.innerHTML = data.map(row=>{
-      const label = row.day_key === "cardio_lauf" ? "🏃 Laufen" : "🏊 Schwimmen";
-      const comment = (row.data && row.data.comment) ? row.data.comment : "<i style='color:var(--text-muted)'>kein Kommentar</i>";
-      return `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--line);">
-        <strong style="font-family:'IBM Plex Mono',monospace;">${row.session_date}</strong> · ${label}<br>
-        <span style="color:var(--text-muted);">${comment}</span>
-      </div>`;
+    if(!data || data.length === 0){ holder.innerHTML = `<div style="font-size:12px;color:var(--text-muted);padding:6px 2px;">Noch keine Einträge.</div>`; return; }
+    // Körperwerte: Veränderung zum vorherigen Eintrag
+    const body = data.filter(r => r.day_key === "koerperwerte");
+    const delta = (row, field) => {
+      const i = body.indexOf(row), prev = body[i+1];
+      if(!prev) return "";
+      const diff = parseFloat((row.data||{})[field]) - parseFloat((prev.data||{})[field]);
+      if(isNaN(diff) || diff === 0) return "";
+      return ` <span style="color:${diff > 0 ? "var(--danger)" : "var(--accent)"};font-size:10.5px;">(${diff > 0 ? "+" : "−"}${Math.abs(diff).toFixed(1)})</span>`;
+    };
+    const byDate = new Map();
+    data.forEach(r => { if(!byDate.has(r.session_date)) byDate.set(r.session_date, []); byDate.get(r.session_date).push(r); });
+    holder.innerHTML = [...byDate.entries()].slice(0, 30).map(([date, rows])=>{
+      const lines = rows.map(r=>{
+        const t = ENTRY_TYPES[typeOfKey(r.day_key)];
+        if(r.day_key === "koerperwerte"){
+          const d = r.data || {}, parts = [];
+          if(d.gewicht_kg) parts.push(`${escapeHtml(d.gewicht_kg)} kg${delta(r,"gewicht_kg")}`);
+          if(d.oberarm_links_cm) parts.push(`💪 ${escapeHtml(d.oberarm_links_cm)}${delta(r,"oberarm_links_cm")}`);
+          if(d.bauchumfang_nabel_cm) parts.push(`📏 ${escapeHtml(d.bauchumfang_nabel_cm)}${delta(r,"bauchumfang_nabel_cm")}`);
+          return `${t.icon} ${parts.join(" · ") || "keine Werte"}`;
+        }
+        return `${t.icon} ${summarizeEntry(r.day_key, r.data)}`;
+      });
+      const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
+      return `<button class="recent-row${date === sheetDate ? " cur" : ""}" data-date="${date}"><span class="rd">${wd} ${fmtShort(date)}${date.slice(0,4) === String(new Date().getFullYear()) ? "" : date.slice(2,4)}</span><span class="rs">${lines.join("<br>")}</span></button>`;
     }).join("");
+    holder.querySelectorAll(".recent-row").forEach(btn => btn.onclick = async ()=>{
+      await gotoSheetDate(btn.dataset.date);
+      document.getElementById("sheetBody").scrollTop = 0;
+    });
   }catch(e){
-    console.error("renderCardioHistory", e);
+    console.error("renderSheetRecent", e);
     holder.innerHTML = `<div style="font-size:11.5px;color:var(--danger);">Fehler beim Laden: ${e.message}</div>`;
   }
 }
 
-let cardioHistOpen = false;
-document.getElementById("cardioHistBtn").addEventListener("click", async ()=>{
-  cardioHistOpen = !cardioHistOpen;
-  const holder = document.getElementById("cardioHistoryHolder");
-  holder.style.display = cardioHistOpen ? "block" : "none";
-  if(cardioHistOpen) await renderCardioHistory();
-});
+document.querySelectorAll("#quickRow button").forEach(btn => btn.addEventListener("click", ()=> openDaySheet(btn.dataset.type)));
+document.getElementById("sheetClose").addEventListener("click", ()=> closeDaySheet());
+document.getElementById("sheetBackdrop").addEventListener("click", ()=> closeDaySheet());
+document.getElementById("sheetSave").addEventListener("click", saveSheet);
+document.getElementById("sheetPrev").addEventListener("click", ()=> gotoSheetDate(shiftDate(sheetDate, -1)));
+document.getElementById("sheetNext").addEventListener("click", ()=> gotoSheetDate(shiftDate(sheetDate, 1)));
+document.getElementById("sheetToday").addEventListener("click", ()=> gotoSheetDate(todayStr()));
+document.getElementById("sheetDate").addEventListener("change", e => gotoSheetDate(e.target.value));
+document.getElementById("sheetRecentBox").addEventListener("toggle", e => { if(e.target.open) renderSheetRecent(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape" && document.getElementById("daySheet").classList.contains("open")) closeDaySheet(); });
 
 // ---------- Wochen-Übersicht (diese Woche + aufklappbar 11 weitere, Montag-Start) ----------
 function mondayOf(dateObj){
