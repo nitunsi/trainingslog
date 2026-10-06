@@ -1627,11 +1627,15 @@ function fmtDate(d){
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
 
+// Wochen-Übersicht: Zustand bleibt über Neuzeichnen (z. B. nach dem Speichern) erhalten
+let weeklyCount = 12;      // wie viele Wochen geladen sind (inkl. dieser)
+let weeklyOpen = false;    // Verlauf aufgeklappt?
+const WEEKLY_STEP = 12;
+
 async function renderWeeklyGoals(){
   const holder = document.getElementById("weeklyGoalsHolder");
   const thisMonday = mondayOf(new Date());
-  const WEEK_COUNT = 12;
-  const weekStarts = Array.from({length: WEEK_COUNT}, (_,i) => { const d = new Date(thisMonday); d.setDate(d.getDate() - i*7); return d; });
+  const weekStarts = Array.from({length: weeklyCount}, (_,i) => { const d = new Date(thisMonday); d.setDate(d.getDate() - i*7); return d; });
   const earliestMonday = weekStarts[weekStarts.length-1];
 
   try{
@@ -1643,6 +1647,16 @@ async function renderWeeklyGoals(){
       .gte("session_date", fmtDate(earliestMonday))
       .order("session_date", { ascending: false });
     if(error) throw error;
+    // Gibt es noch ältere Einträge als die geladenen Wochen? Dann "Mehr laden" anbieten.
+    const { data: oldest, error: oldErr } = await sb
+      .from("training_sessions")
+      .select("session_date")
+      .eq("person", PERSON)
+      .neq("day_key", META_KEY)
+      .order("session_date", { ascending: true })
+      .limit(1);
+    if(oldErr) throw oldErr;
+    const hasMore = !!(oldest && oldest[0] && oldest[0].session_date < fmtDate(earliestMonday));
 
     const weeks = weekStarts.map(start=>{
       const end = new Date(start); end.setDate(end.getDate() + 7);
@@ -1655,23 +1669,45 @@ async function renderWeeklyGoals(){
     });
 
     const counts = w => `${w.koerper ? "⚖️ " + w.koerper + " · " : ""}🏋️ ${w.training} · 🏃 ${w.lauf} · 🏊 ${w.schwimmen}`;
-    const weekLabel = (w, i) => i === 0 ? "Diese Woche" : i === 1 ? "Letzte Woche" : `KW ${isoWeek(w.start)}`;
-    const olderHtml = weeks.slice(1).map((w,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid var(--line);">
-        <span style="font-size:11.5px;color:var(--text-muted);">${weekLabel(w, i+1)} <span style="font-family:'IBM Plex Mono',monospace;">· ab ${fmtShort(fmtDate(w.start))}</span></span>
+    const weekLabel = (w, i) => i === 1 ? "Letzte Woche" : `KW ${isoWeek(w.start)}`;
+    const yearNow = new Date().getFullYear();
+    const startLabel = w => fmtShort(fmtDate(w.start)) + (w.start.getFullYear() === yearNow ? "" : String(w.start.getFullYear()).slice(2));
+    const rowHtml = (w, i) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid var(--line);">
+        <span style="font-size:11.5px;color:var(--text-muted);">${weekLabel(w, i)} <span style="font-family:'IBM Plex Mono',monospace;">· ab ${startLabel(w)}</span></span>
         <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text);">${counts(w)}</span>
-      </div>`);
+      </div>`;
+    const recent = weeks.slice(1,3).map((w,i)=> rowHtml(w, i+1)).join("");
+    const older = weeks.slice(3).map((w,i)=> rowHtml(w, i+3)).join("");
 
     holder.innerHTML = `<div style="margin:0 16px 14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 5px;">
-        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Diese Woche</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 0 5px;">
+        <span style="display:flex;align-items:center;gap:9px;">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Diese Woche</span>
+          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:7px;padding:3px 8px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;">⏱ Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
+        </span>
         <span style="font-size:12.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;">${counts(weeks[0])}</span>
       </div>
-      ${olderHtml.slice(0,2).join("")}
-      <details style="margin-top:2px;">
-        <summary style="font-size:11px;color:var(--text-muted);cursor:pointer;padding-top:6px;">ältere Wochen</summary>
-        ${olderHtml.slice(2).join("")}
-      </details>
+      ${recent}
+      <div id="weeklyHistoryHolder" style="display:${weeklyOpen ? "block" : "none"};">
+        ${older}
+        ${hasMore ? `<button id="weeklyMoreBtn" style="width:100%;margin-top:6px;background:none;border:1px dashed var(--line);color:var(--text-muted);border-radius:8px;padding:8px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;">Mehr laden (${WEEKLY_STEP} weitere Wochen)</button>`
+                   : `<div style="font-size:11px;color:var(--text-muted);padding:8px 0 2px;text-align:center;">Das war der Anfang – ältere Einträge gibt es nicht.</div>`}
+      </div>
     </div>`;
+
+    document.getElementById("weeklyHistBtn").addEventListener("click", ()=>{
+      weeklyOpen = !weeklyOpen;
+      document.getElementById("weeklyHistoryHolder").style.display = weeklyOpen ? "block" : "none";
+      const btn = document.getElementById("weeklyHistBtn");
+      btn.setAttribute("aria-expanded", String(weeklyOpen));
+      btn.textContent = "⏱ Verlauf " + (weeklyOpen ? "▴" : "▾");
+    });
+    const more = document.getElementById("weeklyMoreBtn");
+    if(more) more.addEventListener("click", async ()=>{
+      more.disabled = true; more.textContent = "Lade …";
+      weeklyCount += WEEKLY_STEP;
+      await renderWeeklyGoals();
+    });
   }catch(e){
     console.error("renderWeeklyGoals", e);
     holder.innerHTML = "";
