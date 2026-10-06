@@ -621,7 +621,7 @@ function renderWarmup(){
     const rows = group.rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
     return `<div style="font-weight:600;color:var(--text);font-size:11.5px;margin:8px 0 4px;">${group.title}</div><table>${rows}</table>`;
   }).join("");
-  holder.innerHTML = `<details class="warmup-toggle" open><summary>Aufwärmen</summary>${groups}</details>`;
+  holder.innerHTML = `<details class="warmup-toggle"><summary>Aufwärmen anzeigen</summary>${groups}</details>`;
 }
 
 function renderBlocks(){
