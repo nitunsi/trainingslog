@@ -72,6 +72,7 @@
   .more-toggle > summary span{color:var(--text-muted);font-family:'Inter',sans-serif;font-weight:400;font-size:11.5px;}
   .more-toggle > .more-body{margin-top:12px;}
   .more-toggle > .more-body > div{margin-left:0 !important;margin-right:0 !important;}
+  #dayTools > summary{margin:0 16px;}
 
   .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px 18px;}
   .savebtn{width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
@@ -93,17 +94,22 @@
 
 <div id="weeklyGoalsHolder"></div>
 
-<div id="nextSessionHolder"></div>
-
-<div class="daytabs" id="daytabs"></div>
-<div class="streak" id="streak"></div>
-<div class="datebar">
-  <input type="date" id="dateInput">
-  <select id="historySelect"><option value="">Letzte Sessions…</option></select>
-</div>
+<!-- Selten gebraucht: Tag wechseln, Datum/ältere Session, Zeiger und Kalender -->
+<details class="more-toggle" id="dayTools" style="margin:0 0 14px;">
+  <summary>Tag, Datum &amp; Kalender <span>· anderen Tag öffnen</span></summary>
+  <div class="more-body">
+    <div id="nextSessionHolder"></div>
+    <div class="daytabs" id="daytabs"></div>
+    <div class="streak" id="streak"></div>
+    <div class="datebar">
+      <input type="date" id="dateInput">
+      <select id="historySelect"><option value="">Letzte Sessions…</option></select>
+    </div>
+    <div id="calendarHolder"></div>
+  </div>
+</details>
 <div id="editModeHolder"></div>
 
-<div id="calendarHolder"></div>
 <div id="orphanedHolder"></div>
 <div id="warmupHolder"></div>
 <div id="blocksHolder"></div>
@@ -564,7 +570,7 @@ function renderWarmup(){
     const rows = group.rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
     return `<div style="font-weight:600;color:var(--text);font-size:11.5px;margin:8px 0 4px;">${group.title}</div><table>${rows}</table>`;
   }).join("");
-  holder.innerHTML = `<details class="warmup-toggle"><summary>Aufwärmen anzeigen</summary>${groups}</details>`;
+  holder.innerHTML = `<details class="warmup-toggle" open><summary>Aufwärmen</summary>${groups}</details>`;
 }
 
 function renderBlocks(){
@@ -1427,15 +1433,19 @@ async function renderWeeklyGoals(){
     const olderHtml = weeks.slice(1).map((w,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid var(--line);">
         <span style="font-size:11.5px;color:var(--text-muted);">${weekLabel(w, i+1)} <span style="font-family:'IBM Plex Mono',monospace;">· ab ${fmtShort(fmtDate(w.start))}</span></span>
         <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text);">${counts(w)}</span>
-      </div>`).join("");
+      </div>`);
 
-    holder.innerHTML = `<details class="warmup-toggle" style="margin:0 16px 12px;padding:9px 14px;">
-      <summary style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <span>Diese Woche <span style="color:var(--text-muted);font-weight:400;font-size:11px;">· Verlauf ▾</span></span>
-        <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;">${counts(weeks[0])}</span>
-      </summary>
-      <div style="margin-top:6px;">${olderHtml}</div>
-    </details>`;
+    holder.innerHTML = `<div style="margin:0 16px 14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 5px;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Diese Woche</span>
+        <span style="font-size:12.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;">${counts(weeks[0])}</span>
+      </div>
+      ${olderHtml.slice(0,2).join("")}
+      <details style="margin-top:2px;">
+        <summary style="font-size:11px;color:var(--text-muted);cursor:pointer;padding-top:6px;">ältere Wochen</summary>
+        ${olderHtml.slice(2).join("")}
+      </details>
+    </div>`;
   }catch(e){
     console.error("renderWeeklyGoals", e);
     holder.innerHTML = "";
