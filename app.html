@@ -200,6 +200,8 @@
   .seg button.on{background:var(--accent);color:var(--on-accent);}
   .recentbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:2px 12px;}
   .recentbox .recent-row:first-child{border-top:none;}
+  .morebtn{display:block;width:calc(100% - 4px);margin:8px 2px 10px;min-height:46px;background:none;border:1px dashed var(--line);color:var(--text-muted);border-radius:12px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;}
+  .moreend{padding:10px 2px 12px;text-align:center;font-size:11.5px;color:var(--text-muted);}
   .sheet-grip{width:42px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 0;}
   .sheet-panel{box-shadow:0 -8px 28px rgba(0,0,0,.45);}
   :root[data-theme="light"] .sheet-panel{box-shadow:0 -8px 28px rgba(20,40,30,.18);}
@@ -786,13 +788,17 @@ function showPage(name, opts){
   opts = opts || {};
   if(!PAGES.includes(name)) name = "start";
   pageScroll[currentPage] = window.scrollY;
+  const prevPage = currentPage;
   currentPage = name;
   PAGES.forEach(pg => pageEl(pg).classList.toggle("on", pg === name));
   document.body.classList.toggle("p-train", name === "train");
   document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("a", b.dataset.page === name));
   window.scrollTo(0, opts.top ? 0 : (pageScroll[name] || 0));
   if(!opts.noHistory){ try{ history.pushState({ page: name }, ""); }catch(e){} }
-  if(name === "entries" && typeof renderEntriesRecent === "function") renderEntriesRecent();
+  if(name === "entries" && typeof renderEntriesRecent === "function"){
+    if(prevPage !== "entries") entriesShown = 10;
+    renderEntriesRecent();
+  }
 }
 window.addEventListener("popstate", e => showPage((e.state && e.state.page) || "start", { noHistory: true }));
 try{ history.replaceState({ page: "start" }, ""); }catch(e){}
@@ -1910,10 +1916,18 @@ async function renderSheetRecent(){
     document.getElementById("sheetBody").scrollTop = 0;
   });
 }
+// Einträge-Seite: zuerst nur die letzten 10 Tage, über den Knopf unten jeweils 10 weitere
+let entriesShown = 10;
+const ENTRIES_STEP = 10;
 async function renderEntriesRecent(){
-  await renderRecentInto(document.getElementById("entriesRecent"), date => openDaySheet(null, date));
+  await renderRecentInto(document.getElementById("entriesRecent"), date => openDaySheet(null, date), {
+    maxDates: entriesShown,
+    onMore: ()=>{ entriesShown += ENTRIES_STEP; renderEntriesRecent(); },
+  });
 }
-async function renderRecentInto(holder, onPick){
+async function renderRecentInto(holder, onPick, opts){
+  opts = opts || {};
+  const maxDates = opts.maxDates || 30;
   try{
     const { data, error } = await sb
       .from("training_sessions")
@@ -1921,7 +1935,7 @@ async function renderRecentInto(holder, onPick){
       .eq("person", PERSON)
       .in("day_key", ENTRY_KEYS)
       .order("session_date", { ascending: false })
-      .limit(80);
+      .limit(500);
     if(error) throw error;
     if(!data || data.length === 0){ holder.innerHTML = `<div style="font-size:12px;color:var(--text-muted);padding:6px 2px;">Noch keine Einträge.</div>`; return; }
     // Körperwerte: Veränderung zum vorherigen Eintrag
@@ -1935,7 +1949,8 @@ async function renderRecentInto(holder, onPick){
     };
     const byDate = new Map();
     data.forEach(r => { if(!byDate.has(r.session_date)) byDate.set(r.session_date, []); byDate.get(r.session_date).push(r); });
-    holder.innerHTML = [...byDate.entries()].slice(0, 30).map(([date, rows])=>{
+    const allDates = [...byDate.entries()];
+    holder.innerHTML = allDates.slice(0, maxDates).map(([date, rows])=>{
       const lines = rows.map(r=>{
         const t = ENTRY_TYPES[typeOfKey(r.day_key)];
         if(r.day_key === "koerperwerte"){
@@ -1949,8 +1964,12 @@ async function renderRecentInto(holder, onPick){
       });
       const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
       return `<button class="recent-row${date === sheetDate ? " cur" : ""}" data-date="${date}"><span class="rd">${wd} ${fmtShort(date)}${date.slice(0,4) === String(new Date().getFullYear()) ? "" : date.slice(2,4)}</span><span class="rs">${lines.join("<br>")}</span></button>`;
-    }).join("");
+    }).join("") + (opts.onMore ? (allDates.length > maxDates
+      ? `<button class="morebtn" id="entriesMoreBtn">Verlauf · ${Math.min(ENTRIES_STEP, allDates.length - maxDates)} weitere laden</button>`
+      : (allDates.length > ENTRIES_STEP ? `<div class="moreend">Das waren alle Einträge.</div>` : "")) : "");
     holder.querySelectorAll(".recent-row").forEach(btn => btn.onclick = ()=> onPick(btn.dataset.date));
+    const moreBtn = holder.querySelector(".morebtn");
+    if(moreBtn && opts.onMore) moreBtn.onclick = opts.onMore;
   }catch(e){
     console.error("renderRecentInto", e);
     holder.innerHTML = `<div style="font-size:11.5px;color:var(--danger);">Fehler beim Laden: ${e.message}</div>`;
