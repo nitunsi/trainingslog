@@ -191,7 +191,7 @@
   .trainx{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-size:17px;}
   .tbar{flex:1;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;}
   .tbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s;}
-  .tcount{flex:none;min-width:3.6rem;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--text-muted);}
+  .tcount{flex:none;min-width:5.6rem;white-space:nowrap;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--text-muted);}
 
   .wu-group{margin:0 16px 12px;padding:12px 14px 6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
   .wu-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
@@ -1009,20 +1009,21 @@ function renderExRow(it){
 
 // Fortschritt der Session: fertig = alle Sätze einer Übung eingetragen (Dehnübungen sind freiwillig und zählen nicht)
 function updateProgress(){
-  const rows = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch)")];
-  const done = rows.filter(r => r.classList.contains("done")).length;
+  // Gezählt werden Sätze (Eingabefelder), nicht Übungen. Dehnübungen sind freiwillig und zählen nicht.
+  const sets = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch) .setboxes input")];
+  const done = sets.filter(inp => inp.value.trim() !== "").length;
   const fill = document.getElementById("trainFill");
-  if(fill) fill.style.width = rows.length ? Math.round(done / rows.length * 100) + "%" : "0%";
+  if(fill) fill.style.width = sets.length ? Math.round(done / sets.length * 100) + "%" : "0%";
   const cnt = document.getElementById("trainCount");
-  if(cnt) cnt.textContent = rows.length ? done + " / " + rows.length : "";
-  progressDone = done; progressTotal = rows.length;
+  if(cnt) cnt.textContent = sets.length ? done + " / " + sets.length + " Sätze" : "";
+  progressDone = done; progressTotal = sets.length;
   updateTrainSub();
 }
 let progressDone = 0, progressTotal = 0, trainSavedToday = false;
 function updateTrainSub(){
   const el = document.getElementById("goTrainSub");
   if(!el) return;
-  el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " eingetragen" : "starten");
+  el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : "starten");
 }
 
 // Zahl bzw. Summe aus einem Satzwert: "10" -> 10, "6+5" -> 11, "20s" -> 20. Alles andere (z. B. "5x6kg") -> null.
