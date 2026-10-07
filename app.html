@@ -939,8 +939,13 @@ function renderExRow(it){
   const goalEl = row.querySelector(".goalhint");
   let last = null; // letzte echte Session (nicht das gerade geöffnete Datum)
 
-  // Live: ▲/▼ gegenüber dem letzten Mal pro Satz, Ziel-Hinweis
+  // Index des ersten leeren Satzes mit Vorgabe vom letzten Mal (-1 = keiner)
+  const nextTakeIndex = ()=> last ? inputs.findIndex((inp, i) => inp.value.trim() === "" && String(last.value[i] ?? "").trim() !== "") : -1;
+
+  // Live: ▲/▼ gegenüber dem letzten Mal pro Satz, Ziel-Hinweis, Übernehmen-Knopf nur solange noch etwas offen ist
   const live = ()=>{
+    const takeBtn = hintEl.querySelector(".takeBtn");
+    if(takeBtn) takeBtn.style.display = nextTakeIndex() >= 0 ? "" : "none";
     inputs.forEach((inp, i)=>{
       const el = inp.parentElement.querySelector(".dlt");
       if(!el) return;
@@ -967,16 +972,15 @@ function renderExRow(it){
   // Statisch (bei Aufbau, Datumswechsel, Laden einer Session): "zuletzt am …" + Übernehmen, letzte Notiz
   const refresh = ()=>{
     last = (!it.stretch && prev.length) ? lastRealSession(it.uebung) : null;
-    hintEl.innerHTML = last ? `zuletzt am ${fmtShort(last.date)} · <button type="button" class="takeBtn">↺ wie letztes Mal übernehmen</button>` : "";
+    hintEl.innerHTML = last ? `zuletzt am ${fmtShort(last.date)} · <button type="button" class="takeBtn">↺ nächsten Satz übernehmen</button>` : "";
     const take = hintEl.querySelector(".takeBtn");
     if(take) take.onclick = ()=>{
-      let filled = 0;
-      inputs.forEach((inp, i)=>{
-        const v = last.value[i];
-        if(inp.value.trim() === "" && v !== undefined && String(v).trim() !== ""){ inp.value = v; filled++; }
-      });
+      // Nur EIN Satz pro Tipp: der erste noch leere Satz, zu dem es einen Wert vom letzten Mal gibt
+      const i = nextTakeIndex();
+      if(i < 0){ showToast("Alle Sätze sind schon ausgefüllt"); return; }
+      inputs[i].value = last.value[i];
       live();
-      showToast(filled ? "Werte vom " + fmtShort(last.date) + " übernommen" : "Alle Felder sind schon ausgefüllt");
+      showToast("Satz " + (i + 1) + ": " + last.value[i] + " übernommen");
     };
     const pn = lastRealNote(it.uebung);
     prevNoteEl.textContent = pn ? `📝 ${fmtShort(pn.date)} · ${pn.text}` : "";
