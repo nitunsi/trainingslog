@@ -81,7 +81,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;}
-  body{padding-bottom:60px;}
+  body{padding-bottom:0;}
   h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;}
   .header{padding:22px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .themebtn{background:var(--surface);border:1px solid var(--line);color:var(--text-muted);border-radius:10px;min-height:40px;padding:8px 12px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;}
@@ -126,6 +126,10 @@
   .setboxes input:not(:placeholder-shown){border-color:var(--accent-dim);}
   .setboxes input:focus{outline:none;border-color:var(--accent);}
   .exrow .extempo{font-size:12px;color:var(--amber);margin-top:2px;font-weight:500;}
+  .wcs{display:inline-flex;align-items:center;}
+  .wc{display:inline-flex;align-items:center;gap:3px;width:37px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .wc .wi{display:inline-block;width:16px;text-align:center;font-size:12.5px;line-height:1;}
+  .wc b{font-weight:600;}
   .setboxes .sb{position:relative;flex:1;min-width:0;}
   .setboxes .sb .dlt{position:absolute;top:2px;right:6px;font-size:9.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;pointer-events:none;}
   .last-hint:empty,.prevnote:empty{display:none;}
@@ -153,6 +157,49 @@
   .more-toggle > .more-body{margin-top:12px;}
   .more-toggle > .more-body > div{margin-left:0 !important;margin-right:0 !important;}
   .toast{z-index:100;}
+
+  /* Seiten und untere Leiste (wie beim Tunsi Trainer) */
+  .page{display:none;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px) + 28px);}
+  .page.on{display:block;}
+  body.p-train .page{padding-bottom:120px;}
+  .pagehead{padding:20px 16px 10px;}
+  .pagehead h1{font-size:22px;font-weight:700;}
+  .pagehead .sub{margin-top:4px;color:var(--text-muted);font-size:13px;}
+  #tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--surface);border-top:1px solid var(--line);}
+  body.p-train #tabbar{display:none;}
+  #tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;padding:0;background:none;border:none;color:var(--text-muted);font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;}
+  #tabbar button.a{color:var(--accent);}
+  #tabbar svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .savebar{display:none;}
+  body.p-train .savebar{display:block;}
+
+  .startbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .bigbtn{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-height:78px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);text-align:left;font-family:'Space Grotesk',sans-serif;}
+  .bigbtn .bt{font-size:16px;font-weight:700;}
+  .bigbtn .bs{font-size:12px;font-weight:400;color:var(--text-muted);font-family:'Inter',sans-serif;}
+  .bigbtn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .bigbtn.primary .bs{color:var(--on-accent);opacity:.88;}
+  .bigbtn.wide{width:100%;align-items:center;min-height:56px;}
+
+  .trainbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line);}
+  .trainx{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-size:17px;}
+  .tbar{flex:1;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;}
+  .tbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s;}
+  .tcount{flex:none;min-width:3.6rem;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--text-muted);}
+
+  .wu-group{margin:0 16px 12px;padding:12px 14px 6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
+  .wu-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
+  .wu-group table{width:100%;border-collapse:collapse;font-size:14px;}
+  .wu-group td{padding:9px 2px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .wu-group tr:last-child td{border-bottom:none;}
+  .wu-group td:last-child{text-align:right;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;white-space:nowrap;padding-left:12px;}
+
+  .seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .seg button{flex:1;min-height:48px;background:var(--surface);border:none;border-right:1px solid var(--line);color:var(--text-muted);font-size:14px;font-weight:600;font-family:'Inter',sans-serif;}
+  .seg button:last-child{border-right:none;}
+  .seg button.on{background:var(--accent);color:var(--on-accent);}
+  .recentbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:2px 12px;}
+  .recentbox .recent-row:first-child{border-top:none;}
   .sheet-grip{width:42px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 0;}
   .sheet-panel{box-shadow:0 -8px 28px rgba(0,0,0,.45);}
   :root[data-theme="light"] .sheet-panel{box-shadow:0 -8px 28px rgba(20,40,30,.18);}
@@ -219,8 +266,6 @@
   .recent-row.cur{background:var(--accent-tint-2);}
 
   .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));}
-  .sprog{height:5px;margin:0 2px 9px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;overflow:hidden;}
-  .sprog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s;}
   .savebtn{width:100%;min-height:54px;background:var(--accent);color:var(--on-accent);border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
   .savebtn:active{background:var(--accent-dim);color:var(--text);}
   .savebtn.saved{background:var(--saved-bg);color:var(--accent);}
@@ -233,56 +278,95 @@
 </head>
 <body>
 
-<div class="header">
-  <h1>Trainingslog</h1>
-  <button class="themebtn" id="themeBtn" aria-label="Darstellung wechseln"></button>
-</div>
-
-<div id="weeklyGoalsHolder"></div>
-
-<div class="daycard" id="dayCard">
-  <div class="daycard-top">
-    <div>
-      <div class="daycard-meta" id="dayCardMeta"></div>
-      <div class="daycard-title" id="dayCardTitle"></div>
+<!-- ===== Seite: Start ===== -->
+<main class="page on" id="pageStart">
+  <div class="header"><h1>Trainingslog</h1></div>
+  <div id="weeklyGoalsHolder"></div>
+  <div class="daycard" id="dayCard">
+    <div class="daycard-top">
+      <div>
+        <div class="daycard-meta" id="dayCardMeta"></div>
+        <div class="daycard-title" id="dayCardTitle"></div>
+      </div>
+      <button class="daycard-change" id="dayPanelBtn" aria-expanded="false">Tag ändern ▾</button>
     </div>
-    <button class="daycard-change" id="dayPanelBtn" aria-expanded="false">Tag ändern ▾</button>
+    <div id="dayCardNext"></div>
+    <div class="startbtns">
+      <button class="bigbtn" id="goWarmup"><span class="bt">Aufwärmen</span><span class="bs">vorbereiten</span></button>
+      <button class="bigbtn primary" id="goTrain"><span class="bt">Training</span><span class="bs" id="goTrainSub">starten</span></button>
+    </div>
   </div>
-  <div id="dayCardNext"></div>
-  <div class="quickrow" id="quickRow">
-    <button data-type="lauf"><span class="qi">🏃</span><span class="ql">Lauf</span><i class="qdot"></i></button>
-    <button data-type="schwimmen"><span class="qi">🏊</span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
-    <button data-type="koerper"><span class="qi">⚖️</span><span class="ql">Körper</span><i class="qdot"></i></button>
-    <button data-type="sonstiges"><span class="qi">📝</span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+  <!-- Selten gebraucht: anderen Tag öffnen, Datum/ältere Session, Zeiger, Kalender -->
+  <div class="daypanel" id="dayPanel" hidden>
+    <div id="nextSessionHolder"></div>
+    <div class="daytabs" id="daytabs"></div>
+    <div class="streak" id="streak"></div>
+    <div class="datebar">
+      <input type="date" id="dateInput">
+      <select id="historySelect"><option value="">Letzte Sessions…</option></select>
+    </div>
+    <div id="calendarHolder"></div>
   </div>
-</div>
-<div id="editModeHolder"></div>
-
-<!-- Selten gebraucht: anderen Tag öffnen, Datum/ältere Session, Zeiger, Kalender -->
-<div class="daypanel" id="dayPanel" hidden>
-  <div id="nextSessionHolder"></div>
-  <div class="daytabs" id="daytabs"></div>
-  <div class="streak" id="streak"></div>
-  <div class="datebar">
-    <input type="date" id="dateInput">
-    <select id="historySelect"><option value="">Letzte Sessions…</option></select>
+  <div class="daycard">
+    <div class="block-title">Weiterer Eintrag für den Tag</div>
+    <div class="quickrow">
+      <button data-type="lauf"><span class="qi">🏃</span><span class="ql">Lauf</span><i class="qdot"></i></button>
+      <button data-type="schwimmen"><span class="qi">🏊</span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
+      <button data-type="koerper"><span class="qi">⚖️</span><span class="ql">Körper</span><i class="qdot"></i></button>
+      <button data-type="sonstiges"><span class="qi">📝</span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+    </div>
   </div>
-  <div id="calendarHolder"></div>
-</div>
+</main>
 
-<div id="orphanedHolder"></div>
-<div id="warmupHolder"></div>
-<div id="blocksHolder"></div>
+<!-- ===== Seite: Aufwärmen ===== -->
+<main class="page" id="pageWarmup">
+  <div class="pagehead"><h1>Aufwärmen</h1><div class="sub" id="warmupSub"></div></div>
+  <div id="warmupHolder"></div>
+  <div style="margin:4px 16px 0;"><button class="bigbtn primary wide" id="warmupNext"><span class="bt">Weiter zum Training →</span></button></div>
+</main>
 
+<!-- ===== Seite: Training (ohne untere Leiste, mit Fortschritt oben) ===== -->
+<main class="page" id="pageTrain">
+  <div class="trainbar">
+    <button class="trainx" id="trainClose" aria-label="Zurück zum Start">✕</button>
+    <div class="tbar"><i id="trainFill"></i></div>
+    <span class="tcount" id="trainCount"></span>
+  </div>
+  <div class="pagehead"><h1 id="trainTitle"></h1><div class="sub daycard-meta" id="trainSub"></div></div>
+  <div id="editModeHolder"></div>
+  <div id="orphanedHolder"></div>
+  <div id="blocksHolder"></div>
 <div style="margin:0 16px 16px;">
   <div class="block-title" style="margin-bottom:6px;">Notizen zur Session</div>
   <textarea id="sessionNotes" placeholder="Allgemeines zur Session (optional) – z. B. wie es sich angefühlt hat, Auffälligkeiten, Ideen für Anpassungen…" style="width:100%;min-height:70px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:10px;padding:11px 13px;resize:vertical;"></textarea>
 </div>
+</main>
 
-<details class="more-toggle" id="moreEntries" style="margin-bottom:90px;">
-  <summary>Export &amp; Sessions verwalten</summary>
-  <div class="more-body">
-<div style="margin:0 16px 16px;">
+<!-- ===== Seite: Einträge ===== -->
+<main class="page" id="pageEntries">
+  <div class="pagehead"><h1>Einträge</h1></div>
+  <div class="daycard">
+    <div class="block-title">Neuer Eintrag</div>
+    <div class="quickrow">
+      <button data-type="lauf"><span class="qi">🏃</span><span class="ql">Lauf</span><i class="qdot"></i></button>
+      <button data-type="schwimmen"><span class="qi">🏊</span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
+      <button data-type="koerper"><span class="qi">⚖️</span><span class="ql">Körper</span><i class="qdot"></i></button>
+      <button data-type="sonstiges"><span class="qi">📝</span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-title">Letzte Einträge · zum Ändern antippen</div>
+    <div class="recentbox" id="entriesRecent"></div>
+  </div>
+  <div class="block">
+    <div class="block-title">Darstellung</div>
+    <div class="seg" id="themeSeg" role="group" aria-label="Darstellung">
+      <button data-mode="auto">🌓 Auto</button><button data-mode="light">☀️ Hell</button><button data-mode="dark">🌙 Dunkel</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-title">Export &amp; Sessions</div>
+<div>
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
     <label for="exportWeeks" style="font-size:12px;color:var(--text-muted);">Letzte</label>
     <input type="number" id="exportWeeks" value="6" min="1" max="52" style="width:52px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px;border-radius:6px;text-align:center;">
@@ -295,7 +379,15 @@
   <div id="sessionsListHolder" style="display:none;margin-top:10px;"></div>
 </div>
   </div>
-</details>
+</main>
+
+<!-- ===== Untere Leiste ===== -->
+<nav id="tabbar" aria-label="Navigation">
+  <button data-page="start" class="a"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Start</button>
+  <button data-page="warmup"><svg viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></svg>Aufwärmen</button>
+  <button data-page="train"><svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Training</button>
+  <button data-page="entries"><svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Einträge</button>
+</nav>
 
 <div class="sheet" id="daySheet" aria-hidden="true">
   <div class="sheet-backdrop" id="sheetBackdrop"></div>
@@ -324,8 +416,7 @@
 </div>
 
 <div class="toast" id="toast">Gespeichert</div>
-<div class="savebar"><div class="sprog" id="sprog" aria-hidden="true"><i id="sprogFill"></i></div><button class="savebtn" id="saveBtn">Session speichern</button></div>
-
+<div class="savebar"><button class="savebtn" id="saveBtn">Session speichern</button></div>
 <script>
 const ALLGEMEIN_WARMUP = [
   { title:"Allgemeines Aufwärmen (1x)", rows:[
@@ -686,16 +777,42 @@ function todayStr(){
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
 
+// ---------- Seiten und untere Leiste: Start · Aufwärmen · Training · Einträge ----------
+const PAGES = ["start", "warmup", "train", "entries"];
+let currentPage = "start";
+const pageScroll = {};   // gemerkte Scroll-Position je Seite (zurück zum Training = gleiche Stelle)
+const pageEl = name => document.getElementById("page" + name[0].toUpperCase() + name.slice(1));
+function showPage(name, opts){
+  opts = opts || {};
+  if(!PAGES.includes(name)) name = "start";
+  pageScroll[currentPage] = window.scrollY;
+  currentPage = name;
+  PAGES.forEach(pg => pageEl(pg).classList.toggle("on", pg === name));
+  document.body.classList.toggle("p-train", name === "train");
+  document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("a", b.dataset.page === name));
+  window.scrollTo(0, opts.top ? 0 : (pageScroll[name] || 0));
+  if(!opts.noHistory){ try{ history.pushState({ page: name }, ""); }catch(e){} }
+  if(name === "entries" && typeof renderEntriesRecent === "function") renderEntriesRecent();
+}
+window.addEventListener("popstate", e => showPage((e.state && e.state.page) || "start", { noHistory: true }));
+try{ history.replaceState({ page: "start" }, ""); }catch(e){}
+document.querySelectorAll("#tabbar button").forEach(btn => btn.addEventListener("click", ()=>{
+  if(btn.dataset.page === currentPage) window.scrollTo({ top: 0, behavior: "smooth" });
+  else showPage(btn.dataset.page);
+}));
+document.getElementById("goWarmup").addEventListener("click", ()=> showPage("warmup", { top: true }));
+document.getElementById("goTrain").addEventListener("click", ()=> showPage("train"));
+document.getElementById("warmupNext").addEventListener("click", ()=> showPage("train", { top: true }));
+document.getElementById("trainClose").addEventListener("click", ()=> showPage("start", { top: true }));
+
 // ---------- Darstellung: Auto (System) / Hell / Dunkel ----------
-const THEME_MODES = ["auto", "light", "dark"];
-const THEME_LABEL = { auto: "🌓 Auto", light: "☀️ Hell", dark: "🌙 Dunkel" };
 function currentThemeMode(){
   const t = document.documentElement.getAttribute("data-theme");
   return t === "light" || t === "dark" ? t : "auto";
 }
 function syncThemeUi(){
-  const btn = document.getElementById("themeBtn");
-  if(btn) btn.textContent = THEME_LABEL[currentThemeMode()];
+  const mode = currentThemeMode();
+  document.querySelectorAll("#themeSeg button").forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
   const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
   const meta = document.querySelector('meta[name="theme-color"]');
   if(meta && bg) meta.setAttribute("content", bg);
@@ -706,11 +823,10 @@ function setThemeMode(mode){
   try{ if(mode === "auto") localStorage.removeItem("theme"); else localStorage.setItem("theme", mode); }catch(e){}
   syncThemeUi();
 }
-document.getElementById("themeBtn").addEventListener("click", ()=>{
-  const next = THEME_MODES[(THEME_MODES.indexOf(currentThemeMode()) + 1) % THEME_MODES.length];
-  setThemeMode(next);
-  showToast({ auto: "Darstellung: wie das Gerät", light: "Darstellung: hell", dark: "Darstellung: dunkel" }[next]);
-});
+document.querySelectorAll("#themeSeg button").forEach(btn => btn.addEventListener("click", ()=>{
+  setThemeMode(btn.dataset.mode);
+  showToast({ auto: "Darstellung: wie das Gerät", light: "Darstellung: hell", dark: "Darstellung: dunkel" }[btn.dataset.mode]);
+}));
 if(window.matchMedia) window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncThemeUi);
 syncThemeUi();
 
@@ -736,11 +852,11 @@ function renderTabs(){
 function renderWarmup(){
   const holder = document.getElementById("warmupHolder");
   const day = DAYS[currentDay];
-  const groups = day.warmup.map(group=>{
+  holder.innerHTML = day.warmup.map(group=>{
     const rows = group.rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
-    return `<div style="font-weight:600;color:var(--text);font-size:11.5px;margin:8px 0 4px;">${group.title}</div><table>${rows}</table>`;
+    return `<div class="wu-group"><div class="wu-title">${group.title}</div><table>${rows}</table></div>`;
   }).join("");
-  holder.innerHTML = `<details class="warmup-toggle"><summary>Aufwärmen anzeigen</summary>${groups}</details>`;
+  document.getElementById("warmupSub").textContent = day.title;
 }
 
 function renderBlocks(){
@@ -879,10 +995,18 @@ function renderExRow(it){
 function updateProgress(){
   const rows = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch)")];
   const done = rows.filter(r => r.classList.contains("done")).length;
-  const fill = document.getElementById("sprogFill");
+  const fill = document.getElementById("trainFill");
   if(fill) fill.style.width = rows.length ? Math.round(done / rows.length * 100) + "%" : "0%";
-  const btn = document.getElementById("saveBtn");
-  if(btn && !btn.classList.contains("saved")) btn.textContent = done > 0 ? `Session speichern · ${done} / ${rows.length}` : "Session speichern";
+  const cnt = document.getElementById("trainCount");
+  if(cnt) cnt.textContent = rows.length ? done + " / " + rows.length : "";
+  progressDone = done; progressTotal = rows.length;
+  updateTrainSub();
+}
+let progressDone = 0, progressTotal = 0, trainSavedToday = false;
+function updateTrainSub(){
+  const el = document.getElementById("goTrainSub");
+  if(!el) return;
+  el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " eingetragen" : "starten");
 }
 
 // Zahl bzw. Summe aus einem Satzwert: "10" -> 10, "6+5" -> 11, "20s" -> 20. Alles andere (z. B. "5x6kg") -> null.
@@ -1255,7 +1379,7 @@ async function saveSession(){
     const btn = document.getElementById("saveBtn");
     btn.classList.add("saved");
     btn.textContent = "Gespeichert ✓";
-    setTimeout(()=>{ btn.classList.remove("saved"); updateProgress(); }, 1800);
+    setTimeout(()=>{ btn.classList.remove("saved"); btn.textContent = "Session speichern"; }, 1800);
     // Der Zeiger rückt nur weiter, wenn genau der vorgeschlagene Tag gespeichert wurde. Wiederholungen
     // oder ein anderer Tag lassen ihn stehen, sonst rutscht er zu weit und ein Plan-Platz fällt durch.
     let pointerNote = "";
@@ -1451,7 +1575,7 @@ async function editSession(dayKey, date){
   document.getElementById("dateInput").value = date;
   await loadSessionInto(date);
   updateDayCard();
-  window.scrollTo({top:0, behavior:"smooth"});
+  showPage("train", { top: true });
   showToast("Session vom " + date + " zum Bearbeiten geladen");
 }
 
@@ -1531,12 +1655,17 @@ async function updateDayCard(){
   document.getElementById("dayCardTitle").textContent = DAYS[currentDay].title;
   const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
   const chip = date === todayStr() ? `<span class="chip">Heute</span>` : `<span class="chip warn">anderes Datum</span>`;
-  document.getElementById("dayCardMeta").innerHTML = `${wd} ${fmtShort(date)}${date.slice(0,4)} ${chip}`;
+  const metaHtml = `${wd} ${fmtShort(date)}${date.slice(0,4)} ${chip}`;
+  document.getElementById("dayCardMeta").innerHTML = metaHtml;
+  document.getElementById("trainTitle").textContent = DAYS[currentDay].title;
+  document.getElementById("trainSub").innerHTML = metaHtml;
   const token = ++dayCardToken;
   try{
     const have = new Set((await fetchDayEntries(date)).map(r => r.day_key));
     if(token !== dayCardToken) return;
-    document.querySelectorAll("#quickRow button").forEach(b => b.classList.toggle("has", have.has(ENTRY_TYPES[b.dataset.type].key)));
+    document.querySelectorAll(".quickrow button").forEach(b => b.classList.toggle("has", have.has(ENTRY_TYPES[b.dataset.type].key)));
+    trainSavedToday = have.has(currentDay);
+    updateTrainSub();
   }catch(e){ console.error("updateDayCard", e); }
 }
 
@@ -1714,6 +1843,7 @@ function closeDaySheet(force){
 async function afterEntriesChanged(){
   await updateDayCard();
   await renderWeeklyGoals();
+  if(currentPage === "entries") renderEntriesRecent();
   if(typeof sessionsListOpen !== "undefined" && sessionsListOpen) await renderSessionsList();
 }
 
@@ -1775,7 +1905,15 @@ async function deleteSheetEntry(type){
 }
 
 async function renderSheetRecent(){
-  const holder = document.getElementById("sheetRecent");
+  await renderRecentInto(document.getElementById("sheetRecent"), async date => {
+    await gotoSheetDate(date);
+    document.getElementById("sheetBody").scrollTop = 0;
+  });
+}
+async function renderEntriesRecent(){
+  await renderRecentInto(document.getElementById("entriesRecent"), date => openDaySheet(null, date));
+}
+async function renderRecentInto(holder, onPick){
   try{
     const { data, error } = await sb
       .from("training_sessions")
@@ -1812,17 +1950,14 @@ async function renderSheetRecent(){
       const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
       return `<button class="recent-row${date === sheetDate ? " cur" : ""}" data-date="${date}"><span class="rd">${wd} ${fmtShort(date)}${date.slice(0,4) === String(new Date().getFullYear()) ? "" : date.slice(2,4)}</span><span class="rs">${lines.join("<br>")}</span></button>`;
     }).join("");
-    holder.querySelectorAll(".recent-row").forEach(btn => btn.onclick = async ()=>{
-      await gotoSheetDate(btn.dataset.date);
-      document.getElementById("sheetBody").scrollTop = 0;
-    });
+    holder.querySelectorAll(".recent-row").forEach(btn => btn.onclick = ()=> onPick(btn.dataset.date));
   }catch(e){
-    console.error("renderSheetRecent", e);
+    console.error("renderRecentInto", e);
     holder.innerHTML = `<div style="font-size:11.5px;color:var(--danger);">Fehler beim Laden: ${e.message}</div>`;
   }
 }
 
-document.querySelectorAll("#quickRow button").forEach(btn => btn.addEventListener("click", ()=> openDaySheet(btn.dataset.type)));
+document.querySelectorAll(".quickrow button").forEach(btn => btn.addEventListener("click", ()=> openDaySheet(btn.dataset.type)));
 document.getElementById("sheetClose").addEventListener("click", ()=> closeDaySheet());
 document.getElementById("sheetBackdrop").addEventListener("click", ()=> closeDaySheet());
 document.getElementById("sheetSave").addEventListener("click", saveSheet);
@@ -1895,12 +2030,15 @@ async function renderWeeklyGoals(){
       return { start, lauf, schwimmen, koerper, training };
     });
 
-    const counts = w => `${w.koerper ? "⚖️ " + w.koerper + " · " : ""}🏋️ ${w.training} · 🏃 ${w.lauf} · 🏊 ${w.schwimmen}`;
+    // Feste Spalten, damit Symbole und Zahlen in jeder Zeile genau untereinander stehen
+    const anyBody = weeks.some(w => w.koerper > 0);
+    const cell = (icon, n) => `<span class="wc"><span class="wi">${icon}</span><b>${n}</b></span>`;
+    const counts = w => `<span class="wcs">${anyBody ? (w.koerper ? cell("⚖️", w.koerper) : `<span class="wc"></span>`) : ""}${cell("🏋️", w.training)}${cell("🏃", w.lauf)}${cell("🏊", w.schwimmen)}</span>`;
     const weekLabel = (w, i) => i === 1 ? "Letzte Woche" : `KW ${isoWeek(w.start)}`;
     const yearNow = new Date().getFullYear();
     const startLabel = w => fmtShort(fmtDate(w.start)) + (w.start.getFullYear() === yearNow ? "" : String(w.start.getFullYear()).slice(2));
     const rowHtml = (w, i) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid var(--line);">
-        <span style="font-size:11.5px;color:var(--text-muted);">${weekLabel(w, i)} <span style="font-family:'IBM Plex Mono',monospace;">· ab ${startLabel(w)}</span></span>
+        <span style="font-size:11.5px;color:var(--text-muted);white-space:nowrap;">${weekLabel(w, i)} <span style="font-family:'IBM Plex Mono',monospace;">· ${startLabel(w)}</span></span>
         <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text);">${counts(w)}</span>
       </div>`;
     const recent = weeks.slice(1,3).map((w,i)=> rowHtml(w, i+1)).join("");
@@ -1909,8 +2047,8 @@ async function renderWeeklyGoals(){
     holder.innerHTML = `<div class="wkcard" style="margin:0 16px 14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 0 5px;">
         <span style="display:flex;align-items:center;gap:9px;">
-          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Diese Woche</span>
-          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:9px;min-height:32px;padding:4px 10px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;">⏱ Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;white-space:nowrap;">Diese Woche</span>
+          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:9px;min-height:32px;padding:4px 8px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;">⏱ Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
         </span>
         <span style="font-size:12.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;">${counts(weeks[0])}</span>
       </div>
@@ -1945,6 +2083,7 @@ async function bootstrap(){
   const idx = await getPointer();
   const key = SEQUENCE[idx];
   currentDay = key || "l2a"; // Review-Slot -> Fallback L2A
+  let todaySaved = false;
 
   // Max. eine normale Trainingseinheit pro Tag: falls für heute schon EIN Tag (egal welcher)
   // geloggt wurde, den direkt öffnen statt des Zeiger-Vorschlags.
@@ -1957,20 +2096,16 @@ async function bootstrap(){
       .eq("session_date", todayStr())
       .in("day_key", dayKeys)
       .maybeSingle();
-    if(!error && data){ currentDay = data.day_key; }
+    if(!error && data){ currentDay = data.day_key; todaySaved = true; }
   }catch(e){ console.error("bootstrap today-check", e); }
 
   await init();
+  // Ist heute schon ein Training gespeichert, öffnet die App direkt dort statt auf der Startseite.
+  if(todaySaved) showPage("train", { noHistory: true, top: true });
 }
 bootstrap();
 renderWeeklyGoals();
 
-// "Laufen, Körperwerte & mehr": Auf/Zu-Zustand pro Gerät merken (reine Bequemlichkeit).
-(function(){
-  const more = document.getElementById("moreEntries");
-  try{ if(localStorage.getItem("moreEntriesOpen") === "1") more.open = true; }catch(e){}
-  more.addEventListener("toggle", ()=>{ try{ localStorage.setItem("moreEntriesOpen", more.open ? "1" : "0"); }catch(e){} });
-})();
 </script>
 </body>
 </html>
