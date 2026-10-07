@@ -1134,13 +1134,17 @@ async function saveSession(){
     btn.classList.add("saved");
     btn.textContent = "Gespeichert ✓";
     setTimeout(()=>{ btn.classList.remove("saved"); btn.textContent = "Session speichern"; }, 1800);
-    showToast(isNewSession ? "Gespeichert für " + date : "Session vom " + date + " aktualisiert (Zeiger unverändert)");
+    // Der Zeiger rückt nur weiter, wenn genau der vorgeschlagene Tag gespeichert wurde. Wiederholungen
+    // oder ein anderer Tag lassen ihn stehen, sonst rutscht er zu weit und ein Plan-Platz fällt durch.
+    let pointerNote = "";
+    if(isNewSession){
+      const curIdx = await getPointer();
+      if(SEQUENCE[curIdx] === currentDay) await setPointer(curIdx + 1);
+      else if(SEQUENCE.includes(currentDay)) pointerNote = " · Zeiger bleibt bei " + DAYS[SEQUENCE[curIdx]].title;
+    }
+    showToast(isNewSession ? "Gespeichert für " + date + pointerNote : "Session vom " + date + " aktualisiert (Zeiger unverändert)");
     await populateHistory();
     await renderStreak();
-    if(isNewSession && SEQUENCE.includes(currentDay)){
-      const curIdx = await getPointer();
-      await setPointer(curIdx + 1);
-    }
     await renderNextSession();
     await renderWeeklyGoals();
   }catch(e){
