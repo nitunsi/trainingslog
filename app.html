@@ -126,6 +126,10 @@
   .setboxes input:not(:placeholder-shown){border-color:var(--accent-dim);}
   .setboxes input:focus{outline:none;border-color:var(--accent);}
   .exrow .extempo{font-size:12px;color:var(--amber);margin-top:2px;font-weight:500;}
+  .wcs{display:inline-flex;align-items:center;}
+  .wc{display:inline-flex;align-items:center;gap:3px;width:37px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .wc .wi{display:inline-block;width:16px;text-align:center;font-size:12.5px;line-height:1;}
+  .wc b{font-weight:600;}
   .setboxes .sb{position:relative;flex:1;min-width:0;}
   .setboxes .sb .dlt{position:absolute;top:2px;right:6px;font-size:9.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;pointer-events:none;}
   .last-hint:empty,.prevnote:empty{display:none;}
@@ -2026,12 +2030,15 @@ async function renderWeeklyGoals(){
       return { start, lauf, schwimmen, koerper, training };
     });
 
-    const counts = w => `${w.koerper ? "⚖️ " + w.koerper + " · " : ""}🏋️ ${w.training} · 🏃 ${w.lauf} · 🏊 ${w.schwimmen}`;
+    // Feste Spalten, damit Symbole und Zahlen in jeder Zeile genau untereinander stehen
+    const anyBody = weeks.some(w => w.koerper > 0);
+    const cell = (icon, n) => `<span class="wc"><span class="wi">${icon}</span><b>${n}</b></span>`;
+    const counts = w => `<span class="wcs">${anyBody ? (w.koerper ? cell("⚖️", w.koerper) : `<span class="wc"></span>`) : ""}${cell("🏋️", w.training)}${cell("🏃", w.lauf)}${cell("🏊", w.schwimmen)}</span>`;
     const weekLabel = (w, i) => i === 1 ? "Letzte Woche" : `KW ${isoWeek(w.start)}`;
     const yearNow = new Date().getFullYear();
     const startLabel = w => fmtShort(fmtDate(w.start)) + (w.start.getFullYear() === yearNow ? "" : String(w.start.getFullYear()).slice(2));
     const rowHtml = (w, i) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid var(--line);">
-        <span style="font-size:11.5px;color:var(--text-muted);">${weekLabel(w, i)} <span style="font-family:'IBM Plex Mono',monospace;">· ab ${startLabel(w)}</span></span>
+        <span style="font-size:11.5px;color:var(--text-muted);white-space:nowrap;">${weekLabel(w, i)} <span style="font-family:'IBM Plex Mono',monospace;">· ${startLabel(w)}</span></span>
         <span style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text);">${counts(w)}</span>
       </div>`;
     const recent = weeks.slice(1,3).map((w,i)=> rowHtml(w, i+1)).join("");
@@ -2040,8 +2047,8 @@ async function renderWeeklyGoals(){
     holder.innerHTML = `<div class="wkcard" style="margin:0 16px 14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 0 5px;">
         <span style="display:flex;align-items:center;gap:9px;">
-          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;">Diese Woche</span>
-          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:9px;min-height:32px;padding:4px 10px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;">⏱ Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;white-space:nowrap;">Diese Woche</span>
+          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:9px;min-height:32px;padding:4px 8px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;">⏱ Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
         </span>
         <span style="font-size:12.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;">${counts(weeks[0])}</span>
       </div>
