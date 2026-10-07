@@ -4,27 +4,87 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Trainingslog</title>
+<meta name="theme-color" content="#12201B">
+<script>
+  // Gespeicherte Darstellung vor dem ersten Zeichnen setzen (kein Aufblitzen). Ohne Eintrag gilt die System-Einstellung.
+  try{ var t = localStorage.getItem("theme"); if(t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); }catch(e){}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
+  /* Dunkel ist der Standard; Hell folgt der System-Einstellung oder dem Umschalter (data-theme). */
   :root{
+    color-scheme:dark;
     --bg:#12201B;
     --surface:#1B2B24;
     --surface-2:#22362D;
     --line:#2C4038;
     --accent:#49B8A6;
     --accent-dim:#2E6F65;
+    --on-accent:#0D1813;
     --text:#EDEDE4;
     --text-muted:#8FA79B;
+    --placeholder:#7F978B;
     --amber:#D9A441;
     --danger:#D9705A;
+    --accent-tint:rgba(73,184,166,0.10);
+    --accent-tint-2:rgba(73,184,166,0.08);
+    --amber-tint:rgba(217,164,65,0.12);
+    --amber-tint-2:rgba(217,164,65,0.18);
+    --saved-bg:#3B5147;
+    --backdrop:rgba(0,0,0,0.6);
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      color-scheme:light;
+      --bg:#F3F5F1;
+      --surface:#FFFFFF;
+      --surface-2:#EAEFEA;
+      --line:#D3DBD4;
+      --accent:#17766A;
+      --accent-dim:#A9D8CF;
+      --on-accent:#FFFFFF;
+      --text:#1B2A24;
+      --text-muted:#5B6F65;
+      --placeholder:#5F746A;
+      --amber:#8A5E00;
+      --danger:#B4412B;
+      --accent-tint:rgba(23,118,106,0.10);
+      --accent-tint-2:rgba(23,118,106,0.08);
+      --amber-tint:rgba(138,94,0,0.10);
+      --amber-tint-2:rgba(138,94,0,0.16);
+      --saved-bg:#D6E7E2;
+      --backdrop:rgba(20,30,25,0.45);
+    }
+  }
+  :root[data-theme="light"]{
+    color-scheme:light;
+    --bg:#F3F5F1;
+    --surface:#FFFFFF;
+    --surface-2:#EAEFEA;
+    --line:#D3DBD4;
+    --accent:#17766A;
+    --accent-dim:#A9D8CF;
+    --on-accent:#FFFFFF;
+    --text:#1B2A24;
+    --text-muted:#5B6F65;
+    --placeholder:#5F746A;
+    --amber:#8A5E00;
+    --danger:#B4412B;
+    --accent-tint:rgba(23,118,106,0.10);
+    --accent-tint-2:rgba(23,118,106,0.08);
+    --amber-tint:rgba(138,94,0,0.10);
+    --amber-tint-2:rgba(138,94,0,0.16);
+    --saved-bg:#D6E7E2;
+    --backdrop:rgba(20,30,25,0.45);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;}
   body{padding-bottom:60px;}
   h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;}
-  .header{padding:22px 16px 10px;}
+  .header{padding:22px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .themebtn{background:var(--surface);border:1px solid var(--line);color:var(--text-muted);border-radius:8px;padding:7px 10px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;}
   .header h1{font-size:22px;font-weight:700;letter-spacing:0.2px;}
   .header p{margin:4px 0 0;color:var(--text-muted);font-size:13px;}
 
@@ -58,7 +118,7 @@
   .exrow .exziel{font-size:12px;color:var(--text-muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
   .setboxes{display:flex;gap:6px;margin-top:9px;}
   .setboxes input{flex:1;width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;text-align:center;border-radius:7px;padding:9px 2px;}
-  .setboxes input::placeholder{color:#7F978B;font-weight:500;}
+  .setboxes input::placeholder{color:var(--placeholder);font-weight:500;}
   .setboxes input:not(:placeholder-shown){border-color:var(--accent-dim);}
   .setboxes input:focus{outline:none;border-color:var(--accent);}
   .exrow .extempo{font-size:12px;color:var(--amber);margin-top:2px;font-weight:500;}
@@ -73,7 +133,7 @@
   .exnote[hidden]{display:none;}
   .exnote:focus{outline:none;border-color:var(--accent);}
   .hnote{margin-top:2px;padding-left:8px;border-left:2px solid var(--amber);font-style:italic;white-space:pre-wrap;}
-  .exrow .goalhint{display:none;margin-top:7px;font-size:11.5px;font-weight:600;color:var(--accent);background:rgba(73,184,166,0.10);border:1px solid var(--accent-dim);border-radius:7px;padding:5px 9px;}
+  .exrow .goalhint{display:none;margin-top:7px;font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-tint);border:1px solid var(--accent-dim);border-radius:7px;padding:5px 9px;}
   .exrow .goalhint.show{display:block;}
   .more-toggle{margin:0 16px 16px;}
   .more-toggle > summary{cursor:pointer;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 14px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:var(--text);}
@@ -90,10 +150,10 @@
   .daycard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
   .daycard-meta{font-size:11.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
   .chip{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--text);}
-  .chip.warn{background:rgba(217,164,65,0.18);color:var(--amber);}
+  .chip.warn{background:var(--amber-tint-2);color:var(--amber);}
   .daycard-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;margin-top:3px;}
   .daycard-change{flex:0 0 auto;background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:8px;padding:7px 10px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;}
-  .nextchip{display:block;width:100%;text-align:left;margin-top:10px;background:rgba(73,184,166,0.10);border:1px solid var(--accent-dim);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;}
+  .nextchip{display:block;width:100%;text-align:left;margin-top:10px;background:var(--accent-tint);border:1px solid var(--accent-dim);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;}
   .nextchip b{font-family:'Space Grotesk',sans-serif;}
   div.nextchip{border-style:dashed;color:var(--text-muted);}
   .quickrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:13px;}
@@ -109,7 +169,7 @@
   /* Bottom-Sheet: alle Einträge eines Tages */
   .sheet{position:fixed;inset:0;z-index:50;display:none;}
   .sheet.open{display:block;}
-  .sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.6);}
+  .sheet-backdrop{position:absolute;inset:0;background:var(--backdrop);}
   .sheet-panel{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-bottom:none;border-radius:16px 16px 0 0;}
   .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;}
   .sheet-head h2{font-size:16px;}
@@ -141,12 +201,12 @@
   .recent-row{display:flex;gap:10px;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--line);padding:8px 2px;color:var(--text);font-family:'Inter',sans-serif;}
   .recent-row .rd{flex:0 0 74px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-muted);padding-top:1px;}
   .recent-row .rs{flex:1;font-size:12px;line-height:1.45;}
-  .recent-row.cur{background:rgba(73,184,166,0.08);}
+  .recent-row.cur{background:var(--accent-tint-2);}
 
   .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px 18px;}
-  .savebtn{width:100%;background:var(--accent);color:#0D1813;border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
+  .savebtn{width:100%;background:var(--accent);color:var(--on-accent);border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
   .savebtn:active{background:var(--accent-dim);color:var(--text);}
-  .savebtn.saved{background:#3B5147;color:var(--accent);}
+  .savebtn.saved{background:var(--saved-bg);color:var(--accent);}
 
   .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--accent);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .25s;}
   .toast.show{opacity:1;}
@@ -158,6 +218,7 @@
 
 <div class="header">
   <h1>Trainingslog</h1>
+  <button class="themebtn" id="themeBtn" aria-label="Darstellung wechseln"></button>
 </div>
 
 <div id="weeklyGoalsHolder"></div>
@@ -606,6 +667,34 @@ function todayStr(){
   const d = new Date();
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
+
+// ---------- Darstellung: Auto (System) / Hell / Dunkel ----------
+const THEME_MODES = ["auto", "light", "dark"];
+const THEME_LABEL = { auto: "🌓 Auto", light: "☀️ Hell", dark: "🌙 Dunkel" };
+function currentThemeMode(){
+  const t = document.documentElement.getAttribute("data-theme");
+  return t === "light" || t === "dark" ? t : "auto";
+}
+function syncThemeUi(){
+  const btn = document.getElementById("themeBtn");
+  if(btn) btn.textContent = THEME_LABEL[currentThemeMode()];
+  const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta && bg) meta.setAttribute("content", bg);
+}
+function setThemeMode(mode){
+  if(mode === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", mode);
+  try{ if(mode === "auto") localStorage.removeItem("theme"); else localStorage.setItem("theme", mode); }catch(e){}
+  syncThemeUi();
+}
+document.getElementById("themeBtn").addEventListener("click", ()=>{
+  const next = THEME_MODES[(THEME_MODES.indexOf(currentThemeMode()) + 1) % THEME_MODES.length];
+  setThemeMode(next);
+  showToast({ auto: "Darstellung: wie das Gerät", light: "Darstellung: hell", dark: "Darstellung: dunkel" }[next]);
+});
+if(window.matchMedia) window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncThemeUi);
+syncThemeUi();
 
 function showToast(msg){
   const t = document.getElementById("toast");
@@ -1066,7 +1155,7 @@ async function loadSessionInto(date){
     showToast("Session vom " + date + " geladen");
     const editBanner = document.getElementById("editModeHolder");
     if(date !== todayStr()){
-      editBanner.innerHTML = `<div style="margin:0 16px 12px;padding:9px 14px;background:rgba(217,164,65,0.12);border:1px solid var(--amber);border-radius:9px;font-size:12px;color:var(--amber);font-weight:600;">
+      editBanner.innerHTML = `<div style="margin:0 16px 12px;padding:9px 14px;background:var(--amber-tint);border:1px solid var(--amber);border-radius:9px;font-size:12px;color:var(--amber);font-weight:600;">
         ✎ Du bearbeitest die Session vom ${date} – nicht heute. Speichern überschreibt diesen Termin.
       </div>`;
     } else {
