@@ -193,6 +193,9 @@
   .tbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s;}
   .tcount{flex:none;min-width:5.6rem;white-space:nowrap;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--text-muted);}
 
+  .tsave{flex:none;width:1.4em;text-align:center;font-weight:700;font-size:15px;color:var(--text-muted);}
+  .tsave[data-st="saved"]{color:var(--accent);}
+  .tsave[data-st="error"]{color:var(--danger);}
   .wu-group{margin:0 16px 12px;padding:12px 14px 6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
   .wu-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
   .wu-group table{width:100%;border-collapse:collapse;font-size:14px;}
@@ -339,6 +342,7 @@
     <button class="trainx" id="trainClose" aria-label="Zurück zum Start">✕</button>
     <div class="tbar"><i id="trainFill"></i></div>
     <span class="tcount" id="trainCount"></span>
+    <span class="tsave" id="trainSave" role="status" aria-live="polite"></span>
   </div>
   <div class="pagehead"><h1 id="trainTitle"></h1><div class="sub daycard-meta" id="trainSub"></div></div>
   <div id="editModeHolder"></div>
@@ -795,6 +799,7 @@ function showPage(name, opts){
   if(!PAGES.includes(name)) name = "start";
   pageScroll[currentPage] = window.scrollY;
   const prevPage = currentPage;
+  if(prevPage === "train" && name !== "train") flushAutosave();
   currentPage = name;
   PAGES.forEach(pg => pageEl(pg).classList.toggle("on", pg === name));
   document.body.classList.toggle("p-train", name === "train");
@@ -980,6 +985,7 @@ function renderExRow(it){
       if(i < 0){ showToast("Alle Sätze sind schon ausgefüllt"); return; }
       inputs[i].value = last.value[i];
       live();
+      scheduleAutosave(400);
       showToast("Satz " + (i + 1) + ": " + last.value[i] + " übernommen");
     };
     const pn = lastRealNote(it.uebung);
@@ -1300,6 +1306,8 @@ async function loadSessionInto(date){
     if(error) throw error;
     if(!data || !data.data) return;
     const sessionData = data.data;
+    sessionKnown = currentDay + "|" + date;
+    setSaveState("saved");
     document.getElementById("sessionNotes").value = sessionData["_notes"] || "";
     const matchedNames = new Set(["_notes", "_exnotes"]);
     const exn = sessionData["_exnotes"] || {};
@@ -1338,8 +1346,43 @@ async function loadSessionInto(date){
   }catch(e){ console.error("loadSessionInto", e); showToast("Fehler beim Laden: " + e.message); }
 }
 
-async function saveSession(){
+// Automatisches Speichern (heutige Einheit): nach jedem Satz bzw. nach "Satz übernehmen".
+// Alle Speichervorgänge laufen nacheinander, damit der Zeiger nie doppelt weiterrückt.
+let sessionKnown = null;      // "tag|datum" der geladenen/gespeicherten Session (spart Abfragen)
+let saveChain = Promise.resolve();
+let autosaveTimer = null, autosaveBlocked = false, autosaveErrorShown = false;
+
+function saveSession(opts){
+  saveChain = saveChain.then(() => doSaveSession(opts || {})).catch(e => console.error("saveSession", e));
+  return saveChain;
+}
+function setSaveState(st){
+  const el = document.getElementById("trainSave");
+  if(!el) return;
+  el.dataset.st = st;
+  el.textContent = st === "saved" ? "✓" : st === "pending" ? "…" : st === "error" ? "⚠" : "";
+  el.title = st === "saved" ? "Alles gespeichert" : st === "pending" ? "Wird gleich gespeichert" : st === "error" ? "Speichern fehlgeschlagen – oben auf „Session speichern“ tippen" : "";
+}
+function scheduleAutosave(delay){
+  if(autosaveBlocked) return;
+  if((document.getElementById("dateInput").value || todayStr()) !== todayStr()) return; // nur heute; ältere Sessions weiter mit dem Speichern-Knopf
+  setSaveState("pending");
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(runAutosave, delay);
+}
+function runAutosave(){
+  clearTimeout(autosaveTimer); autosaveTimer = null;
+  return saveSession({ auto: true });
+}
+function flushAutosave(){ if(autosaveTimer) runAutosave(); }
+function sessionHasContent(data){
+  return Object.keys(data).some(k => k === "_notes" || k === "_exnotes" || (Array.isArray(data[k]) && data[k].some(v => String(v).trim() !== "")));
+}
+
+async function doSaveSession(opts){
+  const auto = !!opts.auto;
   const date = document.getElementById("dateInput").value || todayStr();
+  const key = currentDay + "|" + date;
   const data = {};
   document.querySelectorAll("#blocksHolder input").forEach(inp=>{
     const exName = inp.getAttribute("data-ex");
@@ -1355,34 +1398,51 @@ async function saveSession(){
     if(v) exnotes[ta.getAttribute("data-ex")] = v;
   });
   if(Object.keys(exnotes).length) data["_exnotes"] = exnotes;
+  if(auto){
+    if(date !== todayStr()){ setSaveState(""); return; }
+    // Keine leeren Einheiten automatisch anlegen (es sei denn, die Einheit gibt es schon)
+    if(!sessionHasContent(data) && sessionKnown !== key){ setSaveState(""); return; }
+  }
   try{
-    // Vorher prüfen, ob für diesen Tag+Datum schon eine Session existiert -> nur bei neuer Session zählt es für den Zeiger
-    const { data: existing, error: checkError } = await sb
-      .from("training_sessions")
-      .select("day_key")
-      .eq("person", PERSON)
-      .eq("day_key", currentDay)
-      .eq("session_date", date)
-      .maybeSingle();
-    if(checkError) throw checkError;
-    const isNewSession = !existing;
-
-    // Prüfen, ob an diesem Datum bereits ein ANDERER Tagestyp gespeichert wurde -> nicht zwei Sessions an einem Tag
-    if(isNewSession){
-      const { data: otherDayRows, error: otherError } = await sb
+    let isNewSession;
+    if(auto && sessionKnown === key){
+      isNewSession = false;
+    } else {
+      // Vorher prüfen, ob für diesen Tag+Datum schon eine Session existiert -> nur bei neuer Session zählt es für den Zeiger
+      const { data: existing, error: checkError } = await sb
         .from("training_sessions")
         .select("day_key")
         .eq("person", PERSON)
+        .eq("day_key", currentDay)
         .eq("session_date", date)
-        .neq("day_key", META_KEY)
-        .neq("day_key", currentDay)
-        .in("day_key", Object.keys(DAYS)); // nur andere Trainingstag-Typen zählen, nicht Cardio/Sonstiges/Körperwerte
-      if(otherError) throw otherError;
-      const otherDay = (otherDayRows && otherDayRows.length > 0) ? otherDayRows[0] : null;
-      if(otherDay){
-        const otherTitle = DAYS[otherDay.day_key] ? DAYS[otherDay.day_key].title : otherDay.day_key;
-        const proceed = confirm(`Für den ${date} ist bereits "${otherTitle}" gespeichert. Trotzdem zusätzlich "${DAYS[currentDay].title}" für denselben Tag anlegen?`);
-        if(!proceed){ showToast("Abgebrochen"); return; }
+        .maybeSingle();
+      if(checkError) throw checkError;
+      isNewSession = !existing;
+
+      // Prüfen, ob an diesem Datum bereits ein ANDERER Tagestyp gespeichert wurde -> nicht zwei Sessions an einem Tag
+      if(isNewSession){
+        const { data: otherDayRows, error: otherError } = await sb
+          .from("training_sessions")
+          .select("day_key")
+          .eq("person", PERSON)
+          .eq("session_date", date)
+          .neq("day_key", META_KEY)
+          .neq("day_key", currentDay)
+          .in("day_key", Object.keys(DAYS)); // nur andere Trainingstag-Typen zählen, nicht Cardio/Sonstiges/Körperwerte
+        if(otherError) throw otherError;
+        const otherDay = (otherDayRows && otherDayRows.length > 0) ? otherDayRows[0] : null;
+        if(otherDay){
+          const otherTitle = DAYS[otherDay.day_key] ? DAYS[otherDay.day_key].title : otherDay.day_key;
+          if(auto){
+            // Keine Rückfrage mitten im Training: automatisches Speichern pausiert, manuell speichern fragt dann nach
+            autosaveBlocked = true;
+            setSaveState("error");
+            showToast(`Auto-Speichern pausiert: für den ${date} ist schon „${otherTitle}“ gespeichert. Oben auf „Session speichern“ tippen.`);
+            return;
+          }
+          const proceed = confirm(`Für den ${date} ist bereits "${otherTitle}" gespeichert. Trotzdem zusätzlich "${DAYS[currentDay].title}" für denselben Tag anlegen?`);
+          if(!proceed){ showToast("Abgebrochen"); return; }
+        }
       }
     }
 
@@ -1393,10 +1453,18 @@ async function saveSession(){
         { onConflict: "person,day_key,session_date" }
       );
     if(error) throw error;
-    const btn = document.getElementById("saveBtn");
-    btn.classList.add("saved");
-    btn.textContent = "Gespeichert ✓";
-    setTimeout(()=>{ btn.classList.remove("saved"); btn.textContent = "Session speichern"; }, 1800);
+    sessionKnown = key;
+    trainSavedToday = true; updateTrainSub();
+    autosaveErrorShown = false;
+    if(!auto){
+      clearTimeout(autosaveTimer); autosaveTimer = null; autosaveBlocked = false;
+      const btn = document.getElementById("saveBtn");
+      btn.classList.add("saved");
+      btn.textContent = "Gespeichert ✓";
+      setTimeout(()=>{ btn.classList.remove("saved"); btn.textContent = "Session speichern"; }, 1800);
+    }
+    // Wurde zwischenzeitlich weitergetippt, bleibt es "ausstehend", sonst alles gespeichert
+    setSaveState(autosaveTimer ? "pending" : "saved");
     // Der Zeiger rückt nur weiter, wenn genau der vorgeschlagene Tag gespeichert wurde. Wiederholungen
     // oder ein anderer Tag lassen ihn stehen, sonst rutscht er zu weit und ein Plan-Platz fällt durch.
     let pointerNote = "";
@@ -1405,19 +1473,27 @@ async function saveSession(){
       if(SEQUENCE[curIdx] === currentDay) await setPointer(curIdx + 1);
       else if(SEQUENCE.includes(currentDay)) pointerNote = " · Zeiger bleibt bei " + DAYS[SEQUENCE[curIdx]].title;
     }
-    showToast(isNewSession ? "Gespeichert für " + date + pointerNote : "Session vom " + date + " aktualisiert (Zeiger unverändert)");
-    await populateHistory();
-    await renderStreak();
-    await renderNextSession();
-    await renderWeeklyGoals();
+    if(!auto) showToast(isNewSession ? "Gespeichert für " + date + pointerNote : "Session vom " + date + " aktualisiert (Zeiger unverändert)");
+    if(!auto || isNewSession){
+      await populateHistory();
+      await renderStreak();
+      await renderNextSession();
+      await renderWeeklyGoals();
+    }
   }catch(e){
     console.error(e);
-    showToast("Fehler: " + (e && e.message ? e.message : "unbekannt"));
+    if(auto){
+      setSaveState("error");
+      if(!autosaveErrorShown){ autosaveErrorShown = true; showToast("Automatisches Speichern fehlgeschlagen – oben auf „Session speichern“ tippen"); }
+    } else {
+      showToast("Fehler: " + (e && e.message ? e.message : "unbekannt"));
+    }
   }
 }
 
 async function init(){
   renderTabs();
+  setSaveState(""); autosaveBlocked = false; clearTimeout(autosaveTimer); autosaveTimer = null;
   await renderNextSession();
   await renderCalendar();
   document.getElementById("orphanedHolder").innerHTML = "";
@@ -1451,7 +1527,16 @@ async function maybeLoadTodaySession(){
   }catch(e){ console.error("maybeLoadTodaySession", e); }
 }
 
-document.getElementById("saveBtn").addEventListener("click", saveSession);
+document.getElementById("saveBtn").addEventListener("click", ()=> saveSession());
+
+// Auslöser fürs automatische Speichern: Eintippen (gesammelt), Feld verlassen (sofort), "Satz übernehmen"
+(function(){
+  const trainPage = document.getElementById("pageTrain");
+  trainPage.addEventListener("input", e => { if(e.target.matches("input, textarea")) scheduleAutosave(2000); });
+  trainPage.addEventListener("change", e => { if(e.target.matches("input, textarea")) scheduleAutosave(400); });
+  document.addEventListener("visibilitychange", ()=>{ if(document.hidden) flushAutosave(); });
+  window.addEventListener("pagehide", flushAutosave);
+})();
 document.getElementById("historySelect").addEventListener("change", (e)=>{
   if(e.target.value){
     document.getElementById("dateInput").value = e.target.value;
@@ -1597,6 +1682,7 @@ async function editSession(dayKey, date){
 }
 
 async function deleteSession(dayKey, date){
+  sessionKnown = null;
   const title = DAYS[dayKey] ? DAYS[dayKey].title : dayKey;
   if(!confirm(`Session ${date} (${title}) wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) return;
   try{
