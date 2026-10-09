@@ -8,6 +8,7 @@
 <script>
   // Gespeicherte Darstellung vor dem ersten Zeichnen setzen (kein Aufblitzen). Ohne Eintrag gilt die System-Einstellung.
   try{ var t = localStorage.getItem("theme"); if(t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); }catch(e){}
+  try{ var f = localStorage.getItem("fs"); if(f === "s") document.documentElement.style.setProperty("--fs", "0.92"); else if(f === "l") document.documentElement.style.setProperty("--fs", "1.18"); }catch(e){}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -16,6 +17,7 @@
   /* Dunkel ist der Standard; Hell folgt der System-Einstellung oder dem Umschalter (data-theme). */
   :root{
     color-scheme:dark;
+    --fs:1;
     --bg:#12201B;
     --surface:#1B2B24;
     --surface-2:#22362D;
@@ -114,7 +116,7 @@
   .warmup-toggle td:last-child{text-align:right;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
 
   .block{margin:0 16px 24px;}
-  .block-title{font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;font-family:'Space Grotesk',sans-serif;margin:0 0 10px 2px;display:flex;align-items:center;gap:10px;}
+  .block-title{font-size:calc(12.5px*var(--fs));text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;font-family:'Space Grotesk',sans-serif;margin:0 0 10px 2px;display:flex;align-items:center;gap:10px;}
   .block-title::after{content:"";flex:1;height:1px;background:var(--line);}
 
   .exrow{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;}
@@ -123,32 +125,37 @@
   .exrow.stretch .exziel{font-size:11.5px;}
   .exrow.stretch .setboxes{margin-top:7px;}
   .exrow.stretch .setboxes input{padding:7px 10px;font-size:12.5px;}
-  .exrow .exname{font-size:14px;font-weight:600;}
+  .exrow .exname{font-size:calc(14px*var(--fs));font-weight:600;}
   .exrow.stretch .exname{font-style:italic;font-weight:500;color:var(--text-muted);}
-  .exrow .exziel{font-size:12px;color:var(--text-muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+  .exrow .exziel{font-size:calc(12px*var(--fs));color:var(--text-muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
   .setboxes{display:flex;gap:6px;margin-top:9px;}
-  .setboxes input{flex:1;width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;text-align:center;border-radius:7px;padding:9px 2px;}
+  .setboxes input{flex:1;width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:calc(15px*var(--fs));font-weight:600;text-align:center;border-radius:7px;padding:9px 2px;}
   .setboxes input::placeholder{color:var(--placeholder);font-weight:400;}
   .setboxes input:not(:placeholder-shown){background:var(--filled-bg);border-color:var(--filled-border);color:var(--text);font-weight:700;}
   .setboxes input:focus{outline:none;border-color:var(--accent);}
-  .exrow .extempo{font-size:12px;color:var(--amber);margin-top:2px;font-weight:500;}
+  .exrow .extempo{font-size:calc(12px*var(--fs));color:var(--amber);margin-top:2px;font-weight:500;}
   .wcs{display:inline-flex;align-items:center;}
+  .ic{width:1.15em;height:1.15em;vertical-align:-0.2em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  .qi .ic{width:25px;height:25px;}
+  .seg .ic{width:1.05em;height:1.05em;margin-right:4px;}
   .wc{display:inline-flex;align-items:center;gap:3px;width:37px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
-  .wc .wi{display:inline-block;width:16px;text-align:center;font-size:12.5px;line-height:1;}
+  .wc .wi{display:inline-flex;align-items:center;justify-content:center;width:16px;line-height:1;}
+  .wc .wi .ic{width:15px;height:15px;vertical-align:0;}
   .wc b{font-weight:600;}
   .setboxes .sb{position:relative;flex:1;min-width:0;}
   .setboxes .sb .dlt{position:absolute;top:2px;right:6px;font-size:9.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;pointer-events:none;}
   .last-hint:empty,.prevnote:empty{display:none;}
-  .last-hint .takeBtn{background:none;border:none;padding:0;color:var(--accent);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
-  .prevnote{margin-top:7px;padding-left:8px;border-left:2px solid var(--amber);font-size:12px;line-height:1.4;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
+  .last-hint .takeBtn{background:none;border:none;padding:0;color:var(--accent);font-size:calc(11px*var(--fs));font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+  .prevnote{margin-top:7px;padding-left:8px;border-left:2px solid var(--amber);font-size:calc(12px*var(--fs));line-height:1.4;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
   .histBtn,.noteBtn,.last-hint .takeBtn{position:relative;}
   .histBtn::after,.noteBtn::after,.last-hint .takeBtn::after{content:"";position:absolute;inset:-14px -8px;}
   .okmark{display:none;color:var(--accent);font-weight:700;margin-left:2px;}
-  .exrow.done{border-color:var(--accent-dim);}
+  .exrow.done{border-color:var(--accent-dim);background:var(--accent-tint-2);}
+  .exrow.done .last-hint,.exrow.done .prevnote{display:none;}
   .exrow.done .okmark{display:inline;}
   .noteBtn{background:none;border:none;font-size:12px;cursor:pointer;vertical-align:middle;opacity:.5;padding:0 3px;}
   .noteBtn.has{opacity:1;}
-  .exnote{width:100%;margin-top:8px;min-height:46px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:8px;padding:8px 10px;resize:vertical;}
+  .exnote{width:100%;margin-top:8px;min-height:46px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:calc(13px*var(--fs));border-radius:8px;padding:8px 10px;resize:vertical;}
   .exnote[hidden]{display:none;}
   .exnote:focus{outline:none;border-color:var(--accent);}
   .hnote{margin-top:2px;padding-left:8px;border-left:2px solid var(--amber);font-style:italic;white-space:pre-wrap;}
@@ -177,7 +184,9 @@
   #tabbar button.a{color:var(--accent);}
   #tabbar svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
   .savebar{display:none;}
-  body.p-train .savebar{display:block;}
+  body.p-train .savebar{display:flex;gap:10px;}
+  .nextopen{flex:none;min-width:88px;min-height:54px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
+  .savebar .savebtn{flex:1;width:auto;}
 
   .startbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
   .bigbtn{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-height:78px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);text-align:left;font-family:'Space Grotesk',sans-serif;}
@@ -189,6 +198,7 @@
 
   .trainbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line);}
   .trainx{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-size:17px;}
+  #pageTrain .block-title{position:sticky;top:64px;z-index:20;background:var(--bg);padding:9px 2px 7px;margin:0 0 6px 2px;}
   .tbar{flex:1;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;}
   .tbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s;}
   .tcount{flex:none;min-width:5.6rem;white-space:nowrap;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--text-muted);}
@@ -196,9 +206,20 @@
   .tsave{flex:none;width:1.4em;text-align:center;font-weight:700;font-size:15px;color:var(--text-muted);}
   .tsave[data-st="saved"]{color:var(--accent);}
   .tsave[data-st="error"]{color:var(--danger);}
+  .sum-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 6px;}
+  .sum-stats div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;}
+  .sum-stats b{display:block;font-family:'Space Grotesk',sans-serif;font-size:22px;}
+  .sum-stats span{font-size:11.5px;color:var(--text-muted);}
+  .sum-h{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;margin:16px 0 4px;}
+  .sum-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px;}
+  .sum-row b{flex:none;font-family:'IBM Plex Mono',monospace;}
+  .sum-row .up{color:var(--accent);}
+  .sum-row .dn{color:var(--amber);}
+  .sum-note{padding:8px 0 8px 10px;border-left:2px solid var(--amber);margin-top:6px;font-size:13px;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
+  .sum-empty{margin-top:14px;color:var(--text-muted);font-size:13.5px;}
   .wu-group{margin:0 16px 12px;padding:12px 14px 6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
-  .wu-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
-  .wu-group table{width:100%;border-collapse:collapse;font-size:14px;}
+  .wu-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:calc(14px*var(--fs));margin-bottom:4px;}
+  .wu-group table{width:100%;border-collapse:collapse;font-size:calc(14px*var(--fs));}
   .wu-group td{padding:9px 2px;border-bottom:1px solid var(--line);vertical-align:top;}
   .wu-group tr:last-child td{border-bottom:none;}
   .wu-group td:last-child{text-align:right;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;white-space:nowrap;padding-left:12px;}
@@ -221,10 +242,22 @@
   /* Tageskarte: aktueller Trainingstag, Datum, Schnell-Einträge */
   .daycard{margin:0 16px 14px;padding:13px 14px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
   .daycard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
-  .daycard-meta{font-size:11.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .daycard-meta{font-size:calc(11.5px*var(--fs));color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
   .chip{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--text);}
   .chip.warn{background:var(--amber-tint-2);color:var(--amber);}
-  .daycard-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;margin-top:3px;}
+  .daycard-last{margin-top:3px;font-size:calc(12px*var(--fs));color:var(--text-muted);}
+  .daycard-last:empty{display:none;}
+  .plancard{margin:0 16px 14px;padding:12px 14px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
+  .plancard:empty{display:none;}
+  .plan-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;}
+  .plan-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;}
+  .plan-sub{font-size:11.5px;color:var(--text-muted);}
+  .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .slot{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:58px;justify-content:center;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-muted);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;}
+  .slot .sd{font-size:13px;line-height:1;}
+  .slot.done{color:var(--accent);border-color:var(--accent-dim);}
+  .slot.cur{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .daycard-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:calc(19px*var(--fs));margin-top:3px;}
   .daycard-change{flex:0 0 auto;min-height:40px;background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:10px;padding:8px 12px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;}
   .nextchip{display:block;width:100%;text-align:left;margin-top:10px;background:var(--accent-tint);border:1px solid var(--accent-dim);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;}
   .nextchip b{font-family:'Space Grotesk',sans-serif;}
@@ -273,7 +306,7 @@
   .recent > summary{cursor:pointer;font-size:12.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--text-muted);padding:8px 2px;}
   .recent-row{display:flex;gap:10px;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--line);padding:8px 2px;color:var(--text);font-family:'Inter',sans-serif;}
   .recent-row .rd{flex:0 0 74px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-muted);padding-top:1px;}
-  .recent-row .rs{flex:1;font-size:12px;line-height:1.45;}
+  .recent-row .rs{flex:1;font-size:calc(12px*var(--fs));line-height:1.45;}
   .recent-row.cur{background:var(--accent-tint-2);}
 
   .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));}
@@ -281,10 +314,11 @@
   .savebtn:active{background:var(--accent-dim);color:var(--text);}
   .savebtn.saved{background:var(--saved-bg);color:var(--accent);}
 
-  .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--accent);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .toast{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);max-width:calc(100% - 32px);width:max-content;text-align:center;background:var(--surface);border:1px solid var(--accent);color:var(--text);padding:10px 16px;border-radius:20px;font-size:13px;line-height:1.35;box-shadow:0 4px 18px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s;}
+  body.p-train .toast{bottom:calc(100px + env(safe-area-inset-bottom,0px));}
   .toast.show{opacity:1;}
 
-  .last-hint{font-size:11px;color:var(--text-muted);margin-top:5px;}
+  .last-hint{font-size:calc(11px*var(--fs));color:var(--text-muted);margin-top:5px;}
 </style>
 </head>
 <body>
@@ -298,6 +332,7 @@
       <div>
         <div class="daycard-meta" id="dayCardMeta"></div>
         <div class="daycard-title" id="dayCardTitle"></div>
+        <div class="daycard-last" id="dayCardLast"></div>
       </div>
       <button class="daycard-change" id="dayPanelBtn" aria-expanded="false">Tag ändern ▾</button>
     </div>
@@ -318,13 +353,14 @@
     </div>
     <div id="calendarHolder"></div>
   </div>
+  <div class="plancard" id="planCard"></div>
   <div class="daycard">
     <div class="block-title">Weiterer Eintrag für den Tag</div>
     <div class="quickrow">
-      <button data-type="lauf"><span class="qi">🏃</span><span class="ql">Lauf</span><i class="qdot"></i></button>
-      <button data-type="schwimmen"><span class="qi">🏊</span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
-      <button data-type="koerper"><span class="qi">⚖️</span><span class="ql">Körper</span><i class="qdot"></i></button>
-      <button data-type="sonstiges"><span class="qi">📝</span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+      <button data-type="lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
+      <button data-type="schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
+      <button data-type="koerper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
+      <button data-type="sonstiges"><span class="qi" data-ic="sonstiges"></span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
     </div>
   </div>
 </main>
@@ -360,10 +396,10 @@
   <div class="daycard">
     <div class="block-title">Neuer Eintrag</div>
     <div class="quickrow">
-      <button data-type="lauf"><span class="qi">🏃</span><span class="ql">Lauf</span><i class="qdot"></i></button>
-      <button data-type="schwimmen"><span class="qi">🏊</span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
-      <button data-type="koerper"><span class="qi">⚖️</span><span class="ql">Körper</span><i class="qdot"></i></button>
-      <button data-type="sonstiges"><span class="qi">📝</span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+      <button data-type="lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
+      <button data-type="schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
+      <button data-type="koerper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
+      <button data-type="sonstiges"><span class="qi" data-ic="sonstiges"></span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
     </div>
   </div>
   <div class="block">
@@ -373,7 +409,13 @@
   <div class="block">
     <div class="block-title">Darstellung</div>
     <div class="seg" id="themeSeg" role="group" aria-label="Darstellung">
-      <button data-mode="auto">🌓 Auto</button><button data-mode="light">☀️ Hell</button><button data-mode="dark">🌙 Dunkel</button>
+      <button data-mode="auto"><span data-ic="auto"></span>Auto</button><button data-mode="light"><span data-ic="sun"></span>Hell</button><button data-mode="dark"><span data-ic="moon"></span>Dunkel</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-title">Schriftgröße</div>
+    <div class="seg" id="fsSeg" role="group" aria-label="Schriftgröße">
+      <button data-fs="s" style="font-size:12px;">Klein</button><button data-fs="m" style="font-size:14px;">Normal</button><button data-fs="l" style="font-size:17px;">Groß</button>
     </div>
   </div>
   <div class="block">
@@ -427,9 +469,40 @@
   </div>
 </div>
 
+<div class="sheet" id="sumSheet" aria-hidden="true">
+  <div class="sheet-backdrop" id="sumBackdrop"></div>
+  <div class="sheet-panel" role="dialog" aria-label="Auswertung der Einheit">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <h2>Einheit abgeschlossen</h2>
+      <button class="sheet-x" id="sumClose" aria-label="Schließen">✕</button>
+    </div>
+    <div class="sheet-body" id="sumBody"></div>
+    <div class="sheet-foot" style="display:flex;gap:10px;">
+      <button class="nextopen" id="sumBack">Zurück</button>
+      <button class="savebtn" id="sumHome" style="flex:1;">Zur Startseite</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Gespeichert</div>
-<div class="savebar"><button class="savebtn" id="saveBtn">Session speichern</button></div>
+<div class="savebar"><button class="nextopen" id="nextOpenBtn" aria-label="Zur nächsten offenen Übung" title="Zur nächsten offenen Übung">↓ Offen</button><button class="savebtn" id="saveBtn">Session speichern</button></div>
 <script>
+// Einfache Linien-Symbole (statt Emojis): sehen auf jedem Gerät gleich aus und passen in Hell und Dunkel
+const _svg = d => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const ICON = {
+  lauf: _svg('<circle cx="15" cy="4.8" r="1.8"/><path d="M13 8.5 11 14.5 14.5 16.5 13.5 21M11 14.5 8 17.5 5 17M13 9.5 9.5 11M13 9.5 16.5 11.5"/>'),
+  schwimmen: _svg('<path d="M2 7c.6.5 1.2 1 2.5 1C7 8 7 6 9.5 6c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 13c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 19c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>'),
+  koerper: _svg('<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><path d="M8 10a5 5 0 0 1 8 0"/><path d="M12 10l1.7-2.2"/>'),
+  sonstiges: _svg('<path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 6.5l3 3"/>'),
+  training: _svg('<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>'),
+  clock: _svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+  sun: _svg('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>'),
+  moon: _svg('<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5 6.5 6.5 0 0 0 20.5 13.5z"/>'),
+  auto: _svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/>'),
+};
+ICON.note = ICON.sonstiges;
+
 const ALLGEMEIN_WARMUP = [
   { title:"Allgemeines Aufwärmen (1x)", rows:[
     ["Arm Swing Forward","20 Wdh"],["Arm Swing Backward","20 Wdh"],["Air Squat","20 Wdh"],
@@ -720,6 +793,26 @@ async function setPointer(idx){
   return idx;
 }
 
+// Plan der Woche: vier Plätze (erledigt / dran / offen) nach dem Zeiger
+function renderPlanCard(w, idx){
+  const el = document.getElementById("planCard");
+  if(!el) return;
+  const wk = WEEK_PLAN[w];
+  const extra = wk.woche.replace(/^\d+\s*/, "");
+  const doneCnt = Math.max(0, Math.min(4, idx - w * 4));
+  el.innerHTML = `<div class="plan-head"><span class="plan-title">Plan · Woche ${w + 1} von ${WEEK_PLAN.length}${extra ? " " + escapeHtml(extra) : ""}</span><span class="plan-sub">${doneCnt} von 4 erledigt</span></div>
+    <div class="slots">${wk.tage.map((key, i)=>{
+      const slot = w * 4 + i;
+      const st = slot < idx ? "done" : slot === idx ? "cur" : "todo";
+      return `<button class="slot ${st}" data-key="${key || ""}"><span class="sd">${st === "done" ? "✓" : st === "cur" ? "●" : "○"}</span><span>${key ? DAYS[key].label : "Review"}</span></button>`;
+    }).join("")}</div>`;
+  el.querySelectorAll(".slot").forEach(b => b.onclick = ()=>{
+    const key = b.dataset.key;
+    if(!key) return;
+    currentDay = key; document.getElementById("dateInput").value = todayStr(); init();
+  });
+}
+
 async function renderNextSession(){
   const holder = document.getElementById("nextSessionHolder");
   const chip = document.getElementById("dayCardNext");
@@ -729,6 +822,7 @@ async function renderNextSession(){
   const note = nextKey === null ? " – kein Training, danach wieder Full Body L2A" : "";
   const label = nextKey ? DAYS[nextKey].title : "Review";
   const isOpen = nextKey === currentDay; // der vorgeschlagene Tag ist schon geöffnet
+  renderPlanCard(w, idx);
 
   const weekOptions = WEEK_PLAN.map((wk,i)=>`<option value="${i}" ${i===w?"selected":""}>Woche ${wk.woche}</option>`).join("");
   const dayOptions = [0,1,2,3].map(i=>`<option value="${i}" ${i===d?"selected":""}>Tag ${i+1}</option>`).join("");
@@ -788,6 +882,20 @@ function todayStr(){
   const d = new Date();
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
+
+// Statische Symbole einsetzen
+document.querySelectorAll("[data-ic]").forEach(el => { el.innerHTML = ICON[el.dataset.ic] || ""; });
+
+// ---------- Schriftgröße (Klein / Normal / Groß) ----------
+const FS_VALUES = { s: "0.92", m: "1", l: "1.18" };
+function currentFs(){ try{ const f = localStorage.getItem("fs"); return f === "s" || f === "l" ? f : "m"; }catch(e){ return "m"; } }
+function setFs(k){
+  document.documentElement.style.setProperty("--fs", FS_VALUES[k]);
+  try{ if(k === "m") localStorage.removeItem("fs"); else localStorage.setItem("fs", k); }catch(e){}
+  document.querySelectorAll("#fsSeg button").forEach(b => b.classList.toggle("on", b.dataset.fs === k));
+}
+document.querySelectorAll("#fsSeg button").forEach(b => b.addEventListener("click", ()=> setFs(b.dataset.fs)));
+setFs(currentFs());
 
 // ---------- Seiten und untere Leiste: Start · Aufwärmen · Training · Einträge ----------
 const PAGES = ["start", "warmup", "train", "entries"];
@@ -929,7 +1037,7 @@ function renderExRow(it){
   const { base, tempo } = it.stretch ? { base: it.uebung, tempo: null } : splitExName(it.uebung);
   const zielLine = it.stretch ? it.ziel : it.ziel + (it.saetze!=="-" ? " · "+it.saetze+" Sätze" : "");
   row.innerHTML = `
-    <div class="exname">${base}<span class="okmark" aria-label="fertig">✓</span> <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">📝</button></div>
+    <div class="exname">${base}<span class="okmark" aria-label="fertig">✓</span> <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">${ICON.clock} Verlauf</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}</button></div>
     ${tempo ? `<div class="extempo">${tempo}</div>` : ""}
     <div class="exziel">${zielLine}</div>
     <div class="prevnote"></div>
@@ -989,11 +1097,17 @@ function renderExRow(it){
       showToast("Satz " + (i + 1) + ": " + last.value[i] + " übernommen");
     };
     const pn = lastRealNote(it.uebung);
-    prevNoteEl.textContent = pn ? `📝 ${fmtShort(pn.date)} · ${pn.text}` : "";
+    prevNoteEl.innerHTML = pn ? `${ICON.note} ${fmtShort(pn.date)} · ${escapeHtml(pn.text)}` : "";
     live();
   };
   inputs.forEach(inp => inp.addEventListener("input", live));
   row._refresh = refresh;
+  row._info = ()=>({
+    name: base,
+    cur: inputs.map(inp => inp.value.trim()),
+    last: last ? last.value : null,
+    ready: !!(goalEl && goalEl.classList.contains("show")),
+  });
 
   // Notiz zu dieser Übung (für diese Session). Ohne Text bleibt nur der kleine Knopf sichtbar.
   const noteBtn = row.querySelector(".noteBtn");
@@ -1023,6 +1137,8 @@ function updateProgress(){
   const cnt = document.getElementById("trainCount");
   if(cnt) cnt.textContent = sets.length ? done + " / " + sets.length + " Sätze" : "";
   progressDone = done; progressTotal = sets.length;
+  const btn = document.getElementById("saveBtn");
+  if(btn && !btn.classList.contains("saved")) btn.textContent = (sets.length > 0 && done === sets.length) ? "Training abschließen" : "Session speichern";
   updateTrainSub();
 }
 let progressDone = 0, progressTotal = 0, trainSavedToday = false;
@@ -1031,6 +1147,69 @@ function updateTrainSub(){
   if(!el) return;
   el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : "starten");
 }
+
+// ---------- Abschluss: Auswertung der Einheit ----------
+function buildSummary(){
+  const rows = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch)")];
+  let setsDone = 0;
+  const up = [], down = [], ready = [], notes = [];
+  rows.forEach(r=>{
+    const inf = r._info && r._info();
+    if(!inf) return;
+    setsDone += inf.cur.filter(v => v !== "").length;
+    const curT = inf.cur.map(numTotal);
+    const lastT = inf.last ? inf.last.slice(0, curT.length).map(numTotal) : null;
+    if(lastT && lastT.length === curT.length && curT.every(x => x !== null) && lastT.every(x => x !== null)){
+      const delta = curT.reduce((a,b)=>a+b,0) - lastT.reduce((a,b)=>a+b,0);
+      if(delta > 0) up.push({ name: inf.name, delta });
+      else if(delta < 0) down.push({ name: inf.name, delta });
+    }
+    if(inf.ready) ready.push(inf.name);
+  });
+  document.querySelectorAll("#blocksHolder textarea.exnote").forEach(ta=>{
+    const v = ta.value.trim();
+    if(v) notes.push({ name: splitExName(ta.getAttribute("data-ex")).base, text: v });
+  });
+  const sess = document.getElementById("sessionNotes").value.trim();
+  const list = (items, cls, sign) => items.map(x => `<div class="sum-row"><span>${escapeHtml(x.name)}</span><b class="${cls}">${sign}${fmtNum(Math.abs(x.delta))}</b></div>`).join("");
+  let html = `<div class="sum-stats"><div><b>${setsDone}</b><span>Sätze</span></div><div><b>${rows.length}</b><span>Übungen</span></div><div><b>${up.length}</b><span>gesteigert</span></div></div>`;
+  if(up.length) html += `<div class="sum-h">▲ Gesteigert (Wiederholungen gesamt)</div>` + list(up, "up", "▲");
+  if(down.length) html += `<div class="sum-h">▼ Weniger als beim letzten Mal</div>` + list(down, "dn", "▼");
+  if(!up.length && !down.length) html += `<div class="sum-empty">Gleich wie beim letzten Mal – stabil.</div>`;
+  if(ready.length) html += `<div class="sum-h">Bereit für die nächste Stufe</div>` + ready.map(n => `<div class="sum-row"><span>${escapeHtml(n)}</span><b class="up">✓</b></div>`).join("");
+  if(notes.length || sess){
+    html += `<div class="sum-h">Deine Notizen</div>`
+      + notes.map(n => `<div class="sum-note"><b>${escapeHtml(n.name)}:</b> ${escapeHtml(n.text)}</div>`).join("")
+      + (sess ? `<div class="sum-note">${escapeHtml(sess)}</div>` : "");
+  }
+  return html;
+}
+function openSummary(){
+  document.getElementById("sumBody").innerHTML = buildSummary();
+  document.getElementById("sumBody").scrollTop = 0;
+  const el = document.getElementById("sumSheet");
+  el.classList.add("open"); el.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+function closeSummary(){
+  const el = document.getElementById("sumSheet");
+  el.classList.remove("open"); el.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+document.getElementById("sumClose").addEventListener("click", closeSummary);
+document.getElementById("sumBackdrop").addEventListener("click", closeSummary);
+document.getElementById("sumBack").addEventListener("click", closeSummary);
+document.getElementById("sumHome").addEventListener("click", ()=>{ closeSummary(); showPage("start", { top: true }); });
+
+// Springt zur nächsten Übung, in der noch Sätze fehlen (nicht zur gerade oben sichtbaren)
+function jumpToNextOpen(){
+  const open = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch)")].filter(r => !r.classList.contains("done"));
+  if(!open.length){ showToast("Alles eingetragen ✓"); return; }
+  const offset = document.querySelector(".trainbar").getBoundingClientRect().height + 54;
+  const target = open.find(r => r.getBoundingClientRect().top > offset + 70) || open[0];
+  window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
+}
+document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
 
 // Zahl bzw. Summe aus einem Satzwert: "10" -> 10, "6+5" -> 11, "20s" -> 20. Alles andere (z. B. "5x6kg") -> null.
 function numTotal(v){
@@ -1108,7 +1287,7 @@ function attachHistoryButton(row, exName){
 
   function renderPanel(){
     const list = state.matches.map(r=>
-      `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}${r.note ? `<div class="hnote">📝 ${escapeHtml(r.note)}</div>` : ""}</div>`
+      `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}${r.note ? `<div class="hnote">${ICON.note} ${escapeHtml(r.note)}</div>` : ""}</div>`
     ).join("");
     const empty = state.matches.length === 0
       ? '<div style="font-size:11px;color:var(--text-muted);">Noch keine weiteren Einträge für diese Übung.</div>'
@@ -1292,6 +1471,15 @@ async function renderStreak(){
     dots += `<span class="dot ${i<dates.length ? "filled":""}"></span>`;
   }
   holder.innerHTML = dots + `<span class="label">letzte ${DAYS[currentDay].label}-Sessions</span>`;
+  const lastEl = document.getElementById("dayCardLast");
+  if(lastEl){
+    const prevDate = dates.find(d => d !== todayStr());
+    if(!prevDate) lastEl.textContent = dates.length ? "" : "Noch nicht gemacht";
+    else {
+      const days = Math.round((new Date(todayStr() + "T12:00:00") - new Date(prevDate + "T12:00:00")) / 86400000);
+      lastEl.textContent = `Letztes Mal: ${fmtShort(prevDate)} · ${days === 1 ? "gestern" : "vor " + days + " Tagen"}`;
+    }
+  }
 }
 
 async function loadSessionInto(date){
@@ -1405,8 +1593,8 @@ async function doSaveSession(opts){
   }
   try{
     let isNewSession;
-    if(auto && sessionKnown === key){
-      isNewSession = false;
+    if(sessionKnown === key){
+      isNewSession = false;   // schon bekannt (geladen/gespeichert): spart zwei Abfragen
     } else {
       // Vorher prüfen, ob für diesen Tag+Datum schon eine Session existiert -> nur bei neuer Session zählt es für den Zeiger
       const { data: existing, error: checkError } = await sb
@@ -1461,10 +1649,11 @@ async function doSaveSession(opts){
       const btn = document.getElementById("saveBtn");
       btn.classList.add("saved");
       btn.textContent = "Gespeichert ✓";
-      setTimeout(()=>{ btn.classList.remove("saved"); btn.textContent = "Session speichern"; }, 1800);
+      setTimeout(()=>{ btn.classList.remove("saved"); updateProgress(); }, 1800);
     }
     // Wurde zwischenzeitlich weitergetippt, bleibt es "ausstehend", sonst alles gespeichert
     setSaveState(autosaveTimer ? "pending" : "saved");
+    if(opts.onSaved) opts.onSaved();   // z. B. Auswertung sofort zeigen, ohne die Aktualisierungen unten abzuwarten
     // Der Zeiger rückt nur weiter, wenn genau der vorgeschlagene Tag gespeichert wurde. Wiederholungen
     // oder ein anderer Tag lassen ihn stehen, sonst rutscht er zu weit und ein Plan-Platz fällt durch.
     let pointerNote = "";
@@ -1527,7 +1716,10 @@ async function maybeLoadTodaySession(){
   }catch(e){ console.error("maybeLoadTodaySession", e); }
 }
 
-document.getElementById("saveBtn").addEventListener("click", ()=> saveSession());
+document.getElementById("saveBtn").addEventListener("click", async ()=>{
+  const complete = progressTotal > 0 && progressDone === progressTotal;
+  await saveSession({ onSaved: complete ? openSummary : null });
+});
 
 // Auslöser fürs automatische Speichern: Eintippen (gesammelt), Feld verlassen (sofort), "Satz übernehmen"
 (function(){
@@ -1716,10 +1908,10 @@ document.getElementById("manageSessionsBtn").addEventListener("click", async ()=
 
 // ---------- Tageseinträge: Lauf, Schwimmen, Körperwerte, Sonstiges (alle Einträge eines Tages) ----------
 const ENTRY_TYPES = {
-  lauf:      { key:"cardio_lauf",      label:"Lauf",        icon:"🏃" },
-  schwimmen: { key:"cardio_schwimmen", label:"Schwimmen",   icon:"🏊" },
-  koerper:   { key:"koerperwerte",     label:"Körperwerte", icon:"⚖️" },
-  sonstiges: { key:"sonstiges",        label:"Sonstiges",   icon:"📝" },
+  lauf:      { key:"cardio_lauf",      label:"Lauf",        get icon(){ return ICON.lauf; } },
+  schwimmen: { key:"cardio_schwimmen", label:"Schwimmen",   get icon(){ return ICON.schwimmen; } },
+  koerper:   { key:"koerperwerte",     label:"Körperwerte", get icon(){ return ICON.koerper; } },
+  sonstiges: { key:"sonstiges",        label:"Sonstiges",   get icon(){ return ICON.sonstiges; } },
 };
 const ENTRY_KEYS = Object.values(ENTRY_TYPES).map(t => t.key);
 const typeOfKey = key => Object.keys(ENTRY_TYPES).find(t => ENTRY_TYPES[t].key === key) || null;
@@ -1732,9 +1924,9 @@ function summarizeEntry(dayKey, d){
   d = d || {};
   if(dayKey === "koerperwerte"){
     const parts = [];
-    if(d.gewicht_kg) parts.push(`⚖️ ${escapeHtml(d.gewicht_kg)} kg`);
-    if(d.oberarm_links_cm) parts.push(`💪 ${escapeHtml(d.oberarm_links_cm)} cm`);
-    if(d.bauchumfang_nabel_cm) parts.push(`📏 ${escapeHtml(d.bauchumfang_nabel_cm)} cm`);
+    if(d.gewicht_kg) parts.push(`${escapeHtml(d.gewicht_kg)} kg`);
+    if(d.oberarm_links_cm) parts.push(`Arm ${escapeHtml(d.oberarm_links_cm)} cm`);
+    if(d.bauchumfang_nabel_cm) parts.push(`Bauch ${escapeHtml(d.bauchumfang_nabel_cm)} cm`);
     return parts.join(" · ") || "keine Werte";
   }
   return d.comment ? escapeHtml(d.comment) : "kein Kommentar";
@@ -1884,7 +2076,7 @@ async function loadSheetDate(date){
   const trainings = rows.filter(r => DAYS[r.day_key]);
   trainingBox.innerHTML = trainings.map(r => `
     <div class="sheet-training">
-      <span>🏋️ ${escapeHtml(DAYS[r.day_key].title)} · gespeichert</span>
+      <span>${ICON.training} ${escapeHtml(DAYS[r.day_key].title)} · gespeichert</span>
       <button data-day="${r.day_key}">Öffnen</button>
     </div>`).join("");
   trainingBox.querySelectorAll("button").forEach(btn => btn.onclick = async ()=>{
@@ -1991,7 +2183,7 @@ async function saveSheet(){
 
 async function deleteSheetEntry(type){
   const t = ENTRY_TYPES[type];
-  if(!confirm(`${t.icon} ${t.label} vom ${sheetDate} wirklich löschen?`)) return;
+  if(!confirm(`${t.label} vom ${sheetDate} wirklich löschen?`)) return;
   try{
     const { error } = await sb.from("training_sessions").delete()
       .eq("person", PERSON).eq("day_key", t.key).eq("session_date", sheetDate);
@@ -2053,8 +2245,8 @@ async function renderRecentInto(holder, onPick, opts){
         if(r.day_key === "koerperwerte"){
           const d = r.data || {}, parts = [];
           if(d.gewicht_kg) parts.push(`${escapeHtml(d.gewicht_kg)} kg${delta(r,"gewicht_kg")}`);
-          if(d.oberarm_links_cm) parts.push(`💪 ${escapeHtml(d.oberarm_links_cm)}${delta(r,"oberarm_links_cm")}`);
-          if(d.bauchumfang_nabel_cm) parts.push(`📏 ${escapeHtml(d.bauchumfang_nabel_cm)}${delta(r,"bauchumfang_nabel_cm")}`);
+          if(d.oberarm_links_cm) parts.push(`Arm ${escapeHtml(d.oberarm_links_cm)}${delta(r,"oberarm_links_cm")}`);
+          if(d.bauchumfang_nabel_cm) parts.push(`Bauch ${escapeHtml(d.bauchumfang_nabel_cm)}${delta(r,"bauchumfang_nabel_cm")}`);
           return `${t.icon} ${parts.join(" · ") || "keine Werte"}`;
         }
         return `${t.icon} ${summarizeEntry(r.day_key, r.data)}`;
@@ -2149,7 +2341,7 @@ async function renderWeeklyGoals(){
     // Feste Spalten, damit Symbole und Zahlen in jeder Zeile genau untereinander stehen
     const anyBody = weeks.some(w => w.koerper > 0);
     const cell = (icon, n) => `<span class="wc"><span class="wi">${icon}</span><b>${n}</b></span>`;
-    const counts = w => `<span class="wcs">${anyBody ? (w.koerper ? cell("⚖️", w.koerper) : `<span class="wc"></span>`) : ""}${cell("🏋️", w.training)}${cell("🏃", w.lauf)}${cell("🏊", w.schwimmen)}</span>`;
+    const counts = w => `<span class="wcs">${anyBody ? (w.koerper ? cell(ICON.koerper, w.koerper) : `<span class="wc"></span>`) : ""}${cell(ICON.training, w.training)}${cell(ICON.lauf, w.lauf)}${cell(ICON.schwimmen, w.schwimmen)}</span>`;
     const weekLabel = (w, i) => i === 1 ? "Letzte Woche" : `KW ${isoWeek(w.start)}`;
     const yearNow = new Date().getFullYear();
     const startLabel = w => fmtShort(fmtDate(w.start)) + (w.start.getFullYear() === yearNow ? "" : String(w.start.getFullYear()).slice(2));
@@ -2164,7 +2356,7 @@ async function renderWeeklyGoals(){
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 0 5px;">
         <span style="display:flex;align-items:center;gap:9px;">
           <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;white-space:nowrap;">Diese Woche</span>
-          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:9px;min-height:32px;padding:4px 8px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;">⏱ Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
+          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:9px;min-height:32px;padding:4px 8px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;">${ICON.clock} Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
         </span>
         <span style="font-size:12.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;">${counts(weeks[0])}</span>
       </div>
@@ -2181,7 +2373,7 @@ async function renderWeeklyGoals(){
       document.getElementById("weeklyHistoryHolder").style.display = weeklyOpen ? "block" : "none";
       const btn = document.getElementById("weeklyHistBtn");
       btn.setAttribute("aria-expanded", String(weeklyOpen));
-      btn.textContent = "⏱ Verlauf " + (weeklyOpen ? "▴" : "▾");
+      btn.innerHTML = ICON.clock + " Verlauf " + (weeklyOpen ? "▴" : "▾");
     });
     const more = document.getElementById("weeklyMoreBtn");
     if(more) more.addEventListener("click", async ()=>{
