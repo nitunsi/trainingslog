@@ -8,6 +8,7 @@
 <script>
   // Gespeicherte Darstellung vor dem ersten Zeichnen setzen (kein Aufblitzen). Ohne Eintrag gilt die System-Einstellung.
   try{ var t = localStorage.getItem("theme"); if(t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); }catch(e){}
+  try{ var f = localStorage.getItem("fs"); if(f === "s") document.documentElement.style.setProperty("--fs", "0.92"); else if(f === "l") document.documentElement.style.setProperty("--fs", "1.18"); }catch(e){}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -16,6 +17,7 @@
   /* Dunkel ist der Standard; Hell folgt der System-Einstellung oder dem Umschalter (data-theme). */
   :root{
     color-scheme:dark;
+    --fs:1;
     --bg:#12201B;
     --surface:#1B2B24;
     --surface-2:#22362D;
@@ -114,7 +116,7 @@
   .warmup-toggle td:last-child{text-align:right;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
 
   .block{margin:0 16px 24px;}
-  .block-title{font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;font-family:'Space Grotesk',sans-serif;margin:0 0 10px 2px;display:flex;align-items:center;gap:10px;}
+  .block-title{font-size:calc(12.5px*var(--fs));text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;font-family:'Space Grotesk',sans-serif;margin:0 0 10px 2px;display:flex;align-items:center;gap:10px;}
   .block-title::after{content:"";flex:1;height:1px;background:var(--line);}
 
   .exrow{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;}
@@ -123,24 +125,28 @@
   .exrow.stretch .exziel{font-size:11.5px;}
   .exrow.stretch .setboxes{margin-top:7px;}
   .exrow.stretch .setboxes input{padding:7px 10px;font-size:12.5px;}
-  .exrow .exname{font-size:14px;font-weight:600;}
+  .exrow .exname{font-size:calc(14px*var(--fs));font-weight:600;}
   .exrow.stretch .exname{font-style:italic;font-weight:500;color:var(--text-muted);}
-  .exrow .exziel{font-size:12px;color:var(--text-muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+  .exrow .exziel{font-size:calc(12px*var(--fs));color:var(--text-muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
   .setboxes{display:flex;gap:6px;margin-top:9px;}
-  .setboxes input{flex:1;width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;text-align:center;border-radius:7px;padding:9px 2px;}
+  .setboxes input{flex:1;width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:calc(15px*var(--fs));font-weight:600;text-align:center;border-radius:7px;padding:9px 2px;}
   .setboxes input::placeholder{color:var(--placeholder);font-weight:400;}
   .setboxes input:not(:placeholder-shown){background:var(--filled-bg);border-color:var(--filled-border);color:var(--text);font-weight:700;}
   .setboxes input:focus{outline:none;border-color:var(--accent);}
-  .exrow .extempo{font-size:12px;color:var(--amber);margin-top:2px;font-weight:500;}
+  .exrow .extempo{font-size:calc(12px*var(--fs));color:var(--amber);margin-top:2px;font-weight:500;}
   .wcs{display:inline-flex;align-items:center;}
+  .ic{width:1.15em;height:1.15em;vertical-align:-0.2em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  .qi .ic{width:25px;height:25px;}
+  .seg .ic{width:1.05em;height:1.05em;margin-right:4px;}
   .wc{display:inline-flex;align-items:center;gap:3px;width:37px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
-  .wc .wi{display:inline-block;width:16px;text-align:center;font-size:12.5px;line-height:1;}
+  .wc .wi{display:inline-flex;align-items:center;justify-content:center;width:16px;line-height:1;}
+  .wc .wi .ic{width:15px;height:15px;vertical-align:0;}
   .wc b{font-weight:600;}
   .setboxes .sb{position:relative;flex:1;min-width:0;}
   .setboxes .sb .dlt{position:absolute;top:2px;right:6px;font-size:9.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;pointer-events:none;}
   .last-hint:empty,.prevnote:empty{display:none;}
-  .last-hint .takeBtn{background:none;border:none;padding:0;color:var(--accent);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
-  .prevnote{margin-top:7px;padding-left:8px;border-left:2px solid var(--amber);font-size:12px;line-height:1.4;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
+  .last-hint .takeBtn{background:none;border:none;padding:0;color:var(--accent);font-size:calc(11px*var(--fs));font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+  .prevnote{margin-top:7px;padding-left:8px;border-left:2px solid var(--amber);font-size:calc(12px*var(--fs));line-height:1.4;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
   .histBtn,.noteBtn,.last-hint .takeBtn{position:relative;}
   .histBtn::after,.noteBtn::after,.last-hint .takeBtn::after{content:"";position:absolute;inset:-14px -8px;}
   .okmark{display:none;color:var(--accent);font-weight:700;margin-left:2px;}
@@ -149,7 +155,7 @@
   .exrow.done .okmark{display:inline;}
   .noteBtn{background:none;border:none;font-size:12px;cursor:pointer;vertical-align:middle;opacity:.5;padding:0 3px;}
   .noteBtn.has{opacity:1;}
-  .exnote{width:100%;margin-top:8px;min-height:46px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:8px;padding:8px 10px;resize:vertical;}
+  .exnote{width:100%;margin-top:8px;min-height:46px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:calc(13px*var(--fs));border-radius:8px;padding:8px 10px;resize:vertical;}
   .exnote[hidden]{display:none;}
   .exnote:focus{outline:none;border-color:var(--accent);}
   .hnote{margin-top:2px;padding-left:8px;border-left:2px solid var(--amber);font-style:italic;white-space:pre-wrap;}
@@ -212,8 +218,8 @@
   .sum-note{padding:8px 0 8px 10px;border-left:2px solid var(--amber);margin-top:6px;font-size:13px;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
   .sum-empty{margin-top:14px;color:var(--text-muted);font-size:13.5px;}
   .wu-group{margin:0 16px 12px;padding:12px 14px 6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
-  .wu-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
-  .wu-group table{width:100%;border-collapse:collapse;font-size:14px;}
+  .wu-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:calc(14px*var(--fs));margin-bottom:4px;}
+  .wu-group table{width:100%;border-collapse:collapse;font-size:calc(14px*var(--fs));}
   .wu-group td{padding:9px 2px;border-bottom:1px solid var(--line);vertical-align:top;}
   .wu-group tr:last-child td{border-bottom:none;}
   .wu-group td:last-child{text-align:right;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;white-space:nowrap;padding-left:12px;}
@@ -236,10 +242,10 @@
   /* Tageskarte: aktueller Trainingstag, Datum, Schnell-Einträge */
   .daycard{margin:0 16px 14px;padding:13px 14px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
   .daycard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
-  .daycard-meta{font-size:11.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .daycard-meta{font-size:calc(11.5px*var(--fs));color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
   .chip{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--text);}
   .chip.warn{background:var(--amber-tint-2);color:var(--amber);}
-  .daycard-last{margin-top:3px;font-size:12px;color:var(--text-muted);}
+  .daycard-last{margin-top:3px;font-size:calc(12px*var(--fs));color:var(--text-muted);}
   .daycard-last:empty{display:none;}
   .plancard{margin:0 16px 14px;padding:12px 14px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
   .plancard:empty{display:none;}
@@ -251,7 +257,7 @@
   .slot .sd{font-size:13px;line-height:1;}
   .slot.done{color:var(--accent);border-color:var(--accent-dim);}
   .slot.cur{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
-  .daycard-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;margin-top:3px;}
+  .daycard-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:calc(19px*var(--fs));margin-top:3px;}
   .daycard-change{flex:0 0 auto;min-height:40px;background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:10px;padding:8px 12px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;}
   .nextchip{display:block;width:100%;text-align:left;margin-top:10px;background:var(--accent-tint);border:1px solid var(--accent-dim);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;}
   .nextchip b{font-family:'Space Grotesk',sans-serif;}
@@ -300,7 +306,7 @@
   .recent > summary{cursor:pointer;font-size:12.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--text-muted);padding:8px 2px;}
   .recent-row{display:flex;gap:10px;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--line);padding:8px 2px;color:var(--text);font-family:'Inter',sans-serif;}
   .recent-row .rd{flex:0 0 74px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-muted);padding-top:1px;}
-  .recent-row .rs{flex:1;font-size:12px;line-height:1.45;}
+  .recent-row .rs{flex:1;font-size:calc(12px*var(--fs));line-height:1.45;}
   .recent-row.cur{background:var(--accent-tint-2);}
 
   .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));}
@@ -312,7 +318,7 @@
   body.p-train .toast{bottom:calc(100px + env(safe-area-inset-bottom,0px));}
   .toast.show{opacity:1;}
 
-  .last-hint{font-size:11px;color:var(--text-muted);margin-top:5px;}
+  .last-hint{font-size:calc(11px*var(--fs));color:var(--text-muted);margin-top:5px;}
 </style>
 </head>
 <body>
@@ -351,10 +357,10 @@
   <div class="daycard">
     <div class="block-title">Weiterer Eintrag für den Tag</div>
     <div class="quickrow">
-      <button data-type="lauf"><span class="qi">🏃</span><span class="ql">Lauf</span><i class="qdot"></i></button>
-      <button data-type="schwimmen"><span class="qi">🏊</span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
-      <button data-type="koerper"><span class="qi">⚖️</span><span class="ql">Körper</span><i class="qdot"></i></button>
-      <button data-type="sonstiges"><span class="qi">📝</span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+      <button data-type="lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
+      <button data-type="schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
+      <button data-type="koerper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
+      <button data-type="sonstiges"><span class="qi" data-ic="sonstiges"></span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
     </div>
   </div>
 </main>
@@ -390,10 +396,10 @@
   <div class="daycard">
     <div class="block-title">Neuer Eintrag</div>
     <div class="quickrow">
-      <button data-type="lauf"><span class="qi">🏃</span><span class="ql">Lauf</span><i class="qdot"></i></button>
-      <button data-type="schwimmen"><span class="qi">🏊</span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
-      <button data-type="koerper"><span class="qi">⚖️</span><span class="ql">Körper</span><i class="qdot"></i></button>
-      <button data-type="sonstiges"><span class="qi">📝</span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+      <button data-type="lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
+      <button data-type="schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
+      <button data-type="koerper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
+      <button data-type="sonstiges"><span class="qi" data-ic="sonstiges"></span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
     </div>
   </div>
   <div class="block">
@@ -403,7 +409,13 @@
   <div class="block">
     <div class="block-title">Darstellung</div>
     <div class="seg" id="themeSeg" role="group" aria-label="Darstellung">
-      <button data-mode="auto">🌓 Auto</button><button data-mode="light">☀️ Hell</button><button data-mode="dark">🌙 Dunkel</button>
+      <button data-mode="auto"><span data-ic="auto"></span>Auto</button><button data-mode="light"><span data-ic="sun"></span>Hell</button><button data-mode="dark"><span data-ic="moon"></span>Dunkel</button>
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-title">Schriftgröße</div>
+    <div class="seg" id="fsSeg" role="group" aria-label="Schriftgröße">
+      <button data-fs="s" style="font-size:12px;">Klein</button><button data-fs="m" style="font-size:14px;">Normal</button><button data-fs="l" style="font-size:17px;">Groß</button>
     </div>
   </div>
   <div class="block">
@@ -476,6 +488,21 @@
 <div class="toast" id="toast">Gespeichert</div>
 <div class="savebar"><button class="nextopen" id="nextOpenBtn" aria-label="Zur nächsten offenen Übung" title="Zur nächsten offenen Übung">↓ Offen</button><button class="savebtn" id="saveBtn">Session speichern</button></div>
 <script>
+// Einfache Linien-Symbole (statt Emojis): sehen auf jedem Gerät gleich aus und passen in Hell und Dunkel
+const _svg = d => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const ICON = {
+  lauf: _svg('<circle cx="15" cy="4.8" r="1.8"/><path d="M13 8.5 11 14.5 14.5 16.5 13.5 21M11 14.5 8 17.5 5 17M13 9.5 9.5 11M13 9.5 16.5 11.5"/>'),
+  schwimmen: _svg('<path d="M2 7c.6.5 1.2 1 2.5 1C7 8 7 6 9.5 6c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 13c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 19c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>'),
+  koerper: _svg('<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><path d="M8 10a5 5 0 0 1 8 0"/><path d="M12 10l1.7-2.2"/>'),
+  sonstiges: _svg('<path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 6.5l3 3"/>'),
+  training: _svg('<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>'),
+  clock: _svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+  sun: _svg('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>'),
+  moon: _svg('<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5 6.5 6.5 0 0 0 20.5 13.5z"/>'),
+  auto: _svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/>'),
+};
+ICON.note = ICON.sonstiges;
+
 const ALLGEMEIN_WARMUP = [
   { title:"Allgemeines Aufwärmen (1x)", rows:[
     ["Arm Swing Forward","20 Wdh"],["Arm Swing Backward","20 Wdh"],["Air Squat","20 Wdh"],
@@ -856,6 +883,20 @@ function todayStr(){
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
 
+// Statische Symbole einsetzen
+document.querySelectorAll("[data-ic]").forEach(el => { el.innerHTML = ICON[el.dataset.ic] || ""; });
+
+// ---------- Schriftgröße (Klein / Normal / Groß) ----------
+const FS_VALUES = { s: "0.92", m: "1", l: "1.18" };
+function currentFs(){ try{ const f = localStorage.getItem("fs"); return f === "s" || f === "l" ? f : "m"; }catch(e){ return "m"; } }
+function setFs(k){
+  document.documentElement.style.setProperty("--fs", FS_VALUES[k]);
+  try{ if(k === "m") localStorage.removeItem("fs"); else localStorage.setItem("fs", k); }catch(e){}
+  document.querySelectorAll("#fsSeg button").forEach(b => b.classList.toggle("on", b.dataset.fs === k));
+}
+document.querySelectorAll("#fsSeg button").forEach(b => b.addEventListener("click", ()=> setFs(b.dataset.fs)));
+setFs(currentFs());
+
 // ---------- Seiten und untere Leiste: Start · Aufwärmen · Training · Einträge ----------
 const PAGES = ["start", "warmup", "train", "entries"];
 let currentPage = "start";
@@ -996,7 +1037,7 @@ function renderExRow(it){
   const { base, tempo } = it.stretch ? { base: it.uebung, tempo: null } : splitExName(it.uebung);
   const zielLine = it.stretch ? it.ziel : it.ziel + (it.saetze!=="-" ? " · "+it.saetze+" Sätze" : "");
   row.innerHTML = `
-    <div class="exname">${base}<span class="okmark" aria-label="fertig">✓</span> <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">⏱ Verlauf</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">📝</button></div>
+    <div class="exname">${base}<span class="okmark" aria-label="fertig">✓</span> <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">${ICON.clock} Verlauf</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}</button></div>
     ${tempo ? `<div class="extempo">${tempo}</div>` : ""}
     <div class="exziel">${zielLine}</div>
     <div class="prevnote"></div>
@@ -1056,7 +1097,7 @@ function renderExRow(it){
       showToast("Satz " + (i + 1) + ": " + last.value[i] + " übernommen");
     };
     const pn = lastRealNote(it.uebung);
-    prevNoteEl.textContent = pn ? `📝 ${fmtShort(pn.date)} · ${pn.text}` : "";
+    prevNoteEl.innerHTML = pn ? `${ICON.note} ${fmtShort(pn.date)} · ${escapeHtml(pn.text)}` : "";
     live();
   };
   inputs.forEach(inp => inp.addEventListener("input", live));
@@ -1246,7 +1287,7 @@ function attachHistoryButton(row, exName){
 
   function renderPanel(){
     const list = state.matches.map(r=>
-      `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}${r.note ? `<div class="hnote">📝 ${escapeHtml(r.note)}</div>` : ""}</div>`
+      `<div style="font-size:11.5px;color:var(--text-muted);padding:2px 0;"><strong style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${r.date}</strong> · ${r.dayTitle}: ${r.values}${r.renamedNote}${r.note ? `<div class="hnote">${ICON.note} ${escapeHtml(r.note)}</div>` : ""}</div>`
     ).join("");
     const empty = state.matches.length === 0
       ? '<div style="font-size:11px;color:var(--text-muted);">Noch keine weiteren Einträge für diese Übung.</div>'
@@ -1867,10 +1908,10 @@ document.getElementById("manageSessionsBtn").addEventListener("click", async ()=
 
 // ---------- Tageseinträge: Lauf, Schwimmen, Körperwerte, Sonstiges (alle Einträge eines Tages) ----------
 const ENTRY_TYPES = {
-  lauf:      { key:"cardio_lauf",      label:"Lauf",        icon:"🏃" },
-  schwimmen: { key:"cardio_schwimmen", label:"Schwimmen",   icon:"🏊" },
-  koerper:   { key:"koerperwerte",     label:"Körperwerte", icon:"⚖️" },
-  sonstiges: { key:"sonstiges",        label:"Sonstiges",   icon:"📝" },
+  lauf:      { key:"cardio_lauf",      label:"Lauf",        get icon(){ return ICON.lauf; } },
+  schwimmen: { key:"cardio_schwimmen", label:"Schwimmen",   get icon(){ return ICON.schwimmen; } },
+  koerper:   { key:"koerperwerte",     label:"Körperwerte", get icon(){ return ICON.koerper; } },
+  sonstiges: { key:"sonstiges",        label:"Sonstiges",   get icon(){ return ICON.sonstiges; } },
 };
 const ENTRY_KEYS = Object.values(ENTRY_TYPES).map(t => t.key);
 const typeOfKey = key => Object.keys(ENTRY_TYPES).find(t => ENTRY_TYPES[t].key === key) || null;
@@ -1883,9 +1924,9 @@ function summarizeEntry(dayKey, d){
   d = d || {};
   if(dayKey === "koerperwerte"){
     const parts = [];
-    if(d.gewicht_kg) parts.push(`⚖️ ${escapeHtml(d.gewicht_kg)} kg`);
-    if(d.oberarm_links_cm) parts.push(`💪 ${escapeHtml(d.oberarm_links_cm)} cm`);
-    if(d.bauchumfang_nabel_cm) parts.push(`📏 ${escapeHtml(d.bauchumfang_nabel_cm)} cm`);
+    if(d.gewicht_kg) parts.push(`${escapeHtml(d.gewicht_kg)} kg`);
+    if(d.oberarm_links_cm) parts.push(`Arm ${escapeHtml(d.oberarm_links_cm)} cm`);
+    if(d.bauchumfang_nabel_cm) parts.push(`Bauch ${escapeHtml(d.bauchumfang_nabel_cm)} cm`);
     return parts.join(" · ") || "keine Werte";
   }
   return d.comment ? escapeHtml(d.comment) : "kein Kommentar";
@@ -2035,7 +2076,7 @@ async function loadSheetDate(date){
   const trainings = rows.filter(r => DAYS[r.day_key]);
   trainingBox.innerHTML = trainings.map(r => `
     <div class="sheet-training">
-      <span>🏋️ ${escapeHtml(DAYS[r.day_key].title)} · gespeichert</span>
+      <span>${ICON.training} ${escapeHtml(DAYS[r.day_key].title)} · gespeichert</span>
       <button data-day="${r.day_key}">Öffnen</button>
     </div>`).join("");
   trainingBox.querySelectorAll("button").forEach(btn => btn.onclick = async ()=>{
@@ -2142,7 +2183,7 @@ async function saveSheet(){
 
 async function deleteSheetEntry(type){
   const t = ENTRY_TYPES[type];
-  if(!confirm(`${t.icon} ${t.label} vom ${sheetDate} wirklich löschen?`)) return;
+  if(!confirm(`${t.label} vom ${sheetDate} wirklich löschen?`)) return;
   try{
     const { error } = await sb.from("training_sessions").delete()
       .eq("person", PERSON).eq("day_key", t.key).eq("session_date", sheetDate);
@@ -2204,8 +2245,8 @@ async function renderRecentInto(holder, onPick, opts){
         if(r.day_key === "koerperwerte"){
           const d = r.data || {}, parts = [];
           if(d.gewicht_kg) parts.push(`${escapeHtml(d.gewicht_kg)} kg${delta(r,"gewicht_kg")}`);
-          if(d.oberarm_links_cm) parts.push(`💪 ${escapeHtml(d.oberarm_links_cm)}${delta(r,"oberarm_links_cm")}`);
-          if(d.bauchumfang_nabel_cm) parts.push(`📏 ${escapeHtml(d.bauchumfang_nabel_cm)}${delta(r,"bauchumfang_nabel_cm")}`);
+          if(d.oberarm_links_cm) parts.push(`Arm ${escapeHtml(d.oberarm_links_cm)}${delta(r,"oberarm_links_cm")}`);
+          if(d.bauchumfang_nabel_cm) parts.push(`Bauch ${escapeHtml(d.bauchumfang_nabel_cm)}${delta(r,"bauchumfang_nabel_cm")}`);
           return `${t.icon} ${parts.join(" · ") || "keine Werte"}`;
         }
         return `${t.icon} ${summarizeEntry(r.day_key, r.data)}`;
@@ -2300,7 +2341,7 @@ async function renderWeeklyGoals(){
     // Feste Spalten, damit Symbole und Zahlen in jeder Zeile genau untereinander stehen
     const anyBody = weeks.some(w => w.koerper > 0);
     const cell = (icon, n) => `<span class="wc"><span class="wi">${icon}</span><b>${n}</b></span>`;
-    const counts = w => `<span class="wcs">${anyBody ? (w.koerper ? cell("⚖️", w.koerper) : `<span class="wc"></span>`) : ""}${cell("🏋️", w.training)}${cell("🏃", w.lauf)}${cell("🏊", w.schwimmen)}</span>`;
+    const counts = w => `<span class="wcs">${anyBody ? (w.koerper ? cell(ICON.koerper, w.koerper) : `<span class="wc"></span>`) : ""}${cell(ICON.training, w.training)}${cell(ICON.lauf, w.lauf)}${cell(ICON.schwimmen, w.schwimmen)}</span>`;
     const weekLabel = (w, i) => i === 1 ? "Letzte Woche" : `KW ${isoWeek(w.start)}`;
     const yearNow = new Date().getFullYear();
     const startLabel = w => fmtShort(fmtDate(w.start)) + (w.start.getFullYear() === yearNow ? "" : String(w.start.getFullYear()).slice(2));
@@ -2315,7 +2356,7 @@ async function renderWeeklyGoals(){
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 0 5px;">
         <span style="display:flex;align-items:center;gap:9px;">
           <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;white-space:nowrap;">Diese Woche</span>
-          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:9px;min-height:32px;padding:4px 8px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;">⏱ Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
+          <button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:9px;min-height:32px;padding:4px 8px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;">${ICON.clock} Verlauf ${weeklyOpen ? "▴" : "▾"}</button>
         </span>
         <span style="font-size:12.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;">${counts(weeks[0])}</span>
       </div>
@@ -2332,7 +2373,7 @@ async function renderWeeklyGoals(){
       document.getElementById("weeklyHistoryHolder").style.display = weeklyOpen ? "block" : "none";
       const btn = document.getElementById("weeklyHistBtn");
       btn.setAttribute("aria-expanded", String(weeklyOpen));
-      btn.textContent = "⏱ Verlauf " + (weeklyOpen ? "▴" : "▾");
+      btn.innerHTML = ICON.clock + " Verlauf " + (weeklyOpen ? "▴" : "▾");
     });
     const more = document.getElementById("weeklyMoreBtn");
     if(more) more.addEventListener("click", async ()=>{
