@@ -200,6 +200,17 @@
   .tsave{flex:none;width:1.4em;text-align:center;font-weight:700;font-size:15px;color:var(--text-muted);}
   .tsave[data-st="saved"]{color:var(--accent);}
   .tsave[data-st="error"]{color:var(--danger);}
+  .sum-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 6px;}
+  .sum-stats div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;}
+  .sum-stats b{display:block;font-family:'Space Grotesk',sans-serif;font-size:22px;}
+  .sum-stats span{font-size:11.5px;color:var(--text-muted);}
+  .sum-h{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;margin:16px 0 4px;}
+  .sum-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px;}
+  .sum-row b{flex:none;font-family:'IBM Plex Mono',monospace;}
+  .sum-row .up{color:var(--accent);}
+  .sum-row .dn{color:var(--amber);}
+  .sum-note{padding:8px 0 8px 10px;border-left:2px solid var(--amber);margin-top:6px;font-size:13px;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
+  .sum-empty{margin-top:14px;color:var(--text-muted);font-size:13.5px;}
   .wu-group{margin:0 16px 12px;padding:12px 14px 6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
   .wu-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
   .wu-group table{width:100%;border-collapse:collapse;font-size:14px;}
@@ -228,6 +239,18 @@
   .daycard-meta{font-size:11.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
   .chip{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--text);}
   .chip.warn{background:var(--amber-tint-2);color:var(--amber);}
+  .daycard-last{margin-top:3px;font-size:12px;color:var(--text-muted);}
+  .daycard-last:empty{display:none;}
+  .plancard{margin:0 16px 14px;padding:12px 14px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
+  .plancard:empty{display:none;}
+  .plan-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;}
+  .plan-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;}
+  .plan-sub{font-size:11.5px;color:var(--text-muted);}
+  .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .slot{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:58px;justify-content:center;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-muted);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;}
+  .slot .sd{font-size:13px;line-height:1;}
+  .slot.done{color:var(--accent);border-color:var(--accent-dim);}
+  .slot.cur{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
   .daycard-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;margin-top:3px;}
   .daycard-change{flex:0 0 auto;min-height:40px;background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);border-radius:10px;padding:8px 12px;font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;}
   .nextchip{display:block;width:100%;text-align:left;margin-top:10px;background:var(--accent-tint);border:1px solid var(--accent-dim);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;}
@@ -303,6 +326,7 @@
       <div>
         <div class="daycard-meta" id="dayCardMeta"></div>
         <div class="daycard-title" id="dayCardTitle"></div>
+        <div class="daycard-last" id="dayCardLast"></div>
       </div>
       <button class="daycard-change" id="dayPanelBtn" aria-expanded="false">Tag ändern ▾</button>
     </div>
@@ -323,6 +347,7 @@
     </div>
     <div id="calendarHolder"></div>
   </div>
+  <div class="plancard" id="planCard"></div>
   <div class="daycard">
     <div class="block-title">Weiterer Eintrag für den Tag</div>
     <div class="quickrow">
@@ -429,6 +454,22 @@
       </details>
     </div>
     <div class="sheet-foot"><button class="savebtn" id="sheetSave">Speichern</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="sumSheet" aria-hidden="true">
+  <div class="sheet-backdrop" id="sumBackdrop"></div>
+  <div class="sheet-panel" role="dialog" aria-label="Auswertung der Einheit">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <h2>Einheit abgeschlossen</h2>
+      <button class="sheet-x" id="sumClose" aria-label="Schließen">✕</button>
+    </div>
+    <div class="sheet-body" id="sumBody"></div>
+    <div class="sheet-foot" style="display:flex;gap:10px;">
+      <button class="nextopen" id="sumBack">Zurück</button>
+      <button class="savebtn" id="sumHome" style="flex:1;">Zur Startseite</button>
+    </div>
   </div>
 </div>
 
@@ -725,6 +766,26 @@ async function setPointer(idx){
   return idx;
 }
 
+// Plan der Woche: vier Plätze (erledigt / dran / offen) nach dem Zeiger
+function renderPlanCard(w, idx){
+  const el = document.getElementById("planCard");
+  if(!el) return;
+  const wk = WEEK_PLAN[w];
+  const extra = wk.woche.replace(/^\d+\s*/, "");
+  const doneCnt = Math.max(0, Math.min(4, idx - w * 4));
+  el.innerHTML = `<div class="plan-head"><span class="plan-title">Plan · Woche ${w + 1} von ${WEEK_PLAN.length}${extra ? " " + escapeHtml(extra) : ""}</span><span class="plan-sub">${doneCnt} von 4 erledigt</span></div>
+    <div class="slots">${wk.tage.map((key, i)=>{
+      const slot = w * 4 + i;
+      const st = slot < idx ? "done" : slot === idx ? "cur" : "todo";
+      return `<button class="slot ${st}" data-key="${key || ""}"><span class="sd">${st === "done" ? "✓" : st === "cur" ? "●" : "○"}</span><span>${key ? DAYS[key].label : "Review"}</span></button>`;
+    }).join("")}</div>`;
+  el.querySelectorAll(".slot").forEach(b => b.onclick = ()=>{
+    const key = b.dataset.key;
+    if(!key) return;
+    currentDay = key; document.getElementById("dateInput").value = todayStr(); init();
+  });
+}
+
 async function renderNextSession(){
   const holder = document.getElementById("nextSessionHolder");
   const chip = document.getElementById("dayCardNext");
@@ -734,6 +795,7 @@ async function renderNextSession(){
   const note = nextKey === null ? " – kein Training, danach wieder Full Body L2A" : "";
   const label = nextKey ? DAYS[nextKey].title : "Review";
   const isOpen = nextKey === currentDay; // der vorgeschlagene Tag ist schon geöffnet
+  renderPlanCard(w, idx);
 
   const weekOptions = WEEK_PLAN.map((wk,i)=>`<option value="${i}" ${i===w?"selected":""}>Woche ${wk.woche}</option>`).join("");
   const dayOptions = [0,1,2,3].map(i=>`<option value="${i}" ${i===d?"selected":""}>Tag ${i+1}</option>`).join("");
@@ -999,6 +1061,12 @@ function renderExRow(it){
   };
   inputs.forEach(inp => inp.addEventListener("input", live));
   row._refresh = refresh;
+  row._info = ()=>({
+    name: base,
+    cur: inputs.map(inp => inp.value.trim()),
+    last: last ? last.value : null,
+    ready: !!(goalEl && goalEl.classList.contains("show")),
+  });
 
   // Notiz zu dieser Übung (für diese Session). Ohne Text bleibt nur der kleine Knopf sichtbar.
   const noteBtn = row.querySelector(".noteBtn");
@@ -1028,6 +1096,8 @@ function updateProgress(){
   const cnt = document.getElementById("trainCount");
   if(cnt) cnt.textContent = sets.length ? done + " / " + sets.length + " Sätze" : "";
   progressDone = done; progressTotal = sets.length;
+  const btn = document.getElementById("saveBtn");
+  if(btn && !btn.classList.contains("saved")) btn.textContent = (sets.length > 0 && done === sets.length) ? "Training abschließen" : "Session speichern";
   updateTrainSub();
 }
 let progressDone = 0, progressTotal = 0, trainSavedToday = false;
@@ -1036,6 +1106,59 @@ function updateTrainSub(){
   if(!el) return;
   el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : "starten");
 }
+
+// ---------- Abschluss: Auswertung der Einheit ----------
+function buildSummary(){
+  const rows = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch)")];
+  let setsDone = 0;
+  const up = [], down = [], ready = [], notes = [];
+  rows.forEach(r=>{
+    const inf = r._info && r._info();
+    if(!inf) return;
+    setsDone += inf.cur.filter(v => v !== "").length;
+    const curT = inf.cur.map(numTotal);
+    const lastT = inf.last ? inf.last.slice(0, curT.length).map(numTotal) : null;
+    if(lastT && lastT.length === curT.length && curT.every(x => x !== null) && lastT.every(x => x !== null)){
+      const delta = curT.reduce((a,b)=>a+b,0) - lastT.reduce((a,b)=>a+b,0);
+      if(delta > 0) up.push({ name: inf.name, delta });
+      else if(delta < 0) down.push({ name: inf.name, delta });
+    }
+    if(inf.ready) ready.push(inf.name);
+  });
+  document.querySelectorAll("#blocksHolder textarea.exnote").forEach(ta=>{
+    const v = ta.value.trim();
+    if(v) notes.push({ name: splitExName(ta.getAttribute("data-ex")).base, text: v });
+  });
+  const sess = document.getElementById("sessionNotes").value.trim();
+  const list = (items, cls, sign) => items.map(x => `<div class="sum-row"><span>${escapeHtml(x.name)}</span><b class="${cls}">${sign}${fmtNum(Math.abs(x.delta))}</b></div>`).join("");
+  let html = `<div class="sum-stats"><div><b>${setsDone}</b><span>Sätze</span></div><div><b>${rows.length}</b><span>Übungen</span></div><div><b>${up.length}</b><span>gesteigert</span></div></div>`;
+  if(up.length) html += `<div class="sum-h">▲ Gesteigert (Wiederholungen gesamt)</div>` + list(up, "up", "▲");
+  if(down.length) html += `<div class="sum-h">▼ Weniger als beim letzten Mal</div>` + list(down, "dn", "▼");
+  if(!up.length && !down.length) html += `<div class="sum-empty">Gleich wie beim letzten Mal – stabil.</div>`;
+  if(ready.length) html += `<div class="sum-h">Bereit für die nächste Stufe</div>` + ready.map(n => `<div class="sum-row"><span>${escapeHtml(n)}</span><b class="up">✓</b></div>`).join("");
+  if(notes.length || sess){
+    html += `<div class="sum-h">Deine Notizen</div>`
+      + notes.map(n => `<div class="sum-note"><b>${escapeHtml(n.name)}:</b> ${escapeHtml(n.text)}</div>`).join("")
+      + (sess ? `<div class="sum-note">${escapeHtml(sess)}</div>` : "");
+  }
+  return html;
+}
+function openSummary(){
+  document.getElementById("sumBody").innerHTML = buildSummary();
+  document.getElementById("sumBody").scrollTop = 0;
+  const el = document.getElementById("sumSheet");
+  el.classList.add("open"); el.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+function closeSummary(){
+  const el = document.getElementById("sumSheet");
+  el.classList.remove("open"); el.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+document.getElementById("sumClose").addEventListener("click", closeSummary);
+document.getElementById("sumBackdrop").addEventListener("click", closeSummary);
+document.getElementById("sumBack").addEventListener("click", closeSummary);
+document.getElementById("sumHome").addEventListener("click", ()=>{ closeSummary(); showPage("start", { top: true }); });
 
 // Springt zur nächsten Übung, in der noch Sätze fehlen (nicht zur gerade oben sichtbaren)
 function jumpToNextOpen(){
@@ -1307,6 +1430,15 @@ async function renderStreak(){
     dots += `<span class="dot ${i<dates.length ? "filled":""}"></span>`;
   }
   holder.innerHTML = dots + `<span class="label">letzte ${DAYS[currentDay].label}-Sessions</span>`;
+  const lastEl = document.getElementById("dayCardLast");
+  if(lastEl){
+    const prevDate = dates.find(d => d !== todayStr());
+    if(!prevDate) lastEl.textContent = dates.length ? "" : "Noch nicht gemacht";
+    else {
+      const days = Math.round((new Date(todayStr() + "T12:00:00") - new Date(prevDate + "T12:00:00")) / 86400000);
+      lastEl.textContent = `Letztes Mal: ${fmtShort(prevDate)} · ${days === 1 ? "gestern" : "vor " + days + " Tagen"}`;
+    }
+  }
 }
 
 async function loadSessionInto(date){
@@ -1420,8 +1552,8 @@ async function doSaveSession(opts){
   }
   try{
     let isNewSession;
-    if(auto && sessionKnown === key){
-      isNewSession = false;
+    if(sessionKnown === key){
+      isNewSession = false;   // schon bekannt (geladen/gespeichert): spart zwei Abfragen
     } else {
       // Vorher prüfen, ob für diesen Tag+Datum schon eine Session existiert -> nur bei neuer Session zählt es für den Zeiger
       const { data: existing, error: checkError } = await sb
@@ -1476,10 +1608,11 @@ async function doSaveSession(opts){
       const btn = document.getElementById("saveBtn");
       btn.classList.add("saved");
       btn.textContent = "Gespeichert ✓";
-      setTimeout(()=>{ btn.classList.remove("saved"); btn.textContent = "Session speichern"; }, 1800);
+      setTimeout(()=>{ btn.classList.remove("saved"); updateProgress(); }, 1800);
     }
     // Wurde zwischenzeitlich weitergetippt, bleibt es "ausstehend", sonst alles gespeichert
     setSaveState(autosaveTimer ? "pending" : "saved");
+    if(opts.onSaved) opts.onSaved();   // z. B. Auswertung sofort zeigen, ohne die Aktualisierungen unten abzuwarten
     // Der Zeiger rückt nur weiter, wenn genau der vorgeschlagene Tag gespeichert wurde. Wiederholungen
     // oder ein anderer Tag lassen ihn stehen, sonst rutscht er zu weit und ein Plan-Platz fällt durch.
     let pointerNote = "";
@@ -1542,7 +1675,10 @@ async function maybeLoadTodaySession(){
   }catch(e){ console.error("maybeLoadTodaySession", e); }
 }
 
-document.getElementById("saveBtn").addEventListener("click", ()=> saveSession());
+document.getElementById("saveBtn").addEventListener("click", async ()=>{
+  const complete = progressTotal > 0 && progressDone === progressTotal;
+  await saveSession({ onSaved: complete ? openSummary : null });
+});
 
 // Auslöser fürs automatische Speichern: Eintippen (gesammelt), Feld verlassen (sofort), "Satz übernehmen"
 (function(){
