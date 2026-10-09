@@ -144,7 +144,8 @@
   .histBtn,.noteBtn,.last-hint .takeBtn{position:relative;}
   .histBtn::after,.noteBtn::after,.last-hint .takeBtn::after{content:"";position:absolute;inset:-14px -8px;}
   .okmark{display:none;color:var(--accent);font-weight:700;margin-left:2px;}
-  .exrow.done{border-color:var(--accent-dim);}
+  .exrow.done{border-color:var(--accent-dim);background:var(--accent-tint-2);}
+  .exrow.done .last-hint,.exrow.done .prevnote{display:none;}
   .exrow.done .okmark{display:inline;}
   .noteBtn{background:none;border:none;font-size:12px;cursor:pointer;vertical-align:middle;opacity:.5;padding:0 3px;}
   .noteBtn.has{opacity:1;}
@@ -177,7 +178,9 @@
   #tabbar button.a{color:var(--accent);}
   #tabbar svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
   .savebar{display:none;}
-  body.p-train .savebar{display:block;}
+  body.p-train .savebar{display:flex;gap:10px;}
+  .nextopen{flex:none;min-width:88px;min-height:54px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
+  .savebar .savebtn{flex:1;width:auto;}
 
   .startbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
   .bigbtn{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-height:78px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);text-align:left;font-family:'Space Grotesk',sans-serif;}
@@ -189,6 +192,7 @@
 
   .trainbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line);}
   .trainx{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-size:17px;}
+  #pageTrain .block-title{position:sticky;top:64px;z-index:20;background:var(--bg);padding:9px 2px 7px;margin:0 0 6px 2px;}
   .tbar{flex:1;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;}
   .tbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s;}
   .tcount{flex:none;min-width:5.6rem;white-space:nowrap;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--text-muted);}
@@ -281,7 +285,8 @@
   .savebtn:active{background:var(--accent-dim);color:var(--text);}
   .savebtn.saved{background:var(--saved-bg);color:var(--accent);}
 
-  .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--accent);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .toast{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);max-width:calc(100% - 32px);width:max-content;text-align:center;background:var(--surface);border:1px solid var(--accent);color:var(--text);padding:10px 16px;border-radius:20px;font-size:13px;line-height:1.35;box-shadow:0 4px 18px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s;}
+  body.p-train .toast{bottom:calc(100px + env(safe-area-inset-bottom,0px));}
   .toast.show{opacity:1;}
 
   .last-hint{font-size:11px;color:var(--text-muted);margin-top:5px;}
@@ -428,7 +433,7 @@
 </div>
 
 <div class="toast" id="toast">Gespeichert</div>
-<div class="savebar"><button class="savebtn" id="saveBtn">Session speichern</button></div>
+<div class="savebar"><button class="nextopen" id="nextOpenBtn" aria-label="Zur nächsten offenen Übung" title="Zur nächsten offenen Übung">↓ Offen</button><button class="savebtn" id="saveBtn">Session speichern</button></div>
 <script>
 const ALLGEMEIN_WARMUP = [
   { title:"Allgemeines Aufwärmen (1x)", rows:[
@@ -1031,6 +1036,16 @@ function updateTrainSub(){
   if(!el) return;
   el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : "starten");
 }
+
+// Springt zur nächsten Übung, in der noch Sätze fehlen (nicht zur gerade oben sichtbaren)
+function jumpToNextOpen(){
+  const open = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch)")].filter(r => !r.classList.contains("done"));
+  if(!open.length){ showToast("Alles eingetragen ✓"); return; }
+  const offset = document.querySelector(".trainbar").getBoundingClientRect().height + 54;
+  const target = open.find(r => r.getBoundingClientRect().top > offset + 70) || open[0];
+  window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
+}
+document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
 
 // Zahl bzw. Summe aus einem Satzwert: "10" -> 10, "6+5" -> 11, "20s" -> 20. Alles andere (z. B. "5x6kg") -> null.
 function numTotal(v){
