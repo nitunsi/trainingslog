@@ -146,6 +146,22 @@
   .setboxes .sb .dlt{position:absolute;top:2px;right:6px;font-size:9.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;pointer-events:none;}
   .last-hint:empty,.prevnote:empty{display:none;}
   .last-hint .takeBtn{background:none;border:none;padding:0;color:var(--accent);font-size:calc(11px*var(--fs));font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+  .steig{margin-top:6px;display:inline-block;max-width:100%;padding:3px 9px;border-radius:8px;background:var(--amber-tint-2);color:var(--amber);font-size:calc(12px*var(--fs));font-weight:700;}
+  .steig[hidden]{display:none;}
+  .flagrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);}
+  .flagrow input[type=checkbox]{flex:none;width:24px;height:24px;accent-color:var(--accent);}
+  .flagrow .fn{flex:1;font-size:14px;line-height:1.3;}
+  .flagrow .fh{display:block;font-size:11.5px;color:var(--text-muted);}
+  .flagnote{width:100%;margin:0 0 10px;min-height:42px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;}
+  .flagnote[hidden]{display:none;}
+  .steiglink{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 32px);margin:0 16px 14px;min-height:48px;padding:0 14px;background:var(--amber-tint);border:1px solid var(--amber);border-radius:12px;color:var(--amber);font-size:13.5px;font-weight:700;font-family:'Inter',sans-serif;}
+  .steiglink[hidden]{display:none;}
+  .steigrow{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px;}
+  .steigrow:first-child{border-top:none;}
+  .steigrow .sn{font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .steigrow .sd{flex:none;font-size:11.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
+  .trainsum{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);}
+  .trainsum[hidden]{display:none;}
   .prevnote{margin-top:7px;padding-left:8px;border-left:2px solid var(--amber);font-size:calc(12px*var(--fs));line-height:1.4;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
   .histBtn,.noteBtn,.last-hint .takeBtn{position:relative;}
   .histBtn::after,.noteBtn::after,.last-hint .takeBtn::after{content:"";position:absolute;inset:-14px -8px;}
@@ -354,6 +370,7 @@
     <div id="calendarHolder"></div>
   </div>
   <div class="plancard" id="planCard"></div>
+  <button class="steiglink" id="steigLink" hidden><span id="steigLinkText"></span><span>›</span></button>
   <div class="daycard">
     <div class="block-title">Weiterer Eintrag für den Tag</div>
     <div class="quickrow">
@@ -379,6 +396,7 @@
     <div class="tbar"><i id="trainFill"></i></div>
     <span class="tcount" id="trainCount"></span>
     <span class="tsave" id="trainSave" role="status" aria-live="polite"></span>
+    <button class="trainsum" id="trainSumBtn" aria-label="Auswertung" title="Auswertung" hidden data-ic="clipboard"></button>
   </div>
   <div class="pagehead"><h1 id="trainTitle"></h1><div class="sub daycard-meta" id="trainSub"></div></div>
   <div id="editModeHolder"></div>
@@ -401,6 +419,10 @@
       <button data-type="koerper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
       <button data-type="sonstiges"><span class="qi" data-ic="sonstiges"></span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
     </div>
+  </div>
+  <div class="block" id="steigBlock" hidden>
+    <div class="block-title">Zum Steigern</div>
+    <div class="recentbox" id="steigList"></div>
   </div>
   <div class="block">
     <div class="block-title">Letzte Einträge · zum Ändern antippen</div>
@@ -499,6 +521,7 @@ const ICON = {
   clock: _svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
   sun: _svg('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>'),
   moon: _svg('<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5 6.5 6.5 0 0 0 20.5 13.5z"/>'),
+  clipboard: _svg('<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5h6V3H9zM8.5 11l2 2 4-4M8.5 17h7"/>'),
   auto: _svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/>'),
 };
 ICON.note = ICON.sonstiges;
@@ -914,6 +937,7 @@ function showPage(name, opts){
   document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("a", b.dataset.page === name));
   window.scrollTo(0, opts.top ? 0 : (pageScroll[name] || 0));
   if(!opts.noHistory){ try{ history.pushState({ page: name }, ""); }catch(e){} }
+  if((name === "start" || name === "entries") && typeof refreshSteigern === "function") refreshSteigern();
   if(name === "entries" && typeof renderEntriesRecent === "function"){
     if(prevPage !== "entries") entriesShown = 10;
     renderEntriesRecent();
@@ -1040,6 +1064,7 @@ function renderExRow(it){
     <div class="exname">${base}<span class="okmark" aria-label="fertig">✓</span> <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">${ICON.clock} Verlauf</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}</button></div>
     ${tempo ? `<div class="extempo">${tempo}</div>` : ""}
     <div class="exziel">${zielLine}</div>
+    <div class="steig" hidden></div>
     <div class="prevnote"></div>
     <div class="setboxes">${boxes}</div>
     <div class="last-hint"></div>
@@ -1051,6 +1076,34 @@ function renderExRow(it){
   const prevNoteEl = row.querySelector(".prevnote");
   const goalEl = row.querySelector(".goalhint");
   let last = null; // letzte echte Session (nicht das gerade geöffnete Datum)
+
+  // "↑ Steigern": wird nie automatisch neu gesetzt; ein bestehendes Kennzeichen läuft aber weiter,
+  // solange das Ergebnis mindestens so gut ist wie damals (oder das Ziel erreicht ist).
+  row._exName = it.uebung;
+  row._steigern = { choice: null, note: "", auto: false };   // choice: true = von dir gesetzt, false = von dir entfernt, null = offen
+  const steigEl = row.querySelector(".steig");
+  const pendingFlag = ()=>{ const l = lastRealSession(it.uebung); return l && l.flag && l.flag.on ? l.flag : null; };
+  const allFilled = ()=> inputs.length > 0 && inputs.every(inp => inp.value.trim() !== "");
+  row._flagDecision = ()=>{
+    const st = row._steigern, cur = inputs.map(inp => inp.value.trim());
+    if(st.choice === true) return { on: true, note: st.note || "", vals: cur };
+    if(st.choice === false) return { on: false };
+    const pf = pendingFlag();
+    if(pf && allFilled() && flagHolds(pf.vals, cur, it.ziel)) return { on: true, auto: true, note: pf.note || "", vals: cur };
+    return null;
+  };
+  row._renderSteig = ()=>{
+    if(!steigEl) return;
+    const st = row._steigern, pf = pendingFlag();
+    let show = false, note = "";
+    if(st.choice === true){ show = true; note = st.note; }
+    else if(st.choice === null && pf){
+      show = !allFilled() || flagHolds(pf.vals, inputs.map(inp => inp.value.trim()), it.ziel);
+      note = pf.note || "";
+    }
+    steigEl.hidden = !show;
+    steigEl.textContent = show ? "↑ Steigern" + (note ? " · " + note : "") : "";
+  };
 
   // Index des ersten leeren Satzes mit Vorgabe vom letzten Mal (-1 = keiner)
   const nextTakeIndex = ()=> last ? inputs.findIndex((inp, i) => inp.value.trim() === "" && String(last.value[i] ?? "").trim() !== "") : -1;
@@ -1074,6 +1127,7 @@ function renderExRow(it){
       row.classList.toggle("done", inputs.length > 0 && inputs.every(inp => inp.value.trim() !== ""));
       updateProgress();
     }
+    row._renderSteig();
     if(goalEl){
       const typed = inputs.map(inp => inp.value.trim());
       // Sobald etwas eingetragen ist, zählen die eingetragenen Werte; sonst die letzte Session.
@@ -1106,7 +1160,7 @@ function renderExRow(it){
     name: base,
     cur: inputs.map(inp => inp.value.trim()),
     last: last ? last.value : null,
-    ready: !!(goalEl && goalEl.classList.contains("show")),
+    ready: !!(goalEl && allFilled() && goalReached(it.ziel, inputs.map(inp => inp.value.trim()), inputs.length)),
   });
 
   // Notiz zu dieser Übung (für diese Session). Ohne Text bleibt nur der kleine Knopf sichtbar.
@@ -1137,6 +1191,8 @@ function updateProgress(){
   const cnt = document.getElementById("trainCount");
   if(cnt) cnt.textContent = sets.length ? done + " / " + sets.length + " Sätze" : "";
   progressDone = done; progressTotal = sets.length;
+  const sumBtn = document.getElementById("trainSumBtn");
+  if(sumBtn) sumBtn.hidden = done === 0;
   const btn = document.getElementById("saveBtn");
   if(btn && !btn.classList.contains("saved")) btn.textContent = (sets.length > 0 && done === sets.length) ? "Training abschließen" : "Session speichern";
   updateTrainSub();
@@ -1147,6 +1203,40 @@ function updateTrainSub(){
   if(!el) return;
   el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : "starten");
 }
+
+// ---------- Übersicht "Zum Steigern" (Start-Hinweis + Liste unter Einträge) ----------
+let flagsStale = false;
+function planExerciseNames(){
+  const set = new Map();
+  Object.keys(DAYS).forEach(k => DAYS[k].blocks.forEach(b => b.items.forEach(it => { if(!it.stretch) set.set(it.uebung, (set.get(it.uebung) || []).concat(DAYS[k].label)); })));
+  return set;
+}
+function renderSteigern(){
+  const plan = planExerciseNames();
+  const list = [];
+  plan.forEach((days, name) => {
+    const hit = namesFor(name).map(n => (lastSessionsByEx[n] || [])[0]).find(e => e && e.flag && e.flag.on);
+    if(hit) list.push({ name, days: [...new Set(days)], note: hit.flag.note || "", date: hit.date });
+  });
+  list.sort((a, b) => b.date.localeCompare(a.date));
+  const link = document.getElementById("steigLink"), block = document.getElementById("steigBlock");
+  if(link){
+    link.hidden = list.length === 0;
+    document.getElementById("steigLinkText").textContent = "↑ " + list.length + (list.length === 1 ? " Übung" : " Übungen") + " zum Steigern";
+  }
+  if(block){
+    block.hidden = list.length === 0;
+    document.getElementById("steigList").innerHTML = list.map(x => `<div class="steigrow"><div><div>${escapeHtml(splitExName(x.name).base)}</div><div class="sn">${escapeHtml(x.days.join(", "))}${x.note ? " · " + escapeHtml(x.note) : ""}</div></div><span class="sd">seit ${fmtShort(x.date)}</span></div>`).join("");
+  }
+}
+async function refreshSteigern(){
+  if(flagsStale){ flagsStale = false; await loadLastSession(); }
+  renderSteigern();
+}
+document.getElementById("steigLink").addEventListener("click", ()=>{
+  showPage("entries", { top: true });
+  setTimeout(()=>{ const b = document.getElementById("steigBlock"); if(b) window.scrollTo({ top: b.getBoundingClientRect().top + window.scrollY - 70, behavior: "smooth" }); }, 120);
+});
 
 // ---------- Abschluss: Auswertung der Einheit ----------
 function buildSummary(){
@@ -1176,7 +1266,7 @@ function buildSummary(){
   if(up.length) html += `<div class="sum-h">▲ Gesteigert (Wiederholungen gesamt)</div>` + list(up, "up", "▲");
   if(down.length) html += `<div class="sum-h">▼ Weniger als beim letzten Mal</div>` + list(down, "dn", "▼");
   if(!up.length && !down.length) html += `<div class="sum-empty">Gleich wie beim letzten Mal – stabil.</div>`;
-  if(ready.length) html += `<div class="sum-h">Bereit für die nächste Stufe</div>` + ready.map(n => `<div class="sum-row"><span>${escapeHtml(n)}</span><b class="up">✓</b></div>`).join("");
+  html += `<div class="sum-h">↑ Nächstes Mal steigern</div><div id="sumFlags"></div>`;
   if(notes.length || sess){
     html += `<div class="sum-h">Deine Notizen</div>`
       + notes.map(n => `<div class="sum-note"><b>${escapeHtml(n.name)}:</b> ${escapeHtml(n.text)}</div>`).join("")
@@ -1184,8 +1274,48 @@ function buildSummary(){
   }
   return html;
 }
+// Schalter "Nächstes Mal steigern": nur Vorschläge, gesetzt wird nichts automatisch neu
+function buildFlagsUi(){
+  const box = document.getElementById("sumFlags");
+  if(!box) return;
+  const rows = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch)")];
+  const items = rows.map(r => {
+    const dec = r._flagDecision ? r._flagDecision() : null, inf = r._info();
+    return { row: r, name: inf.name, ready: inf.ready, on: !!(dec && dec.on), auto: !!(dec && dec.on && dec.auto), note: (dec && dec.on && dec.note) || "" };
+  });
+  const group = (list, title, hint) => {
+    if(!list.length) return "";
+    return `<div class="sum-sub" style="font-size:11.5px;color:var(--text-muted);margin:8px 0 0;">${title}</div>` + list.map((x, i) => `
+      <div class="flagrow" data-i="${items.indexOf(x)}">
+        <input type="checkbox" ${x.on ? "checked" : ""} aria-label="Steigern: ${escapeAttr(x.name)}">
+        <span class="fn">${escapeHtml(x.name)}${hint(x) ? `<span class="fh">${hint(x)}</span>` : ""}</span>
+      </div>
+      <input class="flagnote" ${x.on ? "" : "hidden"} data-i="${items.indexOf(x)}" placeholder="Kurz notieren, z. B. 3–4 s runter" value="${escapeAttr(x.note)}">`).join("");
+  };
+  const active = items.filter(x => x.on), sugg = items.filter(x => !x.on && x.ready), rest = items.filter(x => !x.on && !x.ready);
+  box.innerHTML = group(active, "Gekennzeichnet", x => x.auto ? "automatisch übernommen – Ergebnis stimmt weiter" : "")
+    + group(sugg, "Vorschlag – Ziel erreicht", () => "nicht gesetzt, wenn du es nicht einschaltest")
+    + (rest.length ? `<details style="margin-top:8px;"><summary style="cursor:pointer;font-size:12.5px;color:var(--text-muted);padding:8px 0;">Weitere Übung kennzeichnen</summary>${group(rest, "", () => "")}</details>` : "");
+  const apply = (i, patch) => {
+    const r = items[i].row;
+    r._steigern = Object.assign({ choice: null, note: "", auto: false }, r._steigern, patch);
+    r._renderSteig();
+    flagsStale = true;
+    scheduleAutosave(patch.note !== undefined ? 1200 : 400);
+  };
+  box.querySelectorAll(".flagrow input[type=checkbox]").forEach(cb => cb.addEventListener("change", ()=>{
+    const i = parseInt(cb.closest(".flagrow").dataset.i, 10);
+    const noteEl = cb.closest(".flagrow").nextElementSibling;
+    if(noteEl) noteEl.hidden = !cb.checked;
+    apply(i, { choice: cb.checked, auto: false, note: cb.checked && noteEl ? noteEl.value.trim() : "" });
+    if(cb.checked && noteEl) noteEl.focus({ preventScroll: true });
+  }));
+  box.querySelectorAll(".flagnote").forEach(inp => inp.addEventListener("input", ()=> apply(parseInt(inp.dataset.i, 10), { choice: true, auto: false, note: inp.value.trim() })));
+}
 function openSummary(){
   document.getElementById("sumBody").innerHTML = buildSummary();
+  buildFlagsUi();
+  document.querySelector("#sumSheet .sheet-head h2").textContent = (progressTotal > 0 && progressDone === progressTotal) ? "Einheit abgeschlossen" : "Zwischenstand";
   document.getElementById("sumBody").scrollTop = 0;
   const el = document.getElementById("sumSheet");
   el.classList.add("open"); el.setAttribute("aria-hidden", "false");
@@ -1196,6 +1326,7 @@ function closeSummary(){
   el.classList.remove("open"); el.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
 }
+document.getElementById("trainSumBtn").addEventListener("click", ()=>{ flushAutosave(); openSummary(); });
 document.getElementById("sumClose").addEventListener("click", closeSummary);
 document.getElementById("sumBackdrop").addEventListener("click", closeSummary);
 document.getElementById("sumBack").addEventListener("click", closeSummary);
@@ -1210,6 +1341,15 @@ function jumpToNextOpen(){
   window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
 }
 document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
+
+// Stimmt das Ergebnis noch? Ziel erreicht, oder im Schnitt pro Satz mindestens so viel wie zum Zeitpunkt des Kennzeichnens
+function flagHolds(prevVals, curVals, ziel){
+  if(goalReached(ziel, curVals, curVals.length)) return true;
+  const a = (prevVals || []).map(numTotal), b = curVals.map(numTotal);
+  if(!a.length || !b.length || a.some(x => x === null) || b.some(x => x === null)) return false;
+  const avg = arr => arr.reduce((x, y) => x + y, 0) / arr.length;
+  return avg(b) >= avg(a);
+}
 
 // Zahl bzw. Summe aus einem Satzwert: "10" -> 10, "6+5" -> 11, "20s" -> 20. Alles andere (z. B. "5x6kg") -> null.
 function numTotal(v){
@@ -1403,12 +1543,13 @@ async function loadLastSession(){
         });
       }
       Object.keys(row.data).forEach(exName=>{
-        if(exName === "_notes" || exName === "_exnotes") return;
+        if(exName === "_notes" || exName === "_exnotes" || exName === "_steigern") return;
         const rawVal = row.data[exName];
         // Die zwei neuesten Sessions mit echten Werten je Übung (für "zuletzt am" und den Ziel-Check).
         if(Array.isArray(rawVal) && !isEmptyTrackedValue(rawVal)){
           const list = lastSessionsByEx[exName] || (lastSessionsByEx[exName] = []);
-          if(list.length < 2) list.push({ date: row.session_date, value: rawVal });
+          const sg = row.data["_steigern"] && row.data["_steigern"][exName];
+          if(list.length < 2) list.push({ date: row.session_date, value: rawVal, flag: sg && sg.on ? sg : null });
         }
         if(!Array.isArray(rawVal)){
           if(lastSessionValues[exName] !== undefined) return;
@@ -1497,7 +1638,15 @@ async function loadSessionInto(date){
     sessionKnown = currentDay + "|" + date;
     setSaveState("saved");
     document.getElementById("sessionNotes").value = sessionData["_notes"] || "";
-    const matchedNames = new Set(["_notes", "_exnotes"]);
+    const matchedNames = new Set(["_notes", "_exnotes", "_steigern"]);
+    const sg = sessionData["_steigern"] || {};
+    document.querySelectorAll("#blocksHolder .exrow").forEach(r=>{
+      if(!r._steigern) return;
+      const k = namesFor(r._exName).find(nm => sg[nm] !== undefined);
+      const f = k ? sg[k] : null;
+      // Automatisch gesetzte Kennzeichen werden bei jedem Speichern neu geprüft (Ergebnis muss weiter stimmen)
+      r._steigern = f ? { choice: f.on ? (f.auto ? null : true) : false, note: f.note || "", auto: !!f.auto } : { choice: null, note: "", auto: false };
+    });
     const exn = sessionData["_exnotes"] || {};
     document.querySelectorAll("#blocksHolder textarea.exnote").forEach(ta=>{
       const k = namesFor(ta.getAttribute("data-ex")).find(nm => exn[nm] !== undefined);
@@ -1586,6 +1735,12 @@ async function doSaveSession(opts){
     if(v) exnotes[ta.getAttribute("data-ex")] = v;
   });
   if(Object.keys(exnotes).length) data["_exnotes"] = exnotes;
+  const steig = {};
+  document.querySelectorAll("#blocksHolder .exrow").forEach(r=>{
+    const d = r._flagDecision && r._flagDecision();
+    if(d) steig[r._exName] = d;
+  });
+  if(Object.keys(steig).length) data["_steigern"] = steig;
   if(auto){
     if(date !== todayStr()){ setSaveState(""); return; }
     // Keine leeren Einheiten automatisch anlegen (es sei denn, die Einheit gibt es schon)
@@ -1642,6 +1797,7 @@ async function doSaveSession(opts){
       );
     if(error) throw error;
     sessionKnown = key;
+    flagsStale = true;   // "Zum Steigern" beim nächsten Seitenwechsel neu laden
     trainSavedToday = true; updateTrainSub();
     autosaveErrorShown = false;
     if(!auto){
@@ -1695,6 +1851,7 @@ async function init(){
   await renderStreak();
   await maybeLoadTodaySession();
   updateDayCard();
+  renderSteigern();
 }
 
 // Wenn für heute schon eine Session zu diesem Tag existiert, direkt anzeigen statt leer zu lassen
@@ -1771,7 +1928,7 @@ async function exportMarkdown(){
   } else {
     for(const entry of entries){
       md += `## ${entry.date} – ${DAYS[entry.dayKey] ? DAYS[entry.dayKey].title : entry.dayKey}\n\n`;
-      const exNames = Object.keys(entry.data).filter(k => k !== "_notes" && k !== "_exnotes");
+      const exNames = Object.keys(entry.data).filter(k => k !== "_notes" && k !== "_exnotes" && k !== "_steigern");
       if(exNames.length > 0){
         md += "| Übung | Werte |\n|---|---|\n";
         exNames.forEach(exName=>{
@@ -1779,6 +1936,10 @@ async function exportMarkdown(){
           md += `| ${exName} | ${vals} |\n`;
         });
         md += "\n";
+      }
+      if(entry.data["_steigern"]){
+        const fl = Object.keys(entry.data["_steigern"]).filter(k => entry.data["_steigern"][k].on);
+        if(fl.length) md += "**Nächstes Mal steigern:** " + fl.map(k => k + (entry.data["_steigern"][k].note ? " (" + entry.data["_steigern"][k].note + ")" : "")).join("; ") + "\n\n";
       }
       if(entry.data["_exnotes"]){
         md += "**Übungsnotizen:**\n" + Object.keys(entry.data["_exnotes"]).map(k => `- ${k}: ${entry.data["_exnotes"][k]}`).join("\n") + "\n\n";
@@ -1828,7 +1989,7 @@ async function renderSessionsList(){
     holder.innerHTML = data.map(row=>{
       const et = typeOfKey(row.day_key) ? ENTRY_TYPES[typeOfKey(row.day_key)] : null;
       const title = DAYS[row.day_key] ? DAYS[row.day_key].title : (et ? et.icon + " " + et.label : row.day_key);
-      const exCount = Object.keys(row.data || {}).filter(k => k !== "_notes" && k !== "_exnotes").length;
+      const exCount = Object.keys(row.data || {}).filter(k => k !== "_notes" && k !== "_exnotes" && k !== "_steigern").length;
       const sub = et ? summarizeEntry(row.day_key, row.data) : `${title} · ${exCount} Übungen`;
       return `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:6px;">
