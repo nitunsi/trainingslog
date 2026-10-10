@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Trainingslog</title>
+<title>Training</title>
 <meta name="theme-color" content="#12201B">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
@@ -367,14 +367,14 @@
 <!-- ===== Ladebildschirm ===== -->
 <div id="splash" role="status" aria-live="polite">
   <svg class="appicon big" viewBox="0 0 512 512" aria-hidden="true"><use href="#appicon"/></svg>
-  <div class="splash-name">Trainingslog</div>
+  <div class="splash-name">Training</div>
   <div class="splash-sub">Plan · Sätze · Fortschritt</div>
   <div class="splash-load">Lade deine Einheit<span class="dots"><i></i><i></i><i></i></span></div>
 </div>
 
 <!-- ===== Seite: Start ===== -->
 <main class="page on" id="pageStart">
-  <div class="header"><svg class="appicon" viewBox="0 0 512 512" aria-hidden="true"><use href="#appicon"/></svg><h1>Trainingslog</h1></div>
+  <div class="header"><svg class="appicon" viewBox="0 0 512 512" aria-hidden="true"><use href="#appicon"/></svg><h1>Training</h1></div>
   <div id="weeklyGoalsHolder"></div>
   <div class="daycard" id="dayCard">
     <div class="daycard-top">
@@ -1872,6 +1872,13 @@ async function doSaveSession(opts){
 
 async function init(){
   renderTabs();
+  // Tagesname und Untertitel sofort setzen (nicht erst nach den Netzabfragen)
+  { const d = DAYS[currentDay];
+    document.getElementById("dayCardTitle").textContent = d.title;
+    document.getElementById("dayCardFocus").textContent = d.sub || "";
+    document.getElementById("trainTitle").textContent = d.title;
+    document.getElementById("trainFocus").textContent = d.sub || "";
+    document.getElementById("warmupSub").textContent = d.title + (d.sub ? " · " + d.sub : ""); }
   setSaveState(""); autosaveBlocked = false; clearTimeout(autosaveTimer); autosaveTimer = null;
   await renderNextSession();
   await renderCalendar();
@@ -1956,7 +1963,7 @@ async function exportMarkdown(){
     return;
   }
 
-  let md = `# Trainingslog Export – letzte ${weeks} Wochen (ab ${cutoffStr})\n\n`;
+  let md = `# Training – Export – letzte ${weeks} Wochen (ab ${cutoffStr})\n\n`;
   if(entries.length === 0){
     md += "_Keine Sessions in diesem Zeitraum gespeichert._\n";
   } else {
@@ -1995,7 +2002,7 @@ async function exportMarkdown(){
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "trainingslog-export.md";
+    a.download = "training-export.md";
     a.click();
     URL.revokeObjectURL(url);
     showToast(entries.length + " Sessions exportiert");

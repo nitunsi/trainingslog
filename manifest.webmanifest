@@ -1,7 +1,7 @@
 {
-  "name": "Trainingslog",
+  "name": "Training",
   "short_name": "Training",
-  "description": "Trainingslog: Plan, Sätze und Fortschritt",
+  "description": "Training: Plan, Sätze und Fortschritt",
   "start_url": "app.html",
   "scope": "./",
   "display": "standalone",
