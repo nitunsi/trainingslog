@@ -398,6 +398,30 @@
   .toast.show{opacity:1;}
 
   .last-hint{font-size:calc(11px*var(--fs));color:var(--text-muted);margin-top:5px;}
+
+  /* Optik-Feinschliff: ruhigere Übungskopfzeile, weiche Karten, klarere Eingabefelder */
+  :root{--shadow:0 1px 2px rgba(20,40,32,.06),0 4px 14px rgba(20,40,32,.05);--line-strong:#BCC8BF;}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--shadow:0 1px 2px rgba(0,0,0,.3);--line-strong:#3C5348;}}
+  :root[data-theme="dark"]{--shadow:0 1px 2px rgba(0,0,0,.3);--line-strong:#3C5348;}
+  .exrow{border-radius:14px;padding:13px 14px;box-shadow:var(--shadow);}
+  .exrow.stretch{box-shadow:none;}
+  .exrow .exname{display:flex;align-items:flex-start;gap:8px;line-height:1.3;}
+  .exrow .exn{flex:1;min-width:0;}
+  .exrow .exacts{flex:none;display:inline-flex;gap:2px;margin:-5px -7px 0 0;}
+  .exrow .exacts button{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;background:none;border:none;border-radius:9px;color:var(--text-muted);cursor:pointer;opacity:.75;padding:0;}
+  .exrow .exacts button:active{background:var(--surface-2);}
+  .exrow .exacts .noteBtn.has{opacity:1;color:var(--accent);}
+  .exrow .exacts .ic{width:17px;height:17px;vertical-align:0;}
+  .exrow .exziel{margin-top:3px;}
+  .setboxes{gap:8px;margin-top:11px;}
+  .setboxes input{border-radius:10px;padding:11px 2px;border-color:var(--line-strong);}
+  .setboxes input:not(:placeholder-shown){border-color:var(--filled-border);}
+  .setboxes input:focus{box-shadow:0 0 0 3px var(--accent-tint);}
+  .daycard,.sec,.wkcard{border-radius:14px;}
+  .block{margin-bottom:26px;}
+  .block-title{margin-bottom:12px;}
+  .savebar .savebtn{box-shadow:0 4px 14px rgba(23,118,106,.28);}
+  .savebar .nextopen{box-shadow:var(--shadow);}
 </style>
 </head>
 <body>
@@ -1201,7 +1225,7 @@ function renderExRow(it){
   const { base, tempo } = it.stretch ? { base: it.uebung, tempo: null } : splitExName(it.uebung);
   const zielLine = it.stretch ? it.ziel : it.ziel + (it.saetze!=="-" ? " · "+it.saetze+" Sätze" : "");
   row.innerHTML = `
-    <div class="exname">${base}<span class="okmark" aria-label="fertig">✓</span> <button class="histBtn" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;vertical-align:middle;">${ICON.clock} Verlauf</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}</button></div>
+    <div class="exname"><span class="exn">${base}<span class="okmark" aria-label="fertig">✓</span></span><span class="exacts"><button class="histBtn" type="button" title="Verlauf" aria-label="Verlauf">${ICON.clock}</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}</button></span></div>
     ${tempo ? `<div class="extempo">${tempo}</div>` : ""}
     <div class="exziel">${zielLine}</div>
     <div class="steig" hidden></div>
