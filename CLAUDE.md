@@ -36,7 +36,7 @@ Die Tabelle „Geplante Progressionen“ oben bleibt für Vorhaben, die Nils aus
 
 ## App installieren (PWA)
 
-`manifest.webmanifest` + `icons/` (Quelle `icons/icon.svg`: Handstand-Figur auf Teal). Die PNGs (512, 192, Apple 180) sind aus der SVG gerendert; bei Änderung am Symbol neu rendern. Start direkt auf `app.html`, Anzeigename „Training“ (Manifest-Name und Kurzname). Kein Service Worker (die App braucht ohnehin Supabase).
+`manifest.webmanifest` + `icons/` (Quelle `icons/icon.svg`: Handstand-Figur auf Teal). Die PNGs (512, 192, Apple 180) sind aus der SVG gerendert; bei Änderung am Symbol neu rendern. Start direkt auf `app.html`, Anzeigename „Training“ (Manifest-Name und Kurzname). Service Worker siehe nächster Abschnitt.
 
 ## Namen der Trainingstage
 
@@ -54,3 +54,10 @@ Angezeigt werden Titel, Kürzel und Untertitel aus `DAYS`; die **internen Schlü
 
 Frühere Bezeichnungen (L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und älteren Gesprächen vor und meinen dieselben Tage.
 
+
+## Offline und Ladezeit
+
+- **Service Worker `sw.js`**: App-Hülle, Schriften, Icons und Bibliothek liegen im Cache (`training-shell-v1`); `app.html` wird network-first geladen (3 s, sonst Cache) — Änderungen an `app.html` brauchen **keinen** Versions-Bump. Neue Dateien in `PRECACHE` eintragen; ändert sich eine Datei in `fonts/`, `vendor/` oder `icons/`, dem Dateinamen eine neue Version geben (sie werden cache-first und `immutable` ausgeliefert, siehe `vercel.json`) und `training-shell-v1` in `sw.js` hochzählen.
+- **Schriften und supabase-js liegen im Repo** (`fonts/`, `vendor/supabase-<version>.js`), nichts mehr von Google/CDN.
+- **Lese-Cache** (IndexedDB `training_cache`): `cachedFetch` um den Supabase-Client; GETs werden gespeichert und bei Funkloch daraus beantwortet, dann zeigt die Startseite „Offline“. Schreibzugriffe gehen nie durch den Cache.
+- **Eingaben gehen nicht verloren**: heutige Eingaben werden sofort in `localStorage` (`training_pending_v1`, Schlüssel `tag|datum`) gesichert und nach Bestätigung durch Supabase entfernt. Ohne Netz bleibt der Status „⏳“ (`queued`); gesendet wird bei `online`, beim Zurückkehren in die App, alle 20 s und beim Start (`flushPending`, über dieselbe `saveChain`). Beim Start ohne Netz wird die ungesendete Einheit wiederhergestellt. Der Zeiger rückt beim Nachsenden nur für wirklich neue Einheiten weiter.

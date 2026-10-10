@@ -17,9 +17,44 @@
   try{ var t = localStorage.getItem("theme"); if(t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); }catch(e){}
   try{ var f = localStorage.getItem("fs"); if(f === "s") document.documentElement.style.setProperty("--fs", "0.92"); else if(f === "l") document.documentElement.style.setProperty("--fs", "1.18"); }catch(e){}
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link rel="preload" href="fonts/space-grotesk-500-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-400-600-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* Selbst ausgelieferte Schriften (nur lateinische Zeichen), Quelle: Google Fonts (OFL). */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(fonts/ibm-plex-mono-500-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(fonts/ibm-plex-mono-600-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(fonts/inter-400-600-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url(fonts/space-grotesk-500-700-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<script src="vendor/supabase-2.117.3.js"></script>
 <style>
   /* Dunkel ist der Standard; Hell folgt der System-Einstellung oder dem Umschalter (data-theme). */
   :root{
@@ -193,6 +228,8 @@
   .more-toggle > .more-body{margin-top:12px;}
   .more-toggle > .more-body > div{margin-left:0 !important;margin-right:0 !important;}
   .toast{z-index:100;}
+  .offline-pill{margin-left:auto;font-size:12px;font-weight:700;padding:4px 10px;border-radius:12px;background:var(--amber-tint-2);color:var(--amber);border:1px solid var(--amber);}
+  .offline-pill[hidden]{display:none;}
   .appicon{width:30px;height:30px;border-radius:8px;flex:none;display:block;}
   .appicon.big{width:104px;height:104px;border-radius:24px;box-shadow:0 8px 28px rgba(0,0,0,.3);}
   .header{gap:12px;justify-content:flex-start;}
@@ -244,6 +281,7 @@
   .tsave{flex:none;width:1.4em;text-align:center;font-weight:700;font-size:15px;color:var(--text-muted);}
   .tsave[data-st="saved"]{color:var(--accent);}
   .tsave[data-st="error"]{color:var(--danger);}
+  .tsave[data-st="queued"]{color:var(--amber);}
   .sum-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 6px;}
   .sum-stats div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;}
   .sum-stats b{display:block;font-family:'Space Grotesk',sans-serif;font-size:22px;}
@@ -374,7 +412,7 @@
 
 <!-- ===== Seite: Start ===== -->
 <main class="page on" id="pageStart">
-  <div class="header"><svg class="appicon" viewBox="0 0 512 512" aria-hidden="true"><use href="#appicon"/></svg><h1>Training</h1></div>
+  <div class="header"><svg class="appicon" viewBox="0 0 512 512" aria-hidden="true"><use href="#appicon"/></svg><h1>Training</h1><span class="offline-pill" id="offlinePill" hidden>Offline</span></div>
   <div id="weeklyGoalsHolder"></div>
   <div class="daycard" id="dayCard">
     <div class="daycard-top">
@@ -807,7 +845,75 @@ let lastNotesByEx = {};    // exName -> [{date, text}] Übungsnotizen früherer 
 
 const SUPABASE_URL = "https://dnziimlhlvpmizrqkxte.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuemlpbWxobHZwbWl6cnFreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MDA2MzgsImV4cCI6MjA5OTM3NjYzOH0.r6g0_IsU8tDxtKVgFjKAnLkiE-Md0tq2KVKTbYwv6qI";
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Lese-Cache (IndexedDB): Antworten auf Lese-Anfragen werden abgelegt; fällt das Netz aus oder dauert zu lange,
+// kommt der letzte Stand (mit Hinweis "Offline"). Schreibzugriffe laufen unverändert direkt zum Server.
+const RC_DB = "training_cache", RC_STORE = "reads", RC_MAX = 160, NET_TIMEOUT = 12000;
+let offlineSince = null;
+function rcOpen(){
+  return new Promise((res, rej)=>{
+    const r = indexedDB.open(RC_DB, 1);
+    r.onupgradeneeded = ()=> r.result.createObjectStore(RC_STORE, { keyPath: "k" });
+    r.onsuccess = ()=> res(r.result);
+    r.onerror = ()=> rej(r.error);
+  });
+}
+async function rcGet(k){
+  try{
+    const db = await rcOpen();
+    return await new Promise(res => { const q = db.transaction(RC_STORE).objectStore(RC_STORE).get(k); q.onsuccess = ()=> res(q.result || null); q.onerror = ()=> res(null); });
+  }catch(e){ return null; }
+}
+async function rcPut(entry){
+  try{
+    const db = await rcOpen();
+    await new Promise(res => { const tx = db.transaction(RC_STORE, "readwrite"); tx.objectStore(RC_STORE).put(entry); tx.oncomplete = res; tx.onerror = res; });
+    const all = await new Promise(res => { const q = db.transaction(RC_STORE).objectStore(RC_STORE).getAllKeys(); q.onsuccess = ()=> res(q.result || []); q.onerror = ()=> res([]); });
+    if(all.length > RC_MAX){
+      const rows = await new Promise(res => { const q = db.transaction(RC_STORE).objectStore(RC_STORE).getAll(); q.onsuccess = ()=> res(q.result || []); q.onerror = ()=> res([]); });
+      rows.sort((a, b) => a.ts - b.ts).slice(0, rows.length - RC_MAX).forEach(r => db.transaction(RC_STORE, "readwrite").objectStore(RC_STORE).delete(r.k));
+    }
+  }catch(e){}
+}
+function setOffline(ts){
+  offlineSince = ts || offlineSince || Date.now();
+  const pill = document.getElementById("offlinePill");
+  if(pill){ pill.hidden = false; pill.title = "Kein Netz – gezeigt wird der zuletzt geladene Stand"; }
+}
+function setOnline(){
+  offlineSince = null;
+  const pill = document.getElementById("offlinePill");
+  if(pill) pill.hidden = true;
+}
+async function cachedFetch(input, init){
+  const method = ((init && init.method) || (input instanceof Request ? input.method : "GET")).toUpperCase();
+  if(method !== "GET") return fetch(input, init);
+  const req = new Request(input, init);
+  const key = req.url + "|" + (req.headers.get("Prefer") || "") + "|" + (req.headers.get("Range") || "");
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=> ctrl.abort(), NET_TIMEOUT);
+    let res;
+    try{ res = await fetch(req, { signal: ctrl.signal }); } finally { clearTimeout(timer); }
+    setOnline();
+    if(res.ok){
+      const body = await res.clone().text();
+      rcPut({ k: key, ts: Date.now(), status: res.status, ct: res.headers.get("content-type"), cr: res.headers.get("content-range"), body });
+    }
+    return res;
+  }catch(e){
+    const hit = await rcGet(key);
+    if(hit){
+      setOffline(hit.ts);
+      const h = new Headers();
+      if(hit.ct) h.set("content-type", hit.ct);
+      if(hit.cr) h.set("content-range", hit.cr);
+      return new Response(hit.body, { status: hit.status, headers: h });
+    }
+    setOffline();
+    throw e;
+  }
+}
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { fetch: cachedFetch } });
 const PERSON = "nils"; // Personen-Kennung für die gemeinsam genutzte Supabase-Tabelle
 
 const WEEK_PLAN = [
@@ -1657,6 +1763,43 @@ async function renderStreak(){
   }
 }
 
+function applySessionData(sessionData, date){
+  document.getElementById("sessionNotes").value = sessionData["_notes"] || "";
+  const matchedNames = new Set(["_notes", "_exnotes", "_steigern"]);
+  const sg = sessionData["_steigern"] || {};
+  document.querySelectorAll("#blocksHolder .exrow").forEach(r=>{
+    if(!r._steigern) return;
+    const k = namesFor(r._exName).find(nm => sg[nm] !== undefined);
+    const f = k ? sg[k] : null;
+    // Automatisch gesetzte Kennzeichen werden bei jedem Speichern neu geprüft (Ergebnis muss weiter stimmen)
+    r._steigern = f ? { choice: f.on ? (f.auto ? null : true) : false, note: f.note || "", auto: !!f.auto } : { choice: null, note: "", auto: false };
+  });
+  const exn = sessionData["_exnotes"] || {};
+  document.querySelectorAll("#blocksHolder textarea.exnote").forEach(ta=>{
+    const k = namesFor(ta.getAttribute("data-ex")).find(nm => exn[nm] !== undefined);
+    if(k) ta.closest(".exrow")._setNote(exn[k]);
+  });
+  document.querySelectorAll("#blocksHolder input").forEach(inp=>{
+    const exName = inp.getAttribute("data-ex");
+    const idx = parseInt(inp.getAttribute("data-idx"),10);
+    const srcKey = namesFor(exName).find(n => sessionData[n] !== undefined);
+    if(srcKey && sessionData[srcKey][idx] !== undefined){ inp.value = sessionData[srcKey][idx]; }
+    if(srcKey) matchedNames.add(srcKey);
+  });
+  document.querySelectorAll("#blocksHolder .exrow").forEach(r => r._refresh && r._refresh());
+  const orphaned = Object.keys(sessionData).filter(name => !matchedNames.has(name));
+  const box = document.getElementById("orphanedHolder");
+  if(orphaned.length > 0){
+    const rows = orphaned.map(name => `<div style="margin-bottom:4px;"><strong>${name}:</strong> ${sessionData[name].map(v=>v||"–").join(" / ")}</div>`).join("");
+    box.innerHTML = `<div style="margin:0 16px 14px;padding:10px 14px;background:var(--surface);border:1px dashed var(--line);border-radius:10px;font-size:12px;color:var(--text-muted);">
+      <div style="font-weight:600;color:var(--text);margin-bottom:6px;">Diese Session vom ${date} enthielt auch Übungen, die nicht mehr im aktuellen Plan stehen:</div>
+      ${rows}
+    </div>`;
+  } else {
+    box.innerHTML = "";
+  }
+}
+
 async function loadSessionInto(date){
   try{
     const { data, error } = await sb
@@ -1668,43 +1811,9 @@ async function loadSessionInto(date){
       .maybeSingle();
     if(error) throw error;
     if(!data || !data.data) return;
-    const sessionData = data.data;
     sessionKnown = currentDay + "|" + date;
     setSaveState("saved");
-    document.getElementById("sessionNotes").value = sessionData["_notes"] || "";
-    const matchedNames = new Set(["_notes", "_exnotes", "_steigern"]);
-    const sg = sessionData["_steigern"] || {};
-    document.querySelectorAll("#blocksHolder .exrow").forEach(r=>{
-      if(!r._steigern) return;
-      const k = namesFor(r._exName).find(nm => sg[nm] !== undefined);
-      const f = k ? sg[k] : null;
-      // Automatisch gesetzte Kennzeichen werden bei jedem Speichern neu geprüft (Ergebnis muss weiter stimmen)
-      r._steigern = f ? { choice: f.on ? (f.auto ? null : true) : false, note: f.note || "", auto: !!f.auto } : { choice: null, note: "", auto: false };
-    });
-    const exn = sessionData["_exnotes"] || {};
-    document.querySelectorAll("#blocksHolder textarea.exnote").forEach(ta=>{
-      const k = namesFor(ta.getAttribute("data-ex")).find(nm => exn[nm] !== undefined);
-      if(k) ta.closest(".exrow")._setNote(exn[k]);
-    });
-    document.querySelectorAll("#blocksHolder input").forEach(inp=>{
-      const exName = inp.getAttribute("data-ex");
-      const idx = parseInt(inp.getAttribute("data-idx"),10);
-      const srcKey = namesFor(exName).find(n => sessionData[n] !== undefined);
-      if(srcKey && sessionData[srcKey][idx] !== undefined){ inp.value = sessionData[srcKey][idx]; }
-      if(srcKey) matchedNames.add(srcKey);
-    });
-    document.querySelectorAll("#blocksHolder .exrow").forEach(r => r._refresh && r._refresh());
-    const orphaned = Object.keys(sessionData).filter(name => !matchedNames.has(name));
-    const box = document.getElementById("orphanedHolder");
-    if(orphaned.length > 0){
-      const rows = orphaned.map(name => `<div style="margin-bottom:4px;"><strong>${name}:</strong> ${sessionData[name].map(v=>v||"–").join(" / ")}</div>`).join("");
-      box.innerHTML = `<div style="margin:0 16px 14px;padding:10px 14px;background:var(--surface);border:1px dashed var(--line);border-radius:10px;font-size:12px;color:var(--text-muted);">
-        <div style="font-weight:600;color:var(--text);margin-bottom:6px;">Diese Session vom ${date} enthielt auch Übungen, die nicht mehr im aktuellen Plan stehen:</div>
-        ${rows}
-      </div>`;
-    } else {
-      box.innerHTML = "";
-    }
+    applySessionData(data.data, date);
     showToast("Session vom " + date + " geladen");
     const editBanner = document.getElementById("editModeHolder");
     if(date !== todayStr()){
@@ -1723,6 +1832,27 @@ let sessionKnown = null;      // "tag|datum" der geladenen/gespeicherten Session
 let saveChain = Promise.resolve();
 let autosaveTimer = null, autosaveBlocked = false, autosaveErrorShown = false;
 
+// Nicht gesendete Eingaben (Entwurf / Warteschlange): bleiben im Telefon, bis Supabase sie bestätigt hat.
+// Schlüssel "tag|datum" -> { day, date, data, ts }. Bei Funkloch geht so nichts verloren.
+const PENDING_KEY = "training_pending_v1";
+function pendingAll(){ try{ return JSON.parse(localStorage.getItem(PENDING_KEY) || "{}") || {}; }catch(e){ return {}; } }
+function pendingWrite(o){ try{ if(Object.keys(o).length) localStorage.setItem(PENDING_KEY, JSON.stringify(o)); else localStorage.removeItem(PENDING_KEY); }catch(e){ console.error("pending", e); } }
+function pendingSet(day, date, data){ const o = pendingAll(); o[day + "|" + date] = { day, date, data, ts: Date.now() }; pendingWrite(o); }
+function pendingClearIfSame(key, data){
+  const o = pendingAll();
+  if(o[key] && JSON.stringify(o[key].data) === JSON.stringify(data)){ delete o[key]; pendingWrite(o); }
+}
+function pendingCount(){ return Object.keys(pendingAll()).length; }
+function isNetworkError(e){
+  const m = String((e && (e.message || e.details)) || e || "");
+  return !navigator.onLine || /fetch|network|load failed|abort|timeout|offline/i.test(m) || (e && (e.status === 0 || e.status >= 500));
+}
+let flushTimer = null;
+function schedulePendingRetry(){
+  if(flushTimer || !pendingCount()) return;
+  flushTimer = setTimeout(()=>{ flushTimer = null; flushPending(); }, 20000);
+}
+
 function saveSession(opts){
   saveChain = saveChain.then(() => doSaveSession(opts || {})).catch(e => console.error("saveSession", e));
   return saveChain;
@@ -1731,13 +1861,14 @@ function setSaveState(st){
   const el = document.getElementById("trainSave");
   if(!el) return;
   el.dataset.st = st;
-  el.textContent = st === "saved" ? "✓" : st === "pending" ? "…" : st === "error" ? "⚠" : "";
-  el.title = st === "saved" ? "Alles gespeichert" : st === "pending" ? "Wird gleich gespeichert" : st === "error" ? "Speichern fehlgeschlagen – oben auf „Session speichern“ tippen" : "";
+  el.textContent = st === "saved" ? "✓" : st === "pending" ? "…" : st === "queued" ? "⏳" : st === "error" ? "⚠" : "";
+  el.title = st === "saved" ? "Alles gespeichert" : st === "pending" ? "Wird gleich gespeichert" : st === "queued" ? "Kein Netz – auf dem Telefon gesichert, wird automatisch gesendet" : st === "error" ? "Speichern fehlgeschlagen – oben auf „Session speichern“ tippen" : "";
 }
 function scheduleAutosave(delay){
   if(autosaveBlocked) return;
   if((document.getElementById("dateInput").value || todayStr()) !== todayStr()) return; // nur heute; ältere Sessions weiter mit dem Speichern-Knopf
   setSaveState("pending");
+  try{ const d = collectSessionData(); if(sessionHasContent(d) || sessionKnown === currentDay + "|" + todayStr()) pendingSet(currentDay, todayStr(), d); }catch(e){}
   clearTimeout(autosaveTimer);
   autosaveTimer = setTimeout(runAutosave, delay);
 }
@@ -1750,10 +1881,7 @@ function sessionHasContent(data){
   return Object.keys(data).some(k => k === "_notes" || k === "_exnotes" || (Array.isArray(data[k]) && data[k].some(v => String(v).trim() !== "")));
 }
 
-async function doSaveSession(opts){
-  const auto = !!opts.auto;
-  const date = document.getElementById("dateInput").value || todayStr();
-  const key = currentDay + "|" + date;
+function collectSessionData(){
   const data = {};
   document.querySelectorAll("#blocksHolder input").forEach(inp=>{
     const exName = inp.getAttribute("data-ex");
@@ -1775,11 +1903,20 @@ async function doSaveSession(opts){
     if(d) steig[r._exName] = d;
   });
   if(Object.keys(steig).length) data["_steigern"] = steig;
+  return data;
+}
+
+async function doSaveSession(opts){
+  const auto = !!opts.auto;
+  const date = document.getElementById("dateInput").value || todayStr();
+  const key = currentDay + "|" + date;
+  const data = collectSessionData();
   if(auto){
     if(date !== todayStr()){ setSaveState(""); return; }
     // Keine leeren Einheiten automatisch anlegen (es sei denn, die Einheit gibt es schon)
     if(!sessionHasContent(data) && sessionKnown !== key){ setSaveState(""); return; }
   }
+  if(date === todayStr() && (sessionHasContent(data) || sessionKnown === key)) pendingSet(currentDay, date, data);
   try{
     let isNewSession;
     if(sessionKnown === key){
@@ -1830,6 +1967,7 @@ async function doSaveSession(opts){
         { onConflict: "person,day_key,session_date" }
       );
     if(error) throw error;
+    pendingClearIfSame(key, data);
     sessionKnown = key;
     flagsStale = true;   // "Zum Steigern" beim nächsten Seitenwechsel neu laden
     trainSavedToday = true; updateTrainSub();
@@ -1842,7 +1980,7 @@ async function doSaveSession(opts){
       setTimeout(()=>{ btn.classList.remove("saved"); updateProgress(); }, 1800);
     }
     // Wurde zwischenzeitlich weitergetippt, bleibt es "ausstehend", sonst alles gespeichert
-    setSaveState(autosaveTimer ? "pending" : "saved");
+    setSaveState(autosaveTimer ? "pending" : pendingCount() ? "queued" : "saved");
     if(opts.onSaved) opts.onSaved();   // z. B. Auswertung sofort zeigen, ohne die Aktualisierungen unten abzuwarten
     // Der Zeiger rückt nur weiter, wenn genau der vorgeschlagene Tag gespeichert wurde. Wiederholungen
     // oder ein anderer Tag lassen ihn stehen, sonst rutscht er zu weit und ein Plan-Platz fällt durch.
@@ -1861,6 +1999,12 @@ async function doSaveSession(opts){
     }
   }catch(e){
     console.error(e);
+    if(isNetworkError(e) && pendingAll()[key]){
+      // Kein Netz: Eingaben liegen gesichert auf dem Telefon und werden automatisch nachgesendet
+      setSaveState("queued"); schedulePendingRetry();
+      if(!autosaveErrorShown){ autosaveErrorShown = true; showToast("Kein Netz – deine Eingaben sind auf dem Telefon gesichert und werden automatisch gesendet"); }
+      return;
+    }
     if(auto){
       setSaveState("error");
       if(!autosaveErrorShown){ autosaveErrorShown = true; showToast("Automatisches Speichern fehlgeschlagen – oben auf „Session speichern“ tippen"); }
@@ -1869,6 +2013,48 @@ async function doSaveSession(opts){
     }
   }
 }
+
+// Gesicherte Einheiten an Supabase senden (nacheinander, über dieselbe Kette wie das Speichern)
+async function pushJob(job){
+  const key = job.day + "|" + job.date;
+  const { data: existing, error: ce } = await sb.from("training_sessions").select("day_key")
+    .eq("person", PERSON).eq("day_key", job.day).eq("session_date", job.date).maybeSingle();
+  if(ce) throw ce;
+  const isNew = !existing;
+  const { error } = await sb.from("training_sessions").upsert(
+    { person: PERSON, day_key: job.day, session_date: job.date, data: job.data, updated_at: new Date().toISOString() },
+    { onConflict: "person,day_key,session_date" });
+  if(error) throw error;
+  pendingClearIfSame(key, job.data);
+  if(sessionKnown === null || key === currentDay + "|" + todayStr()) sessionKnown = key;
+  if(isNew){
+    const curIdx = await getPointer();
+    if(SEQUENCE[curIdx] === job.day) await setPointer(curIdx + 1);
+  }
+}
+function flushPending(){
+  if(!pendingCount()) return Promise.resolve(true);
+  saveChain = saveChain.then(async () => {
+    let ok = true;
+    for(const job of Object.values(pendingAll())){
+      try{ await pushJob(job); }
+      catch(e){ ok = false; console.error("flushPending", e); break; }
+    }
+    if(ok){
+      flagsStale = true; trainSavedToday = true; try{ updateTrainSub(); }catch(e){}
+      setSaveState(autosaveTimer ? "pending" : "saved");
+      autosaveErrorShown = false;
+      try{ await populateHistory(); await renderStreak(); await renderNextSession(); await renderWeeklyGoals(); }catch(e){}
+    } else {
+      setSaveState("queued"); schedulePendingRetry();
+    }
+    return ok;
+  }).catch(e => { console.error("flushPending", e); return false; });
+  return saveChain;
+}
+window.addEventListener("online", ()=>flushPending());
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible") flushPending(); else flushAutosave(); });
+window.addEventListener("pagehide", ()=>{ if(!autosaveTimer) return; try{ const d = collectSessionData(); if(sessionHasContent(d) && (document.getElementById("dateInput").value || todayStr()) === todayStr()) pendingSet(currentDay, todayStr(), d); }catch(e){} });
 
 async function init(){
   renderTabs();
@@ -2592,6 +2778,8 @@ async function renderWeeklyGoals(){
 }
 
 async function bootstrap(){
+  // Zuerst liegengebliebene Eingaben senden (Zeiger stimmt danach); ohne Netz bleiben sie gesichert
+  if(pendingCount()) await Promise.race([flushPending(), new Promise(r => setTimeout(r, 6000))]);
   const idx = await getPointer();
   const key = SEQUENCE[idx];
   currentDay = key || "l2a"; // Review-Slot -> Fallback L2A
@@ -2611,10 +2799,26 @@ async function bootstrap(){
     if(!error && data){ currentDay = data.day_key; todaySaved = true; }
   }catch(e){ console.error("bootstrap today-check", e); }
 
+  // Noch ungesendete Einheit von heute (kein Netz)? Dann genau diese öffnen und wiederherstellen.
+  const leftover = Object.values(pendingAll()).find(j => j.date === todayStr() && DAYS[j.day]);
+  if(leftover){ currentDay = leftover.day; todaySaved = true; }
+
   await init();
+  if(leftover){
+    document.getElementById("dateInput").value = leftover.date;
+    applySessionData(leftover.data, leftover.date);
+    sessionKnown = null;
+    setSaveState("queued"); schedulePendingRetry();
+    showToast("Ungesendete Eingaben wiederhergestellt – werden gesendet, sobald Netz da ist");
+  }
   // Ist heute schon ein Training gespeichert, öffnet die App direkt dort statt auf der Startseite.
   if(todaySaved) showPage("train", { noHistory: true, top: true });
 }
+// Offline öffnen: Service Worker (App-Hülle, Schriften, Bibliothek); Daten kommen aus dem Lese-Cache oben
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(e => console.error("sw", e)); });
+}
+
 // Ladebildschirm: bleibt mindestens kurz stehen (kein Aufblitzen), spätestens nach 12 s weg
 const splashStart = Date.now();
 function hideSplash(){
