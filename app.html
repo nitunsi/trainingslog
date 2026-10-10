@@ -283,6 +283,9 @@
   .daycard-meta{font-size:calc(11.5px*var(--fs));color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
   .chip{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--text);}
   .chip.warn{background:var(--amber-tint-2);color:var(--amber);}
+  .daycard-focus{margin-top:2px;font-size:calc(13px*var(--fs));color:var(--text-muted);line-height:1.35;}
+  .daycard-focus:empty{display:none;}
+  .pagehead .daycard-focus{margin:2px 0 6px;}
   .daycard-last{margin-top:3px;font-size:calc(12px*var(--fs));color:var(--text-muted);}
   .daycard-last:empty{display:none;}
   .plancard{margin:0 16px 14px;padding:12px 14px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;}
@@ -378,6 +381,7 @@
       <div>
         <div class="daycard-meta" id="dayCardMeta"></div>
         <div class="daycard-title" id="dayCardTitle"></div>
+        <div class="daycard-focus" id="dayCardFocus"></div>
         <div class="daycard-last" id="dayCardLast"></div>
       </div>
       <button class="daycard-change" id="dayPanelBtn" aria-expanded="false">Tag ändern ▾</button>
@@ -428,7 +432,7 @@
     <span class="tsave" id="trainSave" role="status" aria-live="polite"></span>
     <button class="trainsum" id="trainSumBtn" aria-label="Auswertung" title="Auswertung" hidden data-ic="clipboard"></button>
   </div>
-  <div class="pagehead"><h1 id="trainTitle"></h1><div class="sub daycard-meta" id="trainSub"></div></div>
+  <div class="pagehead"><h1 id="trainTitle"></h1><div class="daycard-focus" id="trainFocus"></div><div class="sub daycard-meta" id="trainSub"></div></div>
   <div id="editModeHolder"></div>
   <div id="orphanedHolder"></div>
   <div id="blocksHolder"></div>
@@ -622,7 +626,7 @@ function namesFor(exName){
 const KOPFSTAND = ex("Headstand an der Wand (Wandkontakt lösen)", "3", "sammeln, Ziel 10s ohne Wandkontakt");
 
 const DAYS = {
-  l2a: { label: "L2A", title: "Full Body L2A", warmup: ALLGEMEIN_WARMUP, blocks: [
+  l2a: { label: "Einarm", title: "Einarm", sub: "Einarm-Liegestütz, Archer, Einarm-Rudern", warmup: ALLGEMEIN_WARMUP, blocks: [
     { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
     { name:"Push + Pull-ups", items:[
       ex("One Arm Push-up (links)","3","5–10, bis Muskelversagen"),
@@ -646,7 +650,7 @@ const DAYS = {
       ex("Wadenheben (rechts)","3","15–20, bis Muskelversagen"),
     ]},
   ]},
-  l2b: { label: "L2B", title: "Full Body L2B", warmup: ALLGEMEIN_WARMUP, blocks: [
+  l2b: { label: "Planche", title: "Planche", sub: "Tuck Planche, Front-Lever-Raise, Beine", warmup: ALLGEMEIN_WARMUP, blocks: [
     { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
     { name:"Push + Pull-ups", items:[
       ex("One Arm Push-up (links)","3","5–10, bis Muskelversagen"),
@@ -668,7 +672,7 @@ const DAYS = {
       ex("One Leg Hamstring Chair Curl","3","5–15, bis Muskelversagen"),
     ]},
   ]},
-  l2c: { label: "L2C", title: "Full Body L2C", warmup: ALLGEMEIN_WARMUP, blocks: [
+  l2c: { label: "HSPU", title: "Handstand-Druck", sub: "Handstand-Liegestütz, Front Lever, Nordic", warmup: ALLGEMEIN_WARMUP, blocks: [
     { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
     { name:"Push + Pull-ups", items:[
       ex("Facing Wall Hspu","3","5–15, bis Muskelversagen"),
@@ -687,7 +691,7 @@ const DAYS = {
       ex("Negative Nordic Curl","3","5–8, bis Muskelversagen"),
     ]},
   ]},
-  skill: { label: "Skill", title: "Skill Day L2", warmup: ALLGEMEIN_WARMUP, blocks: [
+  skill: { label: "Skill", title: "Skill", sub: "Elbow Lever, Handstand-Technik, Muscle-up", warmup: ALLGEMEIN_WARMUP, blocks: [
     { name:"Skill Play", items:[ ex("Double Half Lay Elbow Lever (Hspu)","-","so lange sauber") ]},
     { name:"HSPU Strength/Technique", items:[
       ex("Crow to Tuck Headstand Press (1s Pause in der Krähe)","2","sammeln, Ziel 10 Wdh"),
@@ -707,7 +711,7 @@ const DAYS = {
       ex("Kniestand-Rückbeuge","2","20–30s",true),
     ]},
   ]},
-  hs2: { label: "HS2", title: "Handstand 2 (Full)", warmup: HS_WARMUP, blocks: [
+  hs2: { label: "HS", title: "Handstand", sub: "Balance, Freistand, Einstiege", warmup: HS_WARMUP, blocks: [
     { name:"Balance Play", items:[ ex("Forearm Stand","-","so lange sauber") ]},
     { name:"Handstand-Versuche", items:[
       ex("Handstand Hold (Entry Back to Wall)","3","bis Ermüdung, Anzahl Versuche"),
@@ -732,7 +736,7 @@ const DAYS = {
       ex("Stehende Vorbeuge","-","20–30s",true),
     ]},
   ]},
-  deload: { label: "Deload", title: "Deload & Mobility (Review-Woche)", warmup: ALLGEMEIN_WARMUP, blocks: [
+  deload: { label: "Deload", title: "Deload", sub: "Mobility & Erholung (Review-Woche)", warmup: ALLGEMEIN_WARMUP, blocks: [
     { name:"Mobility-Zirkel (2 Runden, länger halten als sonst)", items:[
       ex("Schneidersitz-Vorbeuge","2","30–45s",true),
       ex("Taube (Pigeon Pose)","2","30–45s je Seite",true),
@@ -743,7 +747,7 @@ const DAYS = {
       ex("Nacken-/oberer Trapezius-Dehnung","2","30–45s je Seite",true),
     ]},
   ]},
-  travel: { label: "Reise", title: "Reise-Session (ohne Wand/Bar moeglich)", warmup: TRAVEL_WARMUP, blocks: [
+  travel: { label: "Reise", title: "Reise-Training", sub: "ohne Wand und Stange", warmup: TRAVEL_WARMUP, blocks: [
     { name:"Push & Handstand", items:[
       ex("Facing Wall Hspu / Pike Push-up (falls keine Wand)","3","Hspu 5-15 oder Pike Push-up 8-12, bis Muskelversagen"),
       ex("One Arm Push-up (links)","3","5-10, bis Muskelversagen"),
@@ -872,7 +876,7 @@ async function renderNextSession(){
   const idx = await getPointer();
   const w = Math.floor(idx/4), d = idx%4;
   const nextKey = SEQUENCE[idx];
-  const note = nextKey === null ? " – kein Training, danach wieder Full Body L2A" : "";
+  const note = nextKey === null ? " – kein Training, danach wieder " + DAYS.l2a.title : "";
   const label = nextKey ? DAYS[nextKey].title : "Review";
   const isOpen = nextKey === currentDay; // der vorgeschlagene Tag ist schon geöffnet
   renderPlanCard(w, idx);
@@ -926,7 +930,7 @@ async function renderCalendar(){
   }).join("");
   holder.innerHTML = `<details class="warmup-toggle"><summary>6-Wochen-Kalender anzeigen</summary>
     <table><tr><td></td><td>Tag 1</td><td>Tag 2</td><td>Tag 3</td><td>Tag 4</td></tr>${rows}</table>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Woche 6: Tag 2 (HS2) bewusst 1 Satz weniger pro Block, Tag 4 = Deload &amp; Mobility statt normalem Training.</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Woche 6: Tag 2 (Handstand) bewusst 1 Satz weniger pro Block, Tag 4 = Deload &amp; Mobility statt normalem Training.</div>
   </details>`;
 }
 
@@ -1035,7 +1039,7 @@ function renderWarmup(){
     const rows = group.rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
     return `<div class="wu-group"><div class="wu-title">${group.title}</div><table>${rows}</table></div>`;
   }).join("");
-  document.getElementById("warmupSub").textContent = day.title;
+  document.getElementById("warmupSub").textContent = day.title + (day.sub ? " · " + day.sub : "");
 }
 
 function renderBlocks(){
@@ -1550,7 +1554,7 @@ async function loadLastSession(){
   lastNotesByEx = {};
   try{
     // Über alle Tagestypen suchen (nicht nur currentDay), damit Übungen, die in
-    // mehreren Mustern vorkommen (z. B. Superman Push-up in L2A/L2B/L2C), immer
+    // mehreren Mustern vorkommen (z. B. Superman Push-up an den Ganzkörper-Tagen Einarm/Planche/HSPU), immer
     // den zeitlich neuesten Wert als Platzhalter zeigen, egal aus welchem Tag.
     const { data, error } = await sb
       .from("training_sessions")
@@ -2144,6 +2148,8 @@ async function updateDayCard(){
   const metaHtml = `${wd} ${fmtShort(date)}${date.slice(0,4)} ${chip}`;
   document.getElementById("dayCardMeta").innerHTML = metaHtml;
   document.getElementById("trainTitle").textContent = DAYS[currentDay].title;
+  document.getElementById("dayCardFocus").textContent = DAYS[currentDay].sub || "";
+  document.getElementById("trainFocus").textContent = DAYS[currentDay].sub || "";
   document.getElementById("trainSub").innerHTML = metaHtml;
   const token = ++dayCardToken;
   try{
