@@ -32,3 +32,7 @@ FROM letzte WHERE (flag->>'on')::boolean ORDER BY session_date DESC;
 
 Die Tabelle „Geplante Progressionen“ oben bleibt für Vorhaben, die Nils ausdrücklich später umstellen will.
 
+## App installieren (PWA)
+
+`manifest.webmanifest` + `icons/` (Quelle `icons/icon.svg`: Handstand-Figur auf Teal). Die PNGs (512, 192, Apple 180) sind aus der SVG gerendert; bei Änderung am Symbol neu rendern. Start direkt auf `app.html`, Anzeigename „Training“. Kein Service Worker (die App braucht ohnehin Supabase).
+
