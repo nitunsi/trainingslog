@@ -1,5 +1,7 @@
 # trainingslog
 
+(Das Repo heißt `trainingslog`; die App heißt für Nils überall **„Training“** — Kopfzeile, Ladebildschirm, Browser-Titel, Handy-Startbildschirm.)
+
 Trainings-App (`app.html`, Plan in `const DAYS`), Daten in Supabase (`training_sessions`, Projekt `dnziimlhlvpmizrqkxte`).
 
 ## Geplante Progressionen
@@ -34,5 +36,21 @@ Die Tabelle „Geplante Progressionen“ oben bleibt für Vorhaben, die Nils aus
 
 ## App installieren (PWA)
 
-`manifest.webmanifest` + `icons/` (Quelle `icons/icon.svg`: Handstand-Figur auf Teal). Die PNGs (512, 192, Apple 180) sind aus der SVG gerendert; bei Änderung am Symbol neu rendern. Start direkt auf `app.html`, Anzeigename „Training“. Kein Service Worker (die App braucht ohnehin Supabase).
+`manifest.webmanifest` + `icons/` (Quelle `icons/icon.svg`: Handstand-Figur auf Teal). Die PNGs (512, 192, Apple 180) sind aus der SVG gerendert; bei Änderung am Symbol neu rendern. Start direkt auf `app.html`, Anzeigename „Training“ (Manifest-Name und Kurzname). Kein Service Worker (die App braucht ohnehin Supabase).
+
+## Namen der Trainingstage
+
+Angezeigt werden Titel, Kürzel und Untertitel aus `DAYS`; die **internen Schlüssel** (und damit alle gespeicherten Daten) heißen weiter `l2a` usw. — nie umbenennen.
+
+| Schlüssel | Titel | Kürzel (Tabs, Plan) | Untertitel |
+|---|---|---|---|
+| `l2a` | Einarm | Einarm | Einarm-Liegestütz, Archer, Einarm-Rudern |
+| `l2b` | Planche | Planche | Tuck Planche, Front-Lever-Raise, Beine |
+| `l2c` | Handstand-Druck | HSPU | Handstand-Liegestütz, Front Lever, Nordic |
+| `skill` | Skill | Skill | Elbow Lever, Handstand-Technik, Muscle-up |
+| `hs2` | Handstand | HS | Balance, Freistand, Einstiege |
+| `deload` | Deload | Deload | Mobility & Erholung (Review-Woche) |
+| `travel` | Reise-Training | Reise | ohne Wand und Stange |
+
+Frühere Bezeichnungen (L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und älteren Gesprächen vor und meinen dieselben Tage.
 
