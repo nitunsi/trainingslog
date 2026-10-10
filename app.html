@@ -422,6 +422,15 @@
   .block-title{margin-bottom:12px;}
   .savebar .savebtn{box-shadow:0 4px 14px rgba(23,118,106,.28);}
   .savebar .nextopen{box-shadow:var(--shadow);}
+  /* ===== Ruhiger: Text-Bereiche ohne Kasten, nur Bedienelemente mit Rahmen ===== */
+  :root{--hair:color-mix(in srgb,var(--line) 55%,transparent);}
+  .daycard,.plancard,.exrow,.wu-group,.recentbox,.sum-stats div,.sec,.sheet-training,.wkcard{background:transparent!important;border:0!important;border-top:1px solid var(--hair)!important;border-radius:0!important;box-shadow:none!important;}
+  .exrow{padding-left:0;padding-right:0;}
+  .daycard,.plancard,.wkcard,.wu-group{padding-left:0!important;padding-right:0!important;}
+  .bigbtn{border-radius:22px;}
+  .savebar .savebtn,.bigbtn.primary,.bigbtn.wide{border-radius:30px;}
+  .daytab,.slot,.quickrow button,.themebtn{border-radius:20px;}
+  #tabbar{border-top:0!important;background:var(--bg)!important;box-shadow:0 -6px 18px rgba(0,0,0,.10);}
 </style>
 </head>
 <body>
