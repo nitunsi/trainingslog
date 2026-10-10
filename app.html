@@ -604,7 +604,7 @@
 </div>
 
 <div class="toast" id="toast">Gespeichert</div>
-<div class="savebar"><button class="nextopen" id="nextOpenBtn" aria-label="Zur nächsten offenen Übung" title="Zur nächsten offenen Übung">↓ Offen</button><button class="savebtn" id="saveBtn">Session speichern</button></div>
+<div class="savebar"><button class="nextopen" id="nextOpenBtn" aria-label="Zum nächsten offenen Satz" title="Zum nächsten offenen Satz">↓ Offen</button><button class="savebtn" id="saveBtn">Session speichern</button></div>
 <script>
 // Einfache Linien-Symbole (statt Emojis): sehen auf jedem Gerät gleich aus und passen in Hell und Dunkel
 const _svg = d => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
@@ -1496,13 +1496,26 @@ document.getElementById("sumBackdrop").addEventListener("click", closeSummary);
 document.getElementById("sumBack").addEventListener("click", closeSummary);
 document.getElementById("sumHome").addEventListener("click", ()=>{ closeSummary(); showPage("start", { top: true }); });
 
-// Springt zur nächsten Übung, in der noch Sätze fehlen (nicht zur gerade oben sichtbaren)
+// Springt zum nächsten einzutragenden Satz. Reihenfolge je Block: erster Satz jeder Übung, dann der zweite jeder Übung usw.
+function nextOpenInput(){
+  for(const block of document.querySelectorAll("#blocksHolder .block")){
+    const rows = [...block.querySelectorAll(".exrow:not(.stretch)")].map(r => [...r.querySelectorAll(".setboxes input")]);
+    const maxSets = Math.max(0, ...rows.map(r => r.length));
+    for(let s = 0; s < maxSets; s++){
+      for(const inputs of rows){
+        if(inputs[s] && inputs[s].value.trim() === "") return inputs[s];
+      }
+    }
+  }
+  return null;
+}
 function jumpToNextOpen(){
-  const open = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch)")].filter(r => !r.classList.contains("done"));
-  if(!open.length){ showToast("Alles eingetragen ✓"); return; }
+  const inp = nextOpenInput();
+  if(!inp){ showToast("Alles eingetragen ✓"); return; }
+  const row = inp.closest(".exrow");
   const offset = document.querySelector(".trainbar").getBoundingClientRect().height + 54;
-  const target = open.find(r => r.getBoundingClientRect().top > offset + 70) || open[0];
-  window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
+  window.scrollTo({ top: row.getBoundingClientRect().top + window.scrollY - offset - 40, behavior: "smooth" });
+  try{ inp.focus({ preventScroll: true }); }catch(e){}
 }
 document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
 
