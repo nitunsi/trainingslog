@@ -1505,26 +1505,34 @@ document.getElementById("sumBackdrop").addEventListener("click", closeSummary);
 document.getElementById("sumBack").addEventListener("click", closeSummary);
 document.getElementById("sumHome").addEventListener("click", ()=>{ closeSummary(); showPage("start", { top: true }); });
 
-// Springt zum nächsten einzutragenden Satz. Reihenfolge je Block: erster Satz jeder Übung, dann der zweite jeder Übung usw.
+// Springt zum nächsten einzutragenden Satz. Reihenfolge je Block: erster Satz jeder Übung, dann (einmal) die Dehnung,
+// dann der zweite Satz jeder Übung, wieder die Dehnung usw. Die Dehnung steht nur einmal im Block, wird aber jede Runde gemacht:
+// leere Dehnungsfelder gelten deshalb pro Runde als einmal besucht (block._stretchVisits), nicht als "offen".
 function nextOpenInput(){
   for(const block of document.querySelectorAll("#blocksHolder .block")){
     const rows = [...block.querySelectorAll(".exrow:not(.stretch)")].map(r => [...r.querySelectorAll(".setboxes input")]);
-    const maxSets = Math.max(0, ...rows.map(r => r.length));
-    for(let s = 0; s < maxSets; s++){
+    const stretch = [...block.querySelectorAll(".exrow.stretch .setboxes input")];
+    const rounds = Math.max(1, ...rows.map(r => r.length));
+    const visits = block._stretchVisits || 0;
+    for(let s = 0; s < rounds; s++){
       for(const inputs of rows){
-        if(inputs[s] && inputs[s].value.trim() === "") return inputs[s];
+        if(inputs[s] && inputs[s].value.trim() === "") return { inp: inputs[s], block, stretch: false };
       }
+      // Dehnung fällig, wenn die Runde fertig ist und die nächste noch nicht begonnen hat (sonst wurde sie schon gemacht)
+      const nextStarted = rows.some(r => r[s + 1] && r[s + 1].value.trim() !== "");
+      if(stretch.length && rows.some(r => r.length) && visits <= s && !nextStarted) return { inp: stretch[0], block, stretch: true };
     }
   }
   return null;
 }
 function jumpToNextOpen(){
-  const inp = nextOpenInput();
-  if(!inp){ showToast("Alles eingetragen ✓"); return; }
-  const row = inp.closest(".exrow");
+  const hit = nextOpenInput();
+  if(!hit){ showToast("Alles eingetragen ✓"); return; }
+  if(hit.stretch) hit.block._stretchVisits = (hit.block._stretchVisits || 0) + 1;
+  const row = hit.inp.closest(".exrow");
   const offset = document.querySelector(".trainbar").getBoundingClientRect().height + 54;
   window.scrollTo({ top: row.getBoundingClientRect().top + window.scrollY - offset - 40, behavior: "smooth" });
-  try{ inp.focus({ preventScroll: true }); }catch(e){}
+  if(!hit.stretch){ try{ hit.inp.focus({ preventScroll: true }); }catch(e){} }   // Dehnung: nur hinscrollen, nicht die Tastatur öffnen
 }
 document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
 
