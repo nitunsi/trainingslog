@@ -421,6 +421,8 @@
   .block{margin-bottom:26px;}
   .block-title{margin-bottom:12px;}
   .savebar .savebtn{box-shadow:0 4px 14px rgba(23,118,106,.28);}
+  .setboxes input.jumpflash{animation:jumpflash 1.4s ease-out;}
+  @keyframes jumpflash{0%,60%{box-shadow:0 0 0 3px var(--accent);border-color:var(--accent);}100%{box-shadow:0 0 0 3px transparent;}}
   .savebar .nextopen{box-shadow:var(--shadow);}
   /* ===== Ruhiger: Text-Bereiche ohne Kasten, nur Bedienelemente mit Rahmen ===== */
   :root{--hair:color-mix(in srgb,var(--line) 55%,transparent);}
@@ -1505,7 +1507,7 @@ document.getElementById("sumBackdrop").addEventListener("click", closeSummary);
 document.getElementById("sumBack").addEventListener("click", closeSummary);
 document.getElementById("sumHome").addEventListener("click", ()=>{ closeSummary(); showPage("start", { top: true }); });
 
-// Springt zum nächsten einzutragenden Satz. Reihenfolge je Block: erster Satz jeder Übung, dann (einmal) die Dehnung,
+// Springt (ohne Tastatur) zum nächsten einzutragenden Satz. Reihenfolge je Block: erster Satz jeder Übung, dann (einmal) die Dehnung,
 // dann der zweite Satz jeder Übung, wieder die Dehnung usw. Die Dehnung steht nur einmal im Block, wird aber jede Runde gemacht:
 // leere Dehnungsfelder gelten deshalb pro Runde als einmal besucht (block._stretchVisits), nicht als "offen".
 function nextOpenInput(){
@@ -1532,7 +1534,9 @@ function jumpToNextOpen(){
   const row = hit.inp.closest(".exrow");
   const offset = document.querySelector(".trainbar").getBoundingClientRect().height + 54;
   window.scrollTo({ top: row.getBoundingClientRect().top + window.scrollY - offset - 40, behavior: "smooth" });
-  if(!hit.stretch){ try{ hit.inp.focus({ preventScroll: true }); }catch(e){} }   // Dehnung: nur hinscrollen, nicht die Tastatur öffnen
+  // Tastatur bleibt eingeklappt: nur hinscrollen, das Feld kurz hervorheben (Tippen öffnet die Tastatur dann selbst)
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  hit.inp.classList.remove("jumpflash"); void hit.inp.offsetWidth; hit.inp.classList.add("jumpflash");
 }
 document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
 
