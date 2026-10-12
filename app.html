@@ -423,6 +423,12 @@
   .savebar .savebtn{box-shadow:0 4px 14px rgba(23,118,106,.28);}
   .setboxes input.jumpflash{animation:jumpflash 1.4s ease-out;}
   @keyframes jumpflash{0%,60%{box-shadow:0 0 0 3px var(--accent);border-color:var(--accent);}100%{box-shadow:0 0 0 3px transparent;}}
+  /* Tastatur offen (Feld im Training fokussiert): Blocküberschriften nicht mitlaufen lassen, Speichern-Leiste ausblenden – mehr Platz zum Eintragen */
+  @media (pointer:coarse){
+    body.typing #pageTrain .block-title{position:static;}
+    body.typing .savebar{display:none !important;}
+    body.typing.p-train .page{padding-bottom:40px;}
+  }
   .savebar .nextopen{box-shadow:var(--shadow);}
   /* ===== Ruhiger: Text-Bereiche ohne Kasten, nur Bedienelemente mit Rahmen ===== */
   :root{--hair:color-mix(in srgb,var(--line) 55%,transparent);}
@@ -1538,6 +1544,13 @@ function jumpToNextOpen(){
   if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
   hit.inp.classList.remove("jumpflash"); void hit.inp.offsetWidth; hit.inp.classList.add("jumpflash");
 }
+// Tastatur offen = Feld fokussiert: Leiste und mitlaufende Überschriften ausblenden (siehe CSS "body.typing")
+(function(){
+  let t = null;
+  const isField = el => el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA") && el.closest("#pageTrain");
+  document.addEventListener("focusin", e => { if(isField(e.target)){ clearTimeout(t); document.body.classList.add("typing"); } });
+  document.addEventListener("focusout", () => { clearTimeout(t); t = setTimeout(()=>{ if(!isField(document.activeElement)) document.body.classList.remove("typing"); }, 150); });
+})();
 document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
 
 // Stimmt das Ergebnis noch? Ziel erreicht, oder im Schnitt pro Satz mindestens so viel wie zum Zeitpunkt des Kennzeichnens
