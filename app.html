@@ -388,7 +388,7 @@
   .recent-row .rs{flex:1;font-size:calc(12px*var(--fs));line-height:1.45;}
   .recent-row.cur{background:var(--accent-tint-2);}
 
-  .savebar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));}
+  .savebar{position:fixed;z-index:35;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));}
   .savebtn{width:100%;min-height:54px;background:var(--accent);color:var(--on-accent);border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
   .savebtn:active{background:var(--accent-dim);color:var(--text);}
   .savebtn.saved{background:var(--saved-bg);color:var(--accent);}
