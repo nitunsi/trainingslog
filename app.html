@@ -498,6 +498,18 @@
   #pageStart .slot.cur{color:var(--text);box-shadow:inset 0 -3px 0 var(--accent);border-radius:0;}
   #pageStart .slot.cur .sd{color:var(--accent);}
   #pageStart .steiglink{background:none!important;border:0!important;}
+
+  /* Stimmigkeit: alles mittig, ruhiges Datum, gleiche Abstände, weniger Linien */
+  #pageStart .daycard-meta{font-family:'Inter',sans-serif;font-size:calc(13px*var(--fs));letter-spacing:.01em;}
+  #pageStart .daycard,#pageStart .plancard,#pageStart .wkcard,#pageStart .quickcard{border-top:0!important;}
+  #pageStart .plancard{margin-top:14px;margin-bottom:0;padding:0!important;}
+  #pageStart .wkcard{margin:10px 16px 0!important;padding:0!important;}
+  #pageStart .wkcard > div:first-child{justify-content:center!important;gap:16px;}
+  #pageStart .wkcard > div:first-child > span:first-child{gap:6px!important;}
+  #pageStart .quickcard{margin-top:6px;padding-top:0!important;}
+  #pageStart .quickrow button{min-height:56px;}
+  #pageStart .daycard{margin-bottom:0;}
+  #pageStart .slot{min-height:40px;}
 </style>
 </head>
 <body>
@@ -1447,7 +1459,7 @@ let progressDone = 0, progressTotal = 0, trainSavedToday = false;
 function updateTrainSub(){
   const el = document.getElementById("goTrainSub");
   if(!el) return;
-  el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : "starten");
+  el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : (progressTotal > 0 ? progressTotal + " Sätze" : "starten"));
 }
 
 // ---------- Übersicht "Zum Steigern" (Start-Hinweis + Liste unter Einträge) ----------
@@ -2466,8 +2478,9 @@ async function updateDayCard(){
   const date = document.getElementById("dateInput").value || todayStr();
   document.getElementById("dayCardTitle").textContent = DAYS[currentDay].title;
   const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
-  const chip = date === todayStr() ? `<span class="chip">Heute</span>` : `<span class="chip warn">anderes Datum</span>`;
-  const metaHtml = `${wd} ${fmtShort(date)}${date.slice(0,4)} ${chip}`;
+  const metaHtml = date === todayStr()
+    ? `Heute · ${wd} ${fmtShort(date)}`
+    : `${wd} ${fmtShort(date)}${date.slice(0,4)} <span class="chip warn">anderes Datum</span>`;
   document.getElementById("dayCardMeta").innerHTML = metaHtml;
   document.getElementById("trainTitle").textContent = DAYS[currentDay].title;
   document.getElementById("dayCardFocus").textContent = DAYS[currentDay].sub || "";
