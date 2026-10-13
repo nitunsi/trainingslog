@@ -648,6 +648,10 @@
   /* Eine alte Session wird bearbeitet: nichts abdunkeln, keine Stufen-Hinweise */
   body.p-old .exrow.done{opacity:1;}
   body.p-old .exrow .goalhint{display:none!important;}
+
+  .recent-row .rline{display:block;width:100%;text-align:left;background:none;border:0;padding:3px 0;color:inherit;font:inherit;line-height:1.45;}
+  .recent-row .rline b{font-weight:700;}
+  .recent-row .rline .ic{color:var(--accent);}
 </style>
 </head>
 <body>
@@ -737,7 +741,7 @@
     <div class="recentbox" id="steigList"></div>
   </div>
   <div class="block">
-    <div class="block-title">Verlauf · zum Ändern antippen</div>
+    <div class="block-title">Verlauf</div>
     <div class="recentbox" id="entriesRecent"></div>
   </div>
 </main>
@@ -1334,7 +1338,7 @@ function showPage(name, opts){
   if(name === "warmup") fitWarmup();
   if((name === "start" || name === "entries") && typeof refreshSteigern === "function") refreshSteigern();
   if(name === "entries" && typeof renderEntriesRecent === "function"){
-    if(prevPage !== "entries") entriesShown = 10;
+    if(prevPage !== "entries" && prevPage !== "session") entriesShown = 10;
     renderEntriesRecent();
   }
 }
@@ -2909,9 +2913,17 @@ let entriesShown = 10;
 const ENTRIES_STEP = 10;
 async function renderEntriesRecent(){
   await renderRecentInto(document.getElementById("entriesRecent"), date => openDaySheet(null, date), {
+    withTraining: true,
     maxDates: entriesShown,
     onMore: ()=>{ entriesShown += ENTRIES_STEP; renderEntriesRecent(); },
   });
+}
+// Anzahl eingetragener Sätze einer Trainingseinheit (Dehnungsfelder zählen nicht)
+function trainingSetCount(dayKey, data){
+  const stretch = new Set();
+  (DAYS[dayKey] ? DAYS[dayKey].blocks : []).forEach(b => b.items.forEach(i => { if(i.stretch) namesFor(i.uebung).forEach(n => stretch.add(n)); }));
+  return Object.keys(data || {}).filter(k => k[0] !== "_" && Array.isArray(data[k]) && !stretch.has(k))
+    .reduce((a, k) => a + data[k].filter(v => String(v == null ? "" : v).trim() !== "").length, 0);
 }
 async function renderRecentInto(holder, onPick, opts){
   opts = opts || {};
@@ -2921,9 +2933,9 @@ async function renderRecentInto(holder, onPick, opts){
       .from("training_sessions")
       .select("day_key, session_date, data")
       .eq("person", PERSON)
-      .in("day_key", ENTRY_KEYS)
+      .in("day_key", opts.withTraining ? [...ENTRY_KEYS, ...Object.keys(DAYS)] : ENTRY_KEYS)
       .order("session_date", { ascending: false })
-      .limit(500);
+      .limit(opts.withTraining ? 1500 : 500);
     if(error) throw error;
     if(!data || data.length === 0){ holder.innerHTML = `<div style="font-size:12px;color:var(--text-muted);padding:6px 2px;">Noch keine Einträge.</div>`; return; }
     // Körperwerte: Veränderung zum vorherigen Eintrag
@@ -2938,8 +2950,11 @@ async function renderRecentInto(holder, onPick, opts){
     const byDate = new Map();
     data.forEach(r => { if(!byDate.has(r.session_date)) byDate.set(r.session_date, []); byDate.get(r.session_date).push(r); });
     const allDates = [...byDate.entries()];
-    holder.innerHTML = allDates.slice(0, maxDates).map(([date, rows])=>{
+    holder.innerHTML = allDates.slice(0, maxDates).map(([date, rows0])=>{
+      // Trainingseinheiten zuerst, dann Lauf/Schwimmen/…
+      const rows = opts.withTraining ? rows0.slice().sort((a, b) => (DAYS[b.day_key] ? 1 : 0) - (DAYS[a.day_key] ? 1 : 0)) : rows0;
       const lines = rows.map(r=>{
+        if(DAYS[r.day_key]) return `${ICON.training} <b>${escapeHtml(DAYS[r.day_key].title)}</b> · ${trainingSetCount(r.day_key, r.data)} Sätze`;
         const t = ENTRY_TYPES[typeOfKey(r.day_key)];
         if(r.day_key === "koerperwerte"){
           const d = r.data || {}, parts = [];
@@ -2951,11 +2966,15 @@ async function renderRecentInto(holder, onPick, opts){
         return `${t.icon} ${summarizeEntry(r.day_key, r.data)}`;
       });
       const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
+      if(opts.withTraining){
+        return `<div class="recent-row"><span class="rd">${wd} ${fmtShort(date)}${date.slice(0,4) === String(new Date().getFullYear()) ? "" : date.slice(2,4)}</span><span class="rs">${rows.map((r, i) => `<button class="rline" data-day="${r.day_key}" data-date="${date}">${lines[i]}</button>`).join("")}</span></div>`;
+      }
       return `<button class="recent-row${date === sheetDate ? " cur" : ""}" data-date="${date}"><span class="rd">${wd} ${fmtShort(date)}${date.slice(0,4) === String(new Date().getFullYear()) ? "" : date.slice(2,4)}</span><span class="rs">${lines.join("<br>")}</span></button>`;
     }).join("") + (opts.onMore ? (allDates.length > maxDates
       ? `<button class="morebtn" id="entriesMoreBtn">Verlauf · ${Math.min(ENTRIES_STEP, allDates.length - maxDates)} weitere laden</button>`
       : (allDates.length > ENTRIES_STEP ? `<div class="moreend">Das waren alle Einträge.</div>` : "")) : "");
-    holder.querySelectorAll(".recent-row").forEach(btn => btn.onclick = ()=> onPick(btn.dataset.date));
+    holder.querySelectorAll("button.recent-row").forEach(btn => btn.onclick = ()=> onPick(btn.dataset.date));
+    holder.querySelectorAll(".rline").forEach(btn => btn.onclick = ()=> DAYS[btn.dataset.day] ? openSessionView(btn.dataset.day, btn.dataset.date) : onPick(btn.dataset.date));
     const moreBtn = holder.querySelector(".morebtn");
     if(moreBtn && opts.onMore) moreBtn.onclick = opts.onMore;
   }catch(e){
@@ -3142,7 +3161,7 @@ function renderSessionView(dayKey, date, sd){
     if(confirm("Die Session vom " + longDate + " bearbeiten? Speichern überschreibt dann diesen Termin.")) editSession(b.dataset.day, b.dataset.date);
   };
 }
-document.getElementById("sessBack").addEventListener("click", () => showPage(sessReturn && sessReturn !== "session" ? sessReturn : "entries", { top: true }));
+document.getElementById("sessBack").addEventListener("click", () => showPage(sessReturn && sessReturn !== "session" ? sessReturn : "entries"));
 
 async function bootstrap(){
   // Zuerst liegengebliebene Eingaben senden (Zeiger stimmt danach); ohne Netz bleiben sie gesichert
