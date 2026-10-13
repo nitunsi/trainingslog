@@ -489,6 +489,15 @@
   #pageStart .quickrow .qi .ic{width:30px;height:30px;stroke-width:1.6;}
   #pageStart .quickrow button.has .qdot{top:8px;right:calc(50% - 22px);}
   #pageStart .quickrow button:active{opacity:.6;}
+
+  /* Wie bei Tunsi: außer dem Hauptknopf keine Rahmen und Flächen – Bedienelemente sind einfach Text/Symbole */
+  #pageStart .startbtns .bigbtn:not(.primary),#pageStart .startbtns .daycard-change{background:none!important;border:0!important;min-height:52px;font-size:15px;color:var(--accent)!important;}
+  #pageStart .startbtns .bigbtn:not(.primary) .bt{font-size:15px;color:var(--accent);}
+  #pageStart .slot{background:none!important;border:0!important;min-height:44px;color:var(--text-muted);}
+  #pageStart .slot.done{color:var(--accent);}
+  #pageStart .slot.cur{color:var(--text);box-shadow:inset 0 -3px 0 var(--accent);border-radius:0;}
+  #pageStart .slot.cur .sd{color:var(--accent);}
+  #pageStart .steiglink{background:none!important;border:0!important;}
 </style>
 </head>
 <body>
