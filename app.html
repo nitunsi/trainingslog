@@ -433,6 +433,31 @@
   .savebar .savebtn,.bigbtn.primary,.bigbtn.wide{border-radius:30px;}
   .daytab,.slot,.quickrow button,.themebtn{border-radius:20px;}
   #tabbar{border-top:0!important;background:var(--bg)!important;box-shadow:0 -6px 18px rgba(0,0,0,.10);}
+
+  /* ===== Startseite: ein Blick – Heute groß, Plan, Wochenzahlen leise, Zusatz-Einträge als Pillen ===== */
+  #pageStart .daycard{margin-bottom:8px;padding-top:16px!important;}
+  #pageStart .daycard-title{font-size:calc(30px*var(--fs));line-height:1.1;margin-top:5px;}
+  #pageStart .daycard-focus{margin-top:4px;}
+  #pageStart .daycard-last{margin-top:2px;opacity:.85;}
+  #pageStart .startbtns{grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+  #pageStart .startbtns .bigbtn.primary{grid-column:1/-1;order:-1;min-height:64px;flex-direction:row;align-items:baseline;justify-content:center;gap:10px;}
+  #pageStart .startbtns .bigbtn.primary .bt{font-size:18px;}
+  #pageStart .startbtns .bigbtn:not(.primary){min-height:48px;flex-direction:row;align-items:center;justify-content:center;border-radius:24px;}
+  #pageStart .startbtns .bigbtn:not(.primary) .bs{display:none;}
+  #pageStart .startbtns .bigbtn:not(.primary) .bt{font-size:14px;}
+  #pageStart .startbtns .daycard-change{min-height:48px;border-radius:24px;font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:var(--text);padding:0 12px;}
+  #pageStart .plancard{margin-top:6px;margin-bottom:6px;padding-top:14px!important;padding-bottom:10px!important;}
+  #pageStart .slot{min-height:46px;flex-direction:row;gap:6px;border-radius:20px;}
+  #pageStart .steiglink{width:auto;min-height:36px;margin:2px auto 8px;padding:0 14px;gap:8px;border-radius:20px;font-size:12.5px;display:flex;}
+  #pageStart .steiglink[hidden]{display:none;}
+  #pageStart .wkcard{margin:0 16px 4px!important;padding:12px 0 6px!important;}
+  #pageStart .quickcard{margin-top:0;padding-top:12px!important;}
+  #pageStart .quickcap{font-size:11.5px;color:var(--text-muted);text-align:center;margin-bottom:8px;}
+  #pageStart .quickrow{margin-top:0;gap:6px;}
+  #pageStart .quickrow button{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 4px;min-height:42px;}
+  #pageStart .quickrow .qi{display:inline-flex;}
+  #pageStart .quickrow .qi .ic{width:17px;height:17px;}
+  #pageStart .quickrow .ql{margin-top:0;font-size:11.5px;}
 </style>
 </head>
 <body>
@@ -448,7 +473,6 @@
 <!-- ===== Seite: Start ===== -->
 <main class="page on" id="pageStart">
   <div class="header"><svg class="appicon" viewBox="0 0 512 512" aria-hidden="true"><use href="#appicon"/></svg><h1>Training</h1><span class="offline-pill" id="offlinePill" hidden>Offline</span></div>
-  <div id="weeklyGoalsHolder"></div>
   <div class="daycard" id="dayCard">
     <div class="daycard-top">
       <div>
@@ -457,12 +481,12 @@
         <div class="daycard-focus" id="dayCardFocus"></div>
         <div class="daycard-last" id="dayCardLast"></div>
       </div>
-      <button class="daycard-change" id="dayPanelBtn" aria-expanded="false">Tag ändern ▾</button>
     </div>
     <div id="dayCardNext"></div>
     <div class="startbtns">
       <button class="bigbtn" id="goWarmup"><span class="bt">Aufwärmen</span><span class="bs">vorbereiten</span></button>
       <button class="bigbtn primary" id="goTrain"><span class="bt">Training</span><span class="bs" id="goTrainSub">starten</span></button>
+      <button class="daycard-change" id="dayPanelBtn" aria-expanded="false">Tag ändern ▾</button>
     </div>
   </div>
   <!-- Selten gebraucht: anderen Tag öffnen, Datum/ältere Session, Zeiger, Kalender -->
@@ -478,8 +502,9 @@
   </div>
   <div class="plancard" id="planCard"></div>
   <button class="steiglink" id="steigLink" hidden><span id="steigLinkText"></span><span>›</span></button>
-  <div class="daycard">
-    <div class="block-title">Weiterer Eintrag für den Tag</div>
+  <div id="weeklyGoalsHolder"></div>
+  <div class="daycard quickcard">
+    <div class="quickcap">Weiterer Eintrag für den Tag</div>
     <div class="quickrow">
       <button data-type="lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
       <button data-type="schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
@@ -2808,8 +2833,8 @@ async function renderWeeklyGoals(){
         </span>
         <span style="font-size:12.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;">${counts(weeks[0])}</span>
       </div>
-      ${recent}
       <div id="weeklyHistoryHolder" style="display:${weeklyOpen ? "block" : "none"};">
+        ${recent}
         ${older}
         ${hasMore ? `<button id="weeklyMoreBtn" style="width:100%;margin-top:6px;background:none;border:1px dashed var(--line);color:var(--text-muted);border-radius:10px;min-height:44px;padding:10px;font-size:12.5px;font-weight:600;font-family:'Inter',sans-serif;">Mehr laden (${WEEKLY_STEP} weitere Wochen)</button>`
                    : `<div style="font-size:11px;color:var(--text-muted);padding:8px 0 2px;text-align:center;">Das war der Anfang – ältere Einträge gibt es nicht.</div>`}
