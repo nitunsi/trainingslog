@@ -711,23 +711,17 @@
 <!-- ===== Seite: Einträge ===== -->
 <main class="page" id="pageEntries">
   <div class="pagehead"><h1>Einträge</h1></div>
-  <div class="daycard">
-    <div class="block-title">Neuer Eintrag</div>
-    <div class="quickrow">
-      <button data-type="lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
-      <button data-type="schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
-      <button data-type="koerper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
-      <button data-type="sonstiges"><span class="qi" data-ic="sonstiges"></span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
-    </div>
-  </div>
   <div class="block" id="steigBlock" hidden>
     <div class="block-title">Zum Steigern</div>
     <div class="recentbox" id="steigList"></div>
   </div>
   <div class="block">
-    <div class="block-title">Letzte Einträge · zum Ändern antippen</div>
+    <div class="block-title">Verlauf · zum Ändern antippen</div>
     <div class="recentbox" id="entriesRecent"></div>
   </div>
+</main>
+<main class="page" id="pageMore">
+  <div class="pagehead"><h1>Mehr</h1></div>
   <div class="block">
     <div class="block-title">Darstellung</div>
     <div class="seg" id="themeSeg" role="group" aria-label="Darstellung">
@@ -763,6 +757,7 @@
   <button data-page="warmup"><svg viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></svg>Aufwärmen</button>
   <button data-page="train"><svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Training</button>
   <button data-page="entries"><svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Einträge</button>
+  <button data-page="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>Mehr</button>
 </nav>
 
 <div class="sheet" id="daySheet" aria-hidden="true">
@@ -1294,8 +1289,8 @@ function setFs(k){
 document.querySelectorAll("#fsSeg button").forEach(b => b.addEventListener("click", ()=> setFs(b.dataset.fs)));
 setFs(currentFs());
 
-// ---------- Seiten und untere Leiste: Start · Aufwärmen · Training · Einträge ----------
-const PAGES = ["start", "warmup", "train", "entries"];
+// ---------- Seiten und untere Leiste: Start · Aufwärmen · Training · Einträge · Mehr ----------
+const PAGES = ["start", "warmup", "train", "entries", "more"];
 let currentPage = "start";
 const pageScroll = {};   // gemerkte Scroll-Position je Seite (zurück zum Training = gleiche Stelle)
 const pageEl = name => document.getElementById("page" + name[0].toUpperCase() + name.slice(1));
