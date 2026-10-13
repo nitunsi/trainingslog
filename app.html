@@ -249,19 +249,15 @@
   /* Seiten und untere Leiste (wie beim Tunsi Trainer) */
   .page{display:none;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px) + 28px);}
   .page.on{display:block;}
-  body.p-train .page{padding-bottom:120px;}
+  body.p-train .page{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px) + 96px);}
   .pagehead{padding:20px 16px 10px;}
   .pagehead h1{font-size:22px;font-weight:700;}
   .pagehead .sub{margin-top:4px;color:var(--text-muted);font-size:13px;}
   #tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--surface);border-top:1px solid var(--line);}
-  body.p-train #tabbar{display:none;}
   #tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;padding:0;background:none;border:none;color:var(--text-muted);font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;}
   #tabbar button.a{color:var(--accent);}
   #tabbar svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-  .savebar{display:none;}
-  body.p-train .savebar{display:flex;gap:10px;}
   .nextopen{flex:none;min-width:88px;min-height:54px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
-  .savebar .savebtn{flex:1;width:auto;}
 
   .startbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
   .bigbtn{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-height:78px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);text-align:left;font-family:'Space Grotesk',sans-serif;}
@@ -388,13 +384,17 @@
   .recent-row .rs{flex:1;font-size:calc(12px*var(--fs));line-height:1.45;}
   .recent-row.cur{background:var(--accent-tint-2);}
 
-  .savebar{position:fixed;z-index:35;bottom:0;left:0;right:0;background:linear-gradient(180deg, transparent, var(--bg) 30%);padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));}
+  .fabs{display:none;position:fixed;z-index:35;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom,0px) + 12px);justify-content:center;gap:10px;pointer-events:none;}
+  body.p-train .fabs{display:flex;}
+  .fab{pointer-events:auto;min-height:54px;min-width:170px;padding:0 26px;border-radius:30px;border:0;background:var(--accent);color:var(--on-accent);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;box-shadow:0 6px 18px rgba(23,118,106,.35);}
+  .fab[hidden]{display:none;}
+  .fab:active{transform:scale(.97);}
   .savebtn{width:100%;min-height:54px;background:var(--accent);color:var(--on-accent);border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;}
   .savebtn:active{background:var(--accent-dim);color:var(--text);}
   .savebtn.saved{background:var(--saved-bg);color:var(--accent);}
 
   .toast{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);max-width:calc(100% - 32px);width:max-content;text-align:center;background:var(--surface);border:1px solid var(--accent);color:var(--text);padding:10px 16px;border-radius:20px;font-size:13px;line-height:1.35;box-shadow:0 4px 18px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s;}
-  body.p-train .toast{bottom:calc(100px + env(safe-area-inset-bottom,0px));}
+  body.p-train .toast{bottom:calc(64px + env(safe-area-inset-bottom,0px) + 84px);}
   .toast.show{opacity:1;}
 
   .last-hint{font-size:calc(11px*var(--fs));color:var(--text-muted);margin-top:5px;}
@@ -420,17 +420,15 @@
   .daycard,.sec,.wkcard{border-radius:14px;}
   .block{margin-bottom:26px;}
   .block-title{margin-bottom:12px;}
-  .savebar .savebtn{box-shadow:0 4px 14px rgba(23,118,106,.28);}
   .setboxes input.jumpflash{animation:jumpflash 1.4s ease-out;}
   @keyframes jumpflash{0%,60%{box-shadow:0 0 0 3px var(--accent);border-color:var(--accent);}100%{box-shadow:0 0 0 3px transparent;}}
-  .savebar .nextopen{box-shadow:var(--shadow);}
   /* ===== Ruhiger: Text-Bereiche ohne Kasten, nur Bedienelemente mit Rahmen ===== */
   :root{--hair:color-mix(in srgb,var(--line) 55%,transparent);}
   .daycard,.plancard,.exrow,.wu-group,.recentbox,.sum-stats div,.sec,.sheet-training,.wkcard{background:transparent!important;border:0!important;border-top:1px solid var(--hair)!important;border-radius:0!important;box-shadow:none!important;}
   .exrow{padding-left:0;padding-right:0;}
   .daycard,.plancard,.wkcard,.wu-group{padding-left:0!important;padding-right:0!important;}
   .bigbtn{border-radius:22px;}
-  .savebar .savebtn,.bigbtn.primary,.bigbtn.wide{border-radius:30px;}
+  .bigbtn.primary,.bigbtn.wide{border-radius:30px;}
   .daytab,.slot,.quickrow button,.themebtn{border-radius:20px;}
   #tabbar{border-top:0!important;background:var(--bg)!important;box-shadow:0 -6px 18px rgba(0,0,0,.10);}
 
@@ -652,6 +650,16 @@
   .recent-row .rline{display:block;width:100%;text-align:left;background:none;border:0;padding:3px 0;color:inherit;font:inherit;line-height:1.45;}
   .recent-row .rline b{font-weight:700;}
   .recent-row .rline .ic{color:var(--accent);}
+
+  /* Training: Blockname ohne Linie daneben (direkt darunter steht schon die Trennlinie der ersten Übung) */
+  #pageTrain .block-title::after{display:none;}
+  /* Training: schmale Kopfleiste (Fortschritt, Zähler, Speicherstatus, Auswertung), kein ✕ mehr */
+  .trainbar{padding:6px 16px;gap:10px;}
+  .trainsum{width:36px;height:36px;border-radius:10px;}
+  .tbar{height:6px;}
+  .tcount{min-width:3.2rem;font-size:12.5px;}
+  .tsave{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;padding:0;font-size:16px;}
+  #pageTrain .block-title{top:48px;}
 </style>
 </head>
 <body>
@@ -714,13 +722,12 @@
   <div id="warmupHolder"></div>
 </main>
 
-<!-- ===== Seite: Training (ohne untere Leiste, mit Fortschritt oben) ===== -->
+<!-- ===== Seite: Training (untere Leiste bleibt, Fortschritt oben, „Offen“-Knopf darüber) ===== -->
 <main class="page" id="pageTrain">
   <div class="trainbar">
-    <button class="trainx" id="trainClose" aria-label="Zurück zum Start">✕</button>
     <div class="tbar"><i id="trainFill"></i></div>
     <span class="tcount" id="trainCount"></span>
-    <span class="tsave" id="trainSave" role="status" aria-live="polite"></span>
+    <button class="tsave" id="trainSave" type="button" role="status" aria-live="polite" aria-label="Speichern"></button>
     <button class="trainsum" id="trainSumBtn" aria-label="Auswertung" title="Auswertung" hidden data-ic="clipboard"></button>
   </div>
   <div class="pagehead"><h1 id="trainTitle"></h1><div class="daycard-focus" id="trainFocus"></div><div class="sub daycard-meta" id="trainSub"></div></div>
@@ -832,7 +839,7 @@
 </div>
 
 <div class="toast" id="toast">Gespeichert</div>
-<div class="savebar"><button class="nextopen" id="nextOpenBtn" aria-label="Zum nächsten offenen Satz" title="Zum nächsten offenen Satz">↓ Offen</button><button class="savebtn" id="saveBtn">Session speichern</button></div>
+<div class="fabs" id="fabs"><button class="fab" id="nextOpenBtn" aria-label="Zum nächsten offenen Satz" title="Zum nächsten offenen Satz">↓ Offen</button><button class="fab" id="saveBtn" hidden>Training abschließen</button></div>
 <script>
 // Einfache Linien-Symbole (statt Emojis): sehen auf jedem Gerät gleich aus und passen in Hell und Dunkel
 const _svg = d => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
@@ -1350,7 +1357,6 @@ document.querySelectorAll("#tabbar button").forEach(btn => btn.addEventListener(
 }));
 document.getElementById("goWarmup").addEventListener("click", ()=> showPage("warmup", { top: true }));
 document.getElementById("goTrain").addEventListener("click", ()=> showPage("train"));
-document.getElementById("trainClose").addEventListener("click", ()=> showPage("start", { top: true }));
 
 // ---------- Darstellung: Auto (System) / Hell / Dunkel ----------
 function currentThemeMode(){
@@ -1607,12 +1613,19 @@ function updateProgress(){
   const fill = document.getElementById("trainFill");
   if(fill) fill.style.width = sets.length ? Math.round(done / sets.length * 100) + "%" : "0%";
   const cnt = document.getElementById("trainCount");
-  if(cnt) cnt.textContent = sets.length ? done + " / " + sets.length + " Sätze" : "";
+  if(cnt) cnt.textContent = sets.length ? done + " / " + sets.length : "";
   progressDone = done; progressTotal = sets.length;
   const sumBtn = document.getElementById("trainSumBtn");
   if(sumBtn) sumBtn.hidden = done === 0;
-  const btn = document.getElementById("saveBtn");
-  if(btn && !btn.classList.contains("saved")) btn.textContent = (sets.length > 0 && done === sets.length) ? "Training abschließen" : "Session speichern";
+  // Unten ein Knopf: „↓ Offen“, solange Sätze fehlen; danach „Training abschließen“.
+  // Alte Sessions (kein Auto-Speichern): beide, der zweite heißt „Speichern“.
+  const btn = document.getElementById("saveBtn"), nextBtn = document.getElementById("nextOpenBtn");
+  const oldSess = document.body.classList.contains("p-old"), complete = sets.length > 0 && done === sets.length;
+  if(nextBtn) nextBtn.hidden = !oldSess && complete;
+  if(btn){
+    btn.hidden = !oldSess && !complete;
+    if(!btn.classList.contains("saved")) btn.textContent = oldSess ? "Speichern" : "Training abschließen";
+  }
   updateTrainSub();
 }
 let progressDone = 0, progressTotal = 0, trainSavedToday = false;
@@ -1745,6 +1758,8 @@ function closeSummary(){
   document.body.style.overflow = "";
 }
 document.getElementById("trainSumBtn").addEventListener("click", ()=>{ flushAutosave(); openSummary(); });
+// Statusanzeige oben antippen = jetzt speichern / Nachsenden erneut versuchen
+document.getElementById("trainSave").addEventListener("click", ()=>{ flushPending(); saveSession({}); });
 document.getElementById("sumClose").addEventListener("click", closeSummary);
 document.getElementById("sumBackdrop").addEventListener("click", closeSummary);
 document.getElementById("sumBack").addEventListener("click", closeSummary);
@@ -2647,6 +2662,7 @@ let dayCardToken = 0;
 async function updateDayCard(){
   const date = document.getElementById("dateInput").value || todayStr();
   document.body.classList.toggle("p-old", date !== todayStr());
+  updateProgress();
   document.getElementById("dayCardTitle").textContent = DAYS[currentDay].title;
   const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
   const metaHtml = date === todayStr()
