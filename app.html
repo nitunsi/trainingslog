@@ -481,6 +481,14 @@
   #pageStart .plancard{margin-top:12px;}
   #pageStart .plan-head{display:none;}
   #pageStart .wkcard{padding-top:10px!important;}
+
+  /* Zusatz-Einträge: nur Symbole, größer, ohne Rahmen und Fläche */
+  #pageStart .quickrow{justify-content:space-around;gap:0;margin:2px 0 0;}
+  #pageStart .quickrow button{background:none!important;border:0!important;border-radius:0;min-height:52px;padding:0;}
+  #pageStart .quickrow .ql{display:none;}
+  #pageStart .quickrow .qi .ic{width:30px;height:30px;stroke-width:1.6;}
+  #pageStart .quickrow button.has .qdot{top:8px;right:calc(50% - 22px);}
+  #pageStart .quickrow button:active{opacity:.6;}
 </style>
 </head>
 <body>
@@ -529,10 +537,10 @@
   <div id="weeklyGoalsHolder"></div>
   <div class="daycard quickcard">
     <div class="quickrow" role="group" aria-label="Weiterer Eintrag für den Tag">
-      <button data-type="lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
-      <button data-type="schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
-      <button data-type="koerper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
-      <button data-type="sonstiges"><span class="qi" data-ic="sonstiges"></span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
+      <button data-type="lauf" aria-label="Lauf" title="Lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
+      <button data-type="schwimmen" aria-label="Schwimmen" title="Schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
+      <button data-type="koerper" aria-label="Körper" title="Körper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
+      <button data-type="sonstiges" aria-label="Sonstiges" title="Sonstiges"><span class="qi" data-ic="sonstiges"></span><span class="ql">Sonstiges</span><i class="qdot"></i></button>
     </div>
   </div>
 </main>
