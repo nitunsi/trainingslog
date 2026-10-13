@@ -589,6 +589,16 @@
   .exrow .exacts .noteBtn{opacity:.8;}
   .exrow .exacts .noteBtn.has{opacity:1;color:var(--accent);}
   .exrow .exacts .noteBtn span:empty{display:none;}
+
+  /* Aufwärmen: eine Seite ohne Überschrift und Weiter-Knopf (Leiste unten reicht), kompakte Zeilen */
+  #pageWarmup .pagehead{padding:10px 16px 2px;}
+  #pageWarmup .pagehead h1{display:none;}
+  #pageWarmup .pagehead .sub{margin:0;text-align:center;font-size:12.5px;color:var(--text-muted);}
+  #pageWarmup .wu-group{margin:0 16px 4px;padding:6px 0 0!important;}
+  #pageWarmup .wu-title{font-size:calc(12.5px*var(--fs));text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:4px 0 0;}
+  #pageWarmup .wu-group table{font-size:calc(13.5px*var(--fs));}
+  #pageWarmup .wu-group td{padding:4px 2px;border-bottom:0;}
+  #pageWarmup .wu-group td:last-child{font-size:calc(12.5px*var(--fs));}
 </style>
 </head>
 <body>
@@ -649,7 +659,6 @@
 <main class="page" id="pageWarmup">
   <div class="pagehead"><h1>Aufwärmen</h1><div class="sub" id="warmupSub"></div></div>
   <div id="warmupHolder"></div>
-  <div style="margin:4px 16px 0;"><button class="bigbtn primary wide" id="warmupNext"><span class="bt">Weiter zum Training →</span></button></div>
 </main>
 
 <!-- ===== Seite: Training (ohne untere Leiste, mit Fortschritt oben) ===== -->
@@ -1288,7 +1297,6 @@ document.querySelectorAll("#tabbar button").forEach(btn => btn.addEventListener(
 }));
 document.getElementById("goWarmup").addEventListener("click", ()=> showPage("warmup", { top: true }));
 document.getElementById("goTrain").addEventListener("click", ()=> showPage("train"));
-document.getElementById("warmupNext").addEventListener("click", ()=> showPage("train", { top: true }));
 document.getElementById("trainClose").addEventListener("click", ()=> showPage("start", { top: true }));
 
 // ---------- Darstellung: Auto (System) / Hell / Dunkel ----------
