@@ -679,6 +679,26 @@
     #pageStart .quickrow button{min-height:44px;}
     #pageStart .wkrow{padding:3px 0;}
   }
+  @media (max-height:730px){
+    #pageStart .planring svg{width:62px;height:62px;}
+    #pageStart .planring{margin-top:4px;}
+    #pageStart .daycard-title{font-size:calc(24px*var(--fs));}
+    #pageStart .daycard-last{display:none;}
+    #pageStart .ring-l1{margin-top:2px;font-size:12.5px;}
+    #pageStart .startbtns{margin-top:2px;}
+    #pageStart .startbtns .bigbtn.primary{min-height:46px;}
+    #pageStart .startbtns .bigbtn:not(.primary),#pageStart .startbtns .daycard-change{min-height:34px;}
+    #pageStart .slot{min-height:30px;}
+    #pageStart .quickrow button{min-height:40px;}
+    #pageStart.on{gap:6px;}
+  }
+  @media (max-height:660px){
+    #pageStart .planring{display:none;}
+    #pageStart .daycard-focus{display:none;}
+    #pageStart .wkrow{padding:2px 0;}
+  }
+  /* Passt die Startseite auf den Bildschirm, wird gar nicht gescrollt (kein Wackeln) */
+  html.nofit,html.nofit body{overflow:hidden;overscroll-behavior:none;}
 </style>
 </head>
 <body>
@@ -1362,6 +1382,7 @@ function showPage(name, opts){
   window.scrollTo(0, opts.top ? 0 : (pageScroll[name] || 0));
   if(!opts.noHistory){ try{ history.pushState({ page: name }, ""); }catch(e){} }
   if(name === "warmup") fitWarmup();
+  setTimeout(fitStart, 0);
   if((name === "start" || name === "entries") && typeof refreshSteigern === "function") refreshSteigern();
   if(name === "entries" && typeof renderEntriesRecent === "function"){
     if(prevPage !== "entries" && prevPage !== "session") entriesShown = 10;
@@ -3197,6 +3218,28 @@ function renderSessionView(dayKey, date, sd){
   };
 }
 document.getElementById("sessBack").addEventListener("click", () => showPage(sessReturn && sessReturn !== "session" ? sessReturn : "entries"));
+
+// Startseite: passt alles auf den Bildschirm, wird das Scrollen ganz gesperrt
+function fitStart(){
+  const page = document.getElementById("pageStart");
+  const on = currentPage === "start" && page && page.classList.contains("on");
+  const root = document.documentElement;
+  if(!on){ root.classList.remove("nofit"); return; }
+  root.classList.remove("nofit");
+  const fits = document.documentElement.scrollHeight <= window.innerHeight + 1;
+  root.classList.toggle("nofit", fits);
+}
+// Nach App-Wechsel / Drehen / Fenstergröße neu prüfen (der Browser meldet die Höhe nach dem Zurückkehren oft erst verzögert)
+function fitStartSoon(){ fitStart(); [120, 400, 1000].forEach(t => setTimeout(fitStart, t)); }
+["resize", "orientationchange", "pageshow", "focus"].forEach(ev => window.addEventListener(ev, fitStartSoon));
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") fitStartSoon(); });
+if(window.visualViewport) window.visualViewport.addEventListener("resize", fitStartSoon);
+(function(){
+  const page = document.getElementById("pageStart");
+  if(page && "ResizeObserver" in window) new ResizeObserver(fitStart).observe(page);
+  new MutationObserver(fitStart).observe(document.getElementById("weeklyGoalsHolder"), { childList: true, subtree: true });
+  document.getElementById("dayPanelBtn").addEventListener("click", () => setTimeout(fitStart, 50));
+})();
 
 async function bootstrap(){
   // Zuerst liegengebliebene Eingaben senden (Zeiger stimmt danach); ohne Netz bleiben sie gesichert
