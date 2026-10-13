@@ -2,7 +2,7 @@
 
 (Das Repo heißt `trainingslog`; die App heißt für Nils überall **„Training“** — Kopfzeile, Ladebildschirm, Browser-Titel, Handy-Startbildschirm.)
 
-Trainings-App (`app.html`, Plan in `const DAYS`), Daten in Supabase (`training_sessions`, Projekt `dnziimlhlvpmizrqkxte`).
+Trainings-App (`app.html`, Standardplan in `const DAYS`, eigene Änderungen siehe „Plan & Übungen“), Daten in Supabase (`training_sessions`, Projekt `dnziimlhlvpmizrqkxte`).
 
 ## Geplante Progressionen
 
@@ -61,3 +61,11 @@ Frühere Bezeichnungen (L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und 
 - **Schriften und supabase-js liegen im Repo** (`fonts/`, `vendor/supabase-<version>.js`), nichts mehr von Google/CDN.
 - **Lese-Cache** (IndexedDB `training_cache`): `cachedFetch` um den Supabase-Client; GETs werden gespeichert und bei Funkloch daraus beantwortet, dann zeigt die Startseite „Offline“. Schreibzugriffe gehen nie durch den Cache.
 - **Eingaben gehen nicht verloren**: heutige Eingaben werden sofort in `localStorage` (`training_pending_v1`, Schlüssel `tag|datum`) gesichert und nach Bestätigung durch Supabase entfernt. Ohne Netz bleibt der Status „⏳“ (`queued`); gesendet wird bei `online`, beim Zurückkehren in die App, alle 20 s und beim Start (`flushPending`, über dieselbe `saveChain`). Beim Start ohne Netz wird die ungesendete Einheit wiederhergestellt. Der Zeiger rückt beim Nachsenden nur für wirklich neue Einheiten weiter.
+
+## Plan & Übungen (in der App bearbeitbar)
+
+Mehr → „Plan & Übungen“: Übungen pro Trainingstag hinzufügen, ändern, verschieben, entfernen; Blöcke anlegen/umbenennen/verschieben. `const DAYS` im Code ist nur der **Standard**. Änderungen liegen als Datensatz in `training_sessions` mit `day_key = '__plan__'`, `session_date = '1970-01-01'`, `data = { v:1, days:{ <tag>:[Blöcke] }, renames:{ <neuer Name>:[früherer Name] } }` (nur geänderte Tage). `loadPlan()` legt sie beim Start über `DAYS` (`applyPlan`). Der Block „Nach dem Workout“ (`COOLDOWN_BLOCK`) gilt für alle Tage und ist nicht bearbeitbar.
+
+- Ein **neuer Name** = neue Übung mit eigener Historie (Progression). „Gleiche Übung (Tippfehler)“ trägt den alten Namen in `renames` ein, damit der Verlauf bleibt.
+- Der Zeilen `__plan__` und `__meta__` sind keine Trainingstage: alle Abfragen, die alle Sessions lesen, schließen sie mit `.neq("day_key", META_KEY).neq("day_key", PLAN_KEY)` aus.
+- Vor Plan-Anpassungen im Code zuerst prüfen, ob in Supabase schon ein `__plan__`-Datensatz liegt (er überschreibt `DAYS`): `SELECT data FROM training_sessions WHERE day_key = '__plan__';` — nur lesen; Schreiben nur nach Bestätigung (siehe CLAUDE.md-Regel zu Supabase im Tunsi-Repo bzw. Nils' Wunsch).

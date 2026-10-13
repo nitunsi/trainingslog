@@ -627,6 +627,55 @@
   .exrow.stretch .exname{font-style:normal;font-weight:600;font-size:calc(14px*var(--fs));color:var(--text-muted);}
   .exrow.stretch .exziel{font-size:calc(12.5px*var(--fs));}
   .exrow.stretch .setboxes input{font-size:calc(13px*var(--fs));font-weight:400;font-family:'Inter',sans-serif;padding:9px 10px;}
+
+  /* ===== Plan & Übungen ===== */
+  .morerow{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:6px 2px;background:none;border:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);color:var(--text);text-align:left;font-family:'Inter',sans-serif;}
+  .morerow b{display:block;font-family:'Space Grotesk',sans-serif;font-size:15px;}
+  .morerow small{display:block;margin-top:2px;font-size:12px;color:var(--text-muted);}
+  .morerow > span:last-child{color:var(--accent);font-size:20px;}
+  .planhead{padding:10px 16px 0;}
+  .planhead button{background:none;border:0;padding:6px 0;min-height:36px;color:var(--accent);font-weight:600;font-size:14px;font-family:'Inter',sans-serif;}
+  .planhead h1{font-size:22px;font-weight:700;margin:0 0 6px;}
+  #planEditor{padding:0 16px 90px;}
+  .plhint{font-size:12.5px;color:var(--text-muted);margin:6px 0 10px;line-height:1.4;}
+  .plrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;width:100%;padding:12px 2px;background:none;border:0;border-top:1px solid var(--hair);color:var(--text);text-align:left;font-family:'Inter',sans-serif;}
+  .plrow .pl1 b{font-family:'Space Grotesk',sans-serif;font-size:16px;}
+  .plrow .pl1 em{font-style:normal;font-size:11px;font-weight:700;color:var(--amber);margin-left:8px;}
+  .plrow .pl2{grid-column:1;font-size:12.5px;color:var(--text-muted);}
+  .plrow .pl3{grid-column:2;grid-row:1/3;align-self:center;font-size:12.5px;color:var(--accent);font-weight:600;}
+  .pllink{display:block;margin:18px auto 0;background:none;border:0;color:var(--text-muted);font-size:13px;text-decoration:underline;padding:10px;}
+  .plblock{margin:0 0 22px;}
+  .plbh{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--hair);padding-bottom:4px;}
+  .plbn{flex:1;min-width:0;background:none;border:0;color:var(--accent);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;padding:8px 0;}
+  .plbn:focus{outline:none;border-bottom:1px solid var(--accent);}
+  .plbtns{display:inline-flex;}
+  .plbtns button{width:36px;height:40px;background:none;border:0;color:var(--text-muted);font-size:16px;}
+  .plitem{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--hair);}
+  .plmain{flex:1;min-width:0;display:block;text-align:left;background:none;border:0;padding:10px 0;color:var(--text);font-family:'Inter',sans-serif;}
+  .plmain b{display:block;font-size:14.5px;font-weight:600;line-height:1.3;}
+  .plmain span{display:block;margin-top:2px;font-size:12px;color:var(--text-muted);}
+  .pladd{display:block;width:100%;text-align:left;background:none;border:0;padding:12px 0;color:var(--accent);font-weight:700;font-size:14px;font-family:'Inter',sans-serif;}
+  .planbar{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;gap:10px;padding:10px 16px;background:linear-gradient(180deg,transparent,var(--bg) 25%);}
+  .planbar[hidden],body:not(.p-plan) .planbar{display:none;}
+  .planbar button{flex:1;min-height:48px;border-radius:26px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-weight:700;font-size:14.5px;font-family:'Space Grotesk',sans-serif;}
+  .planbar button.primary{flex:2;background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .psheet{position:fixed;inset:0;z-index:60;background:var(--backdrop);display:flex;align-items:flex-end;justify-content:center;}
+  .psheet[hidden]{display:none;}
+  .psh-card{width:100%;max-width:560px;max-height:92vh;overflow:auto;background:var(--bg);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));}
+  .psh-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;margin-bottom:10px;}
+  .psh-card label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:10px;}
+  .psh-card input[type=text],.psh-card input:not([type]),.psh-card select{display:block;width:100%;margin-top:4px;min-height:44px;padding:8px 10px;background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;}
+  .psh-row{display:flex;gap:12px;align-items:flex-end;}
+  .psh-row label{flex:1;}
+  .psh-card .pfchk{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text);min-height:40px;}
+  .psh-card .pfchk input{width:20px;height:20px;accent-color:var(--accent);margin:0;}
+  .pf-q{font-size:12.5px;font-weight:600;margin:4px 0 2px;}
+  .psh-card [hidden]{display:none!important;}
+  .psh-btns{display:flex;align-items:center;gap:6px;margin-top:6px;}
+  .psh-btns .sp{flex:1;}
+  .psh-btns button{min-height:44px;padding:0 13px;border-radius:24px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-weight:700;font-size:14px;font-family:'Space Grotesk',sans-serif;}
+  .psh-btns button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .psh-btns button.danger{color:var(--danger);border-color:transparent;background:none;padding:0 6px;}
 </style>
 </head>
 <body>
@@ -723,6 +772,10 @@
 <main class="page" id="pageMore">
   <div class="pagehead"><h1>Mehr</h1></div>
   <div class="block">
+    <div class="block-title">Plan</div>
+    <button class="morerow" id="openPlanBtn"><span><b>Plan &amp; Übungen</b><small>Trainingstage und Übungen anlegen, ändern, verschieben</small></span><span>›</span></button>
+  </div>
+  <div class="block">
     <div class="block-title">Darstellung</div>
     <div class="seg" id="themeSeg" role="group" aria-label="Darstellung">
       <button data-mode="auto"><span data-ic="auto"></span>Auto</button><button data-mode="light"><span data-ic="sun"></span>Hell</button><button data-mode="dark"><span data-ic="moon"></span>Dunkel</button>
@@ -750,6 +803,12 @@
 </div>
   </div>
 </main>
+<main class="page" id="pagePlan">
+  <div class="planhead"><button id="planBack">‹ Mehr</button><h1 id="planTitle">Plan &amp; Übungen</h1></div>
+  <div id="planEditor"></div>
+</main>
+<div class="planbar" id="planBar" hidden><button id="planDiscard">Verwerfen</button><button id="planSave" class="primary">Speichern</button></div>
+<div class="psheet" id="planSheet" hidden></div>
 
 <!-- ===== Untere Leiste ===== -->
 <nav id="tabbar" aria-label="Navigation">
@@ -1151,6 +1210,7 @@ const SEQUENCE = WEEK_PLAN.flatMap(w => w.tage); // 24 Slots
 
 // Zeiger wird als Meta-Zeile in derselben Tabelle gespeichert (day_key="__meta__"), kein zusätzliches SQL nötig
 const META_KEY = "__meta__";
+const PLAN_KEY = "__plan__", PLAN_DATE = "1970-01-01";   // gespeicherte Plan-Änderungen (Plan & Übungen); kein Trainingstag
 const META_DATE = "1970-01-01";
 
 async function getPointer(){
@@ -1290,7 +1350,7 @@ document.querySelectorAll("#fsSeg button").forEach(b => b.addEventListener("clic
 setFs(currentFs());
 
 // ---------- Seiten und untere Leiste: Start · Aufwärmen · Training · Einträge · Mehr ----------
-const PAGES = ["start", "warmup", "train", "entries", "more"];
+const PAGES = ["start", "warmup", "train", "entries", "more", "plan"];
 let currentPage = "start";
 const pageScroll = {};   // gemerkte Scroll-Position je Seite (zurück zum Training = gleiche Stelle)
 const pageEl = name => document.getElementById("page" + name[0].toUpperCase() + name.slice(1));
@@ -1303,10 +1363,12 @@ function showPage(name, opts){
   currentPage = name;
   PAGES.forEach(pg => pageEl(pg).classList.toggle("on", pg === name));
   document.body.classList.toggle("p-train", name === "train");
-  document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("a", b.dataset.page === name));
+  document.body.classList.toggle("p-plan", name === "plan");
+  document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("a", b.dataset.page === name || (name === "plan" && b.dataset.page === "more")));
   window.scrollTo(0, opts.top ? 0 : (pageScroll[name] || 0));
   if(!opts.noHistory){ try{ history.pushState({ page: name }, ""); }catch(e){} }
   if(name === "warmup") fitWarmup();
+  if(name === "plan" && typeof renderPlanEditor === "function") renderPlanEditor();
   if((name === "start" || name === "entries") && typeof refreshSteigern === "function") refreshSteigern();
   if(name === "entries" && typeof renderEntriesRecent === "function"){
     if(prevPage !== "entries") entriesShown = 10;
@@ -1900,7 +1962,7 @@ async function fetchExerciseHistoryPage(exName, offset, pageSize){
       .from("training_sessions")
       .select("day_key, session_date, data")
       .eq("person", PERSON)
-      .neq("day_key", META_KEY)
+      .neq("day_key", META_KEY).neq("day_key", PLAN_KEY)
       .order("session_date", { ascending: false })
       .range(offset, offset + pageSize - 1);
     if(error) throw error;
@@ -1938,7 +2000,7 @@ async function loadLastSession(){
       .from("training_sessions")
       .select("day_key, session_date, data")
       .eq("person", PERSON)
-      .neq("day_key", META_KEY)
+      .neq("day_key", META_KEY).neq("day_key", PLAN_KEY)
       .order("session_date", { ascending: false })
       .order("updated_at", { ascending: false })
       .limit(60);
@@ -2212,7 +2274,7 @@ async function doSaveSession(opts){
           .select("day_key")
           .eq("person", PERSON)
           .eq("session_date", date)
-          .neq("day_key", META_KEY)
+          .neq("day_key", META_KEY).neq("day_key", PLAN_KEY)
           .neq("day_key", currentDay)
           .in("day_key", Object.keys(DAYS)); // nur andere Trainingstag-Typen zählen, nicht Cardio/Sonstiges/Körperwerte
         if(otherError) throw otherError;
@@ -2478,7 +2540,7 @@ async function renderSessionsList(){
       .from("training_sessions")
       .select("day_key, session_date, data")
       .eq("person", PERSON)
-      .neq("day_key", META_KEY)
+      .neq("day_key", META_KEY).neq("day_key", PLAN_KEY)
       .order("session_date", { ascending: false });
     if(error) throw error;
     if(!data || data.length === 0){
@@ -2598,7 +2660,7 @@ async function fetchDayEntries(date){
     .select("day_key, data")
     .eq("person", PERSON)
     .eq("session_date", date)
-    .neq("day_key", META_KEY);
+    .neq("day_key", META_KEY).neq("day_key", PLAN_KEY);
   if(error) throw error;
   return data || [];
 }
@@ -2976,7 +3038,7 @@ async function renderWeeklyGoals(){
       .from("training_sessions")
       .select("day_key, session_date")
       .eq("person", PERSON)
-      .neq("day_key", META_KEY)
+      .neq("day_key", META_KEY).neq("day_key", PLAN_KEY)
       .gte("session_date", fmtDate(earliestMonday))
       .order("session_date", { ascending: false });
     if(error) throw error;
@@ -2985,7 +3047,7 @@ async function renderWeeklyGoals(){
       .from("training_sessions")
       .select("session_date")
       .eq("person", PERSON)
-      .neq("day_key", META_KEY)
+      .neq("day_key", META_KEY).neq("day_key", PLAN_KEY)
       .order("session_date", { ascending: true })
       .limit(1);
     if(oldErr) throw oldErr;
@@ -3042,7 +3104,257 @@ async function renderWeeklyGoals(){
   }
 }
 
+// ---------- Plan & Übungen bearbeiten (Mehr → Plan & Übungen) ----------
+// Der Plan im Code (DAYS) ist der Standard. Änderungen liegen als Datensatz "__plan__" in Supabase darüber:
+// { v:1, days:{ tag: [Blöcke] }, renames:{ neuerName:[früherer Name] } }. Nur geänderte Tage werden gespeichert.
+const planClone = o => JSON.parse(JSON.stringify(o));
+const DEFAULT_PLAN = {};   // Standard aus dem Code: Tag -> Blöcke (ohne den gemeinsamen Block "Nach dem Workout")
+Object.keys(DAYS).forEach(k => { DEFAULT_PLAN[k] = planClone(DAYS[k].blocks.filter(b => b !== COOLDOWN_BLOCK)); });
+let planOverride = null;           // gespeicherte Änderungen oder null
+let planDraft = null, planBase = "", planDay = null;
+
+function applyPlan(ov){
+  Object.keys(DAYS).forEach(k => {
+    const blocks = (ov && ov.days && ov.days[k]) || DEFAULT_PLAN[k];
+    DAYS[k].blocks = blocks.map(b => ({ name: b.name, items: b.items.map(i => ex(i.uebung, i.saetze, i.ziel, i.stretch)) })).concat([COOLDOWN_BLOCK]);
+  });
+  Object.keys(RENAMES).forEach(k => delete RENAMES[k]);
+  if(ov && ov.renames) Object.assign(RENAMES, ov.renames);
+}
+async function loadPlan(){
+  try{
+    const { data, error } = await sb.from("training_sessions").select("data")
+      .eq("person", PERSON).eq("day_key", PLAN_KEY).eq("session_date", PLAN_DATE).maybeSingle();
+    if(error) throw error;
+    planOverride = data && data.data && data.data.days ? data.data : null;
+    applyPlan(planOverride);
+  }catch(e){ console.error("loadPlan", e); }
+}
+
+const planEffective = () => {
+  const d = { days: {}, renames: planClone(RENAMES) };
+  Object.keys(DAYS).forEach(k => { d.days[k] = planClone(DAYS[k].blocks.filter(b => b !== COOLDOWN_BLOCK)); });
+  return d;
+};
+const planDirty = () => !!planDraft && JSON.stringify(planDraft) !== planBase;
+function planFresh(){ planDraft = planEffective(); planBase = JSON.stringify(planDraft); }
+function planAllNames(){
+  const s = new Set();
+  Object.keys(planDraft.days).forEach(k => planDraft.days[k].forEach(b => b.items.forEach(i => s.add(i.uebung))));
+  return [...s].sort((a, b) => a.localeCompare(b, "de"));
+}
+function planFindItem(name){
+  for(const k of Object.keys(planDraft.days)) for(const b of planDraft.days[k]) for(const i of b.items) if(i.uebung === name) return i;
+  return null;
+}
+const planMeta = it => (it.stretch ? "Dehnung" : (it.saetze === "-" ? "1 Feld" : it.saetze + " Sätze")) + (it.ziel ? " · " + it.ziel : "");
+
+function renderPlanEditor(){
+  if(!planDraft) planFresh();
+  const host = document.getElementById("planEditor");
+  document.getElementById("planBack").textContent = planDay ? "‹ Trainingstage" : "‹ Mehr";
+  if(!planDay){
+    document.getElementById("planTitle").textContent = "Plan & Übungen";
+    host.innerHTML = `<p class="plhint">Trainingstag antippen, um Übungen hinzuzufügen, zu ändern oder zu verschieben.</p>`
+      + Object.keys(DAYS).map(k => {
+        const n = planDraft.days[k].reduce((a, b) => a + b.items.length, 0);
+        const changed = JSON.stringify(planDraft.days[k]) !== JSON.stringify(DEFAULT_PLAN[k]);
+        return `<button class="plrow" data-act="day" data-day="${k}"><span class="pl1"><b>${escapeHtml(DAYS[k].title)}</b>${changed ? "<em>geändert</em>" : ""}</span><span class="pl2">${escapeHtml(DAYS[k].sub || "")}</span><span class="pl3">${n} Übungen ›</span></button>`;
+      }).join("")
+      + (planOverride ? `<button class="pllink" data-act="reset">Auf Standard zurücksetzen</button>` : "");
+  } else {
+    const blocks = planDraft.days[planDay];
+    document.getElementById("planTitle").textContent = DAYS[planDay].title;
+    host.innerHTML = blocks.map((b, bi) => `
+      <div class="plblock">
+        <div class="plbh"><input class="plbn" data-bi="${bi}" value="${escapeAttr(b.name || "")}" placeholder="Blockname" aria-label="Blockname">
+          <span class="plbtns" data-bi="${bi}"><button data-act="block-up" aria-label="Block nach oben">↑</button><button data-act="block-down" aria-label="Block nach unten">↓</button><button data-act="block-del" aria-label="Block entfernen">✕</button></span></div>
+        ${b.items.map((it, ii) => `<div class="plitem"><button class="plmain" data-act="edit" data-bi="${bi}" data-ii="${ii}"><b>${escapeHtml(it.uebung)}</b><span>${escapeHtml(planMeta(it))}</span></button>
+          <span class="plbtns" data-bi="${bi}" data-ii="${ii}"><button data-act="item-up" aria-label="nach oben">↑</button><button data-act="item-down" aria-label="nach unten">↓</button></span></div>`).join("")}
+        <button class="pladd" data-act="add" data-bi="${bi}">+ Übung</button>
+      </div>`).join("")
+      + `<button class="pladd" data-act="addblock">+ Block</button>
+         <p class="plhint">„Nach dem Workout“ gilt für alle Tage und wird hier nicht geändert.</p>`;
+  }
+  document.getElementById("planBar").hidden = !planDirty();
+}
+
+function planMove(arr, i, d){ const j = i + d; if(j < 0 || j >= arr.length) return false; [arr[i], arr[j]] = [arr[j], arr[i]]; return true; }
+function planMoveItem(bi, ii, d){
+  const blocks = planDraft.days[planDay], items = blocks[bi].items;
+  const j = ii + d;
+  if(j >= 0 && j < items.length){ [items[ii], items[j]] = [items[j], items[ii]]; return; }
+  const nb = bi + d;                       // über die Blockgrenze in den Nachbarblock
+  if(nb < 0 || nb >= blocks.length) return;
+  const [it] = items.splice(ii, 1);
+  if(d < 0) blocks[nb].items.push(it); else blocks[nb].items.unshift(it);
+}
+
+document.getElementById("planEditor").addEventListener("click", e => {
+  const btn = e.target.closest("[data-act]");
+  if(!btn) return;
+  const act = btn.dataset.act;
+  const holder = btn.closest("[data-bi]");
+  const bi = holder ? +holder.dataset.bi : (btn.dataset.bi !== undefined ? +btn.dataset.bi : null);
+  const ii = holder && holder.dataset.ii !== undefined ? +holder.dataset.ii : (btn.dataset.ii !== undefined ? +btn.dataset.ii : null);
+  if(act === "day"){ planDay = btn.dataset.day; renderPlanEditor(); window.scrollTo(0, 0); return; }
+  if(act === "reset"){ planReset(); return; }
+  const blocks = planDay ? planDraft.days[planDay] : null;
+  if(act === "edit"){ planSheetOpen(bi, ii); return; }
+  if(act === "add"){ planSheetOpen(bi, null); return; }
+  if(act === "addblock"){ blocks.push({ name: "Neuer Block", items: [] }); renderPlanEditor(); return; }
+  if(act === "block-up") planMove(blocks, bi, -1);
+  else if(act === "block-down") planMove(blocks, bi, 1);
+  else if(act === "block-del"){
+    if(blocks[bi].items.length && !confirm("Block „" + (blocks[bi].name || "ohne Namen") + "“ mit " + blocks[bi].items.length + " Übung(en) entfernen? (Gespeicherte Einheiten bleiben erhalten.)")) return;
+    blocks.splice(bi, 1);
+  }
+  else if(act === "item-up") planMoveItem(bi, ii, -1);
+  else if(act === "item-down") planMoveItem(bi, ii, 1);
+  renderPlanEditor();
+});
+document.getElementById("planEditor").addEventListener("input", e => {
+  if(e.target.classList.contains("plbn")){
+    planDraft.days[planDay][+e.target.dataset.bi].name = e.target.value;
+    document.getElementById("planBar").hidden = !planDirty();
+  }
+});
+
+// Übung hinzufügen / ändern (Dialog)
+let planSheetCtx = null;
+function planSheetOpen(bi, ii){
+  const blocks = planDraft.days[planDay];
+  const isNew = ii === null;
+  const it = isNew ? { uebung: "", saetze: "3", ziel: "", stretch: false } : blocks[bi].items[ii];
+  const others = Object.keys(planDraft.days).filter(k => k !== planDay && planDraft.days[k].some(b => b.items.some(x => x.uebung === it.uebung)));
+  planSheetCtx = { bi, ii, isNew, orig: planClone(it), others };
+  const sets = ["-", "1", "2", "3", "4", "5", "6"];
+  if(!sets.includes(it.saetze)) sets.push(it.saetze);
+  const sh = document.getElementById("planSheet");
+  sh.innerHTML = `<div class="psh-card" role="dialog" aria-modal="true">
+    <div class="psh-title">${isNew ? "Übung hinzufügen" : "Übung bearbeiten"}</div>
+    <label>Name<input id="pfName" list="pfNames" autocomplete="off" value="${escapeAttr(it.uebung)}" placeholder="z. B. Tuck Planche Press-up"></label>
+    <datalist id="pfNames">${planAllNames().map(n => `<option value="${escapeAttr(n)}"></option>`).join("")}</datalist>
+    <div class="psh-row">
+      <label>Sätze<select id="pfSets">${sets.map(v => `<option value="${escapeAttr(v)}" ${v === it.saetze ? "selected" : ""}>${v === "-" ? "1 Feld" : v + (v === "1" ? " Satz" : " Sätze")}</option>`).join("")}</select></label>
+      <label class="pfchk"><input type="checkbox" id="pfStretch" ${it.stretch ? "checked" : ""}> Dehnung</label>
+    </div>
+    <label>Ziel / Beschreibung<input id="pfZiel" autocomplete="off" value="${escapeAttr(it.ziel || "")}" placeholder="z. B. sammeln, Ziel 10 Wdh"></label>
+    <div id="pfRename" hidden>
+      <div class="pf-q">Name geändert – was bedeutet das?</div>
+      <label class="pfchk"><input type="radio" name="pfRen" value="keep" checked> Gleiche Übung (Tippfehler) – Verlauf bleibt</label>
+      <label class="pfchk"><input type="radio" name="pfRen" value="new"> Neue Übung / Progression – eigener Verlauf</label>
+    </div>
+    <label class="pfchk" id="pfAllWrap" ${others.length ? "" : "hidden"}><input type="checkbox" id="pfAll" checked> Auch ändern an: ${others.map(k => escapeHtml(DAYS[k].title)).join(", ")}</label>
+    <div class="psh-btns">
+      ${isNew ? "" : `<button type="button" id="pfDel" class="danger">Entfernen</button>`}
+      <span class="sp"></span>
+      <button type="button" id="pfCancel">Abbrechen</button>
+      <button type="button" id="pfOk" class="primary">Übernehmen</button>
+    </div></div>`;
+  sh.hidden = false;
+  const name = document.getElementById("pfName");
+  name.addEventListener("input", () => {
+    const v = name.value.trim();
+    if(isNew){
+      const ex2 = planFindItem(v);   // vorhandene Übung gewählt: Werte übernehmen
+      if(ex2){ document.getElementById("pfSets").value = ex2.saetze; document.getElementById("pfZiel").value = ex2.ziel || ""; document.getElementById("pfStretch").checked = !!ex2.stretch; }
+    } else {
+      document.getElementById("pfRename").hidden = v === "" || v === planSheetCtx.orig.uebung;
+    }
+  });
+  document.getElementById("pfCancel").onclick = planSheetClose;
+  sh.onclick = ev => { if(ev.target === sh) planSheetClose(); };
+  const del = document.getElementById("pfDel");
+  if(del) del.onclick = () => { blocks[bi].items.splice(ii, 1); planSheetClose(); renderPlanEditor(); };
+  document.getElementById("pfOk").onclick = planSheetApply;
+  if(isNew) name.focus();
+}
+function planSheetClose(){ document.getElementById("planSheet").hidden = true; planSheetCtx = null; }
+function planSheetApply(){
+  const c = planSheetCtx; if(!c) return;
+  const blocks = planDraft.days[planDay];
+  const name = document.getElementById("pfName").value.trim();
+  const stretch = document.getElementById("pfStretch").checked;
+  const item = { uebung: name, saetze: stretch ? "-" : document.getElementById("pfSets").value, ziel: document.getElementById("pfZiel").value.trim(), stretch };
+  if(!name){ showToast("Bitte einen Namen eingeben"); return; }
+  const dup = blocks.some((b, b2) => b.items.some((x, i2) => x.uebung === name && !(b2 === c.bi && i2 === c.ii)));
+  if(dup){ showToast("„" + name + "“ gibt es an diesem Tag schon"); return; }
+  if(c.isNew){
+    blocks[c.bi].items.push(item);
+  } else {
+    const oldName = c.orig.uebung;
+    const renamed = name !== oldName;
+    const all = c.others.length && document.getElementById("pfAll").checked;
+    const apply = x => { x.uebung = item.uebung; x.saetze = item.saetze; x.ziel = item.ziel; x.stretch = item.stretch; };
+    apply(blocks[c.bi].items[c.ii]);
+    if(all) c.others.forEach(k => planDraft.days[k].forEach(b => b.items.forEach(x => { if(x.uebung === oldName) apply(x); })));
+    if(renamed){
+      const keep = (document.querySelector("input[name=pfRen]:checked") || {}).value === "keep";
+      if(keep){
+        const R = planDraft.renames;
+        R[name] = [...new Set([oldName, ...(R[oldName] || []), ...(R[name] || [])])];
+        delete R[oldName];
+      }
+    }
+  }
+  planSheetClose();
+  renderPlanEditor();
+}
+
+async function planSave(){
+  const days = {};
+  Object.keys(planDraft.days).forEach(k => {
+    planDraft.days[k] = planDraft.days[k].filter(b => b.items.length);   // leere Blöcke weglassen
+    planDraft.days[k].forEach(b => { b.name = (b.name || "").trim(); });
+    if(JSON.stringify(planDraft.days[k]) !== JSON.stringify(DEFAULT_PLAN[k])) days[k] = planDraft.days[k];
+  });
+  const renames = planDraft.renames || {};
+  const hasChange = Object.keys(days).length > 0 || Object.keys(renames).length > 0;
+  const btn = document.getElementById("planSave"); btn.disabled = true;
+  try{
+    let error;
+    if(hasChange){
+      ({ error } = await sb.from("training_sessions").upsert(
+        { person: PERSON, day_key: PLAN_KEY, session_date: PLAN_DATE, data: { v: 1, days, renames }, updated_at: new Date().toISOString() },
+        { onConflict: "person,day_key,session_date" }));
+    } else {
+      ({ error } = await sb.from("training_sessions").delete().eq("person", PERSON).eq("day_key", PLAN_KEY).eq("session_date", PLAN_DATE));
+    }
+    if(error) throw error;
+    planOverride = hasChange ? { v: 1, days, renames } : null;
+    applyPlan(planOverride);
+    planFresh();
+    showToast("Plan gespeichert");
+    renderPlanEditor();
+    try{ await init(); }catch(e){ console.error(e); }
+  }catch(e){
+    console.error("planSave", e);
+    showToast("Plan konnte nicht gespeichert werden: " + (e && e.message ? e.message : "unbekannt"));
+  }finally{ btn.disabled = false; }
+}
+async function planReset(){
+  if(!confirm("Alle Plan-Änderungen verwerfen und den Standardplan wiederherstellen? (Gespeicherte Einheiten bleiben erhalten.)")) return;
+  try{
+    const { error } = await sb.from("training_sessions").delete().eq("person", PERSON).eq("day_key", PLAN_KEY).eq("session_date", PLAN_DATE);
+    if(error) throw error;
+    planOverride = null; applyPlan(null); planFresh(); planDay = null;
+    showToast("Standardplan wiederhergestellt");
+    renderPlanEditor();
+    try{ await init(); }catch(e){ console.error(e); }
+  }catch(e){ showToast("Zurücksetzen fehlgeschlagen: " + (e && e.message ? e.message : "unbekannt")); }
+}
+document.getElementById("planSave").addEventListener("click", planSave);
+document.getElementById("planDiscard").addEventListener("click", () => { planDraft = JSON.parse(planBase); renderPlanEditor(); });
+document.getElementById("planBack").addEventListener("click", () => {
+  if(planDay){ planDay = null; renderPlanEditor(); window.scrollTo(0, 0); return; }
+  if(planDirty() && !confirm("Ungespeicherte Änderungen verwerfen?")) return;
+  planDraft = null; showPage("more", { top: true });
+});
+document.getElementById("openPlanBtn").addEventListener("click", () => { planDay = null; planFresh(); showPage("plan", { top: true }); });
+
 async function bootstrap(){
+  await loadPlan();   // eigene Plan-Änderungen (falls vorhanden) vor allem anderen anwenden
   // Zuerst liegengebliebene Eingaben senden (Zeiger stimmt danach); ohne Netz bleiben sie gesichert
   if(pendingCount()) await Promise.race([flushPending(), new Promise(r => setTimeout(r, 6000))]);
   const idx = await getPointer();
