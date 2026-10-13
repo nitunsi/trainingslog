@@ -616,6 +616,17 @@
   .exrow .goalhint{background:none;border:0;border-radius:0;padding:0;margin-top:6px;font-weight:500;color:var(--text-muted);}
   .exrow .goalhint::first-letter{color:var(--accent);font-weight:700;}
   .exrow .last-hint{margin-top:3px;}
+
+  /* ===== Training: Steigern-Hinweis und letzte Notiz ruhig untereinander, fertige Übungen zurückgenommen, Dehnungen wie normale Zeilen ===== */
+  .exrow .steig{display:block;margin-top:7px;padding:0;border-radius:0;background:none;color:var(--text);font-weight:400;font-size:calc(12.5px*var(--fs));line-height:1.4;}
+  .exrow .steig b{color:var(--amber);font-weight:700;}
+  .exrow .prevnote{margin-top:3px;padding-left:0;border-left:0;font-size:calc(12.5px*var(--fs));color:var(--text-muted);font-style:normal;}
+  .exrow.done{background:none!important;border-color:var(--hair)!important;opacity:.7;transition:opacity .2s;}
+  .exrow.done:focus-within{opacity:1;}
+  .exrow.stretch{border-top:1px solid var(--hair)!important;border-style:solid;padding-left:0;padding-right:0;}
+  .exrow.stretch .exname{font-style:normal;font-weight:600;font-size:calc(14px*var(--fs));color:var(--text-muted);}
+  .exrow.stretch .exziel{font-size:calc(12.5px*var(--fs));}
+  .exrow.stretch .setboxes input{font-size:calc(13px*var(--fs));font-weight:400;font-family:'Inter',sans-serif;padding:9px 10px;}
 </style>
 </head>
 <body>
@@ -1485,7 +1496,7 @@ function renderExRow(it){
       note = pf.note || "";
     }
     steigEl.hidden = !show;
-    steigEl.textContent = show ? "↑ Steigern" + (note ? " · " + note : "") : "";
+    steigEl.innerHTML = show ? "<b>↑ Steigern</b>" + (note ? " · " + escapeHtml(note) : "") : "";
   };
 
   // Index des ersten leeren Satzes mit Vorgabe vom letzten Mal (-1 = keiner)
@@ -1515,7 +1526,7 @@ function renderExRow(it){
       const typed = inputs.map(inp => inp.value.trim());
       // Sobald etwas eingetragen ist, zählen die eingetragenen Werte; sonst die letzte Session.
       const values = typed.some(v => v !== "") ? typed : (last ? last.value : []);
-      goalEl.classList.toggle("show", goalReached(it.ziel, values, n));
+      goalEl.classList.toggle("show", goalReached(it.ziel, values, n) && !(steigEl && !steigEl.hidden));   // nie zwei Steigern-Hinweise gleichzeitig
     }
   };
 
