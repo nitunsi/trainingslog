@@ -666,37 +666,36 @@
   #pageStart.on::after{content:"";height:0;}
   #pageStart.on > *{margin-top:0!important;margin-bottom:0!important;}
   #pageStart #dayPanel[hidden]{display:none;}
-  @media (max-height:780px){
-    #pageStart .planring svg{width:78px;height:78px;}
-    #pageStart .planring{margin-top:6px;}
-    #pageStart .daycard-title{font-size:calc(27px*var(--fs));}
-    #pageStart .daycard-meta{margin-bottom:3px;}
-    #pageStart .ring-l1{margin-top:4px;}
-    #pageStart .steiglink{margin-top:4px;min-height:30px;}
-    #pageStart .startbtns .bigbtn.primary{min-height:50px;}
-    #pageStart .startbtns .bigbtn:not(.primary),#pageStart .startbtns .daycard-change{min-height:38px;}
-    #pageStart .slot{min-height:34px;}
-    #pageStart .quickrow button{min-height:44px;}
-    #pageStart .wkrow{padding:3px 0;}
-  }
-  @media (max-height:730px){
-    #pageStart .planring svg{width:62px;height:62px;}
-    #pageStart .planring{margin-top:4px;}
-    #pageStart .daycard-title{font-size:calc(24px*var(--fs));}
-    #pageStart .daycard-last{display:none;}
-    #pageStart .ring-l1{margin-top:2px;font-size:12.5px;}
-    #pageStart .startbtns{margin-top:2px;}
-    #pageStart .startbtns .bigbtn.primary{min-height:46px;}
-    #pageStart .startbtns .bigbtn:not(.primary),#pageStart .startbtns .daycard-change{min-height:34px;}
-    #pageStart .slot{min-height:30px;}
-    #pageStart .quickrow button{min-height:40px;}
-    #pageStart.on{gap:6px;}
-  }
-  @media (max-height:660px){
-    #pageStart .planring{display:none;}
-    #pageStart .daycard-focus{display:none;}
-    #pageStart .wkrow{padding:2px 0;}
-  }
+  /* Stufen f1–f4 (kumulativ): fitStart() verdichtet die Startseite so weit, bis sie ohne Scrollen passt */
+  #pageStart.f1 .planring svg{width:78px;height:78px;}
+  #pageStart.f1 .planring{margin-top:6px;}
+  #pageStart.f1 .daycard-title{font-size:calc(27px*var(--fs));}
+  #pageStart.f1 .daycard-meta{margin-bottom:3px;}
+  #pageStart.f1 .ring-l1{margin-top:4px;}
+  #pageStart.f1 .steiglink{margin-top:4px;min-height:30px;}
+  #pageStart.f1 .startbtns .bigbtn.primary{min-height:50px;}
+  #pageStart.f1 .startbtns .bigbtn:not(.primary),#pageStart.f1 .startbtns .daycard-change{min-height:38px;}
+  #pageStart.f1 .slot{min-height:34px;}
+  #pageStart.f1 .quickrow button{min-height:44px;}
+  #pageStart.f1 .wkrow{padding:3px 0;}
+  #pageStart.f2 .planring svg{width:62px;height:62px;}
+  #pageStart.f2 .planring{margin-top:4px;}
+  #pageStart.f2 .daycard-title{font-size:calc(24px*var(--fs));}
+  #pageStart.f2 .daycard-last{display:none;}
+  #pageStart.f2 .ring-l1{margin-top:2px;font-size:12.5px;}
+  #pageStart.f2 .startbtns{margin-top:2px;}
+  #pageStart.f2 .startbtns .bigbtn.primary{min-height:46px;}
+  #pageStart.f2 .startbtns .bigbtn:not(.primary),#pageStart.f2 .startbtns .daycard-change{min-height:34px;}
+  #pageStart.f2 .slot{min-height:30px;}
+  #pageStart.f2 .quickrow button{min-height:40px;}
+  #pageStart.on.f2{gap:6px;}
+  #pageStart.f3 .planring{display:none;}
+  #pageStart.f3 .daycard-focus{display:none;}
+  #pageStart.f3 .wkrow{padding:2px 0;}
+  #pageStart.f4 .daycard-meta{display:none;}
+  #pageStart.f4 .header{padding-top:6px;padding-bottom:0;}
+  #pageStart.f4 .slot{min-height:28px;}
+  #pageStart.f4 .quickrow button{min-height:36px;}
   /* Passt die Startseite auf den Bildschirm, wird gar nicht gescrollt (kein Wackeln) */
   html.nofit,html.nofit body{overflow:hidden;overscroll-behavior:none;}
 </style>
@@ -3219,15 +3218,29 @@ function renderSessionView(dayKey, date, sd){
 }
 document.getElementById("sessBack").addEventListener("click", () => showPage(sessReturn && sessReturn !== "session" ? sessReturn : "entries"));
 
-// Startseite: passt alles auf den Bildschirm, wird das Scrollen ganz gesperrt
+// Startseite: wird so weit verdichtet (f1–f4), bis alles auf den Bildschirm passt; dann ist das Scrollen gesperrt.
+// Passt es selbst verdichtet nicht (oder ist "Tag ändern" offen), scrollt die Seite normal.
+let fitBusy = false;
 function fitStart(){
-  const page = document.getElementById("pageStart");
-  const on = currentPage === "start" && page && page.classList.contains("on");
-  const root = document.documentElement;
-  if(!on){ root.classList.remove("nofit"); return; }
-  root.classList.remove("nofit");
-  const fits = document.documentElement.scrollHeight <= window.innerHeight + 1;
-  root.classList.toggle("nofit", fits);
+  if(fitBusy) return;
+  fitBusy = true;
+  try{
+    const page = document.getElementById("pageStart"), root = document.documentElement;
+    const on = currentPage === "start" && page && page.classList.contains("on");
+    root.classList.remove("nofit");
+    ["f1", "f2", "f3", "f4"].forEach(c => page && page.classList.remove(c));
+    if(!on) return;
+    let fits = false;
+    if(document.getElementById("dayPanel").hidden){
+      for(let lvl = 0; lvl <= 4; lvl++){
+        if(lvl > 0) page.classList.add("f" + lvl);
+        fits = root.scrollHeight <= window.innerHeight + 1;
+        if(fits) break;
+      }
+    }
+    root.classList.toggle("nofit", fits);
+    if(fits && window.scrollY) window.scrollTo(0, 0);
+  } finally { fitBusy = false; }
 }
 // Nach App-Wechsel / Drehen / Fenstergröße neu prüfen (der Browser meldet die Höhe nach dem Zurückkehren oft erst verzögert)
 function fitStartSoon(){ fitStart(); [120, 400, 1000].forEach(t => setTimeout(fitStart, t)); }
