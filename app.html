@@ -510,6 +510,11 @@
   #pageStart .quickrow button{min-height:56px;}
   #pageStart .daycard{margin-bottom:0;}
   #pageStart .slot{min-height:40px;}
+
+  /* Kopfbereich wirklich mittig; Hauptknopf einheitlich beschriftet */
+  #pageStart .daycard-top{display:block;}
+  #pageStart .daycard-top > div{width:100%;}
+  #pageStart .startbtns .bigbtn.primary .bs{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;opacity:1;}
 </style>
 </head>
 <body>
@@ -1459,7 +1464,7 @@ let progressDone = 0, progressTotal = 0, trainSavedToday = false;
 function updateTrainSub(){
   const el = document.getElementById("goTrainSub");
   if(!el) return;
-  el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : (progressTotal > 0 ? progressTotal + " Sätze" : "starten"));
+  el.textContent = trainSavedToday ? "gespeichert ✓" : (progressDone > 0 ? progressDone + " / " + progressTotal + " Sätze" : "starten");
 }
 
 // ---------- Übersicht "Zum Steigern" (Start-Hinweis + Liste unter Einträge) ----------
