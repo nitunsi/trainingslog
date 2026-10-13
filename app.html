@@ -525,7 +525,7 @@
   #pageStart .wkmore button{background:none;border:0;color:var(--text-muted);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;min-height:34px;padding:0 10px;}
   #pageStart #weeklyHistoryHolder .wkrow{border-top:0;}
   /* Platz besser nutzen, Pillen näher an die Mitte, Körper-Symbol leichter */
-  #pageStart .planring svg{width:min(124px,15vh);height:min(124px,15vh);}
+  #pageStart .planring svg{width:min(112px,13.5vh);height:min(112px,13.5vh);}
   #pageStart .startbtns{display:flex;flex-wrap:wrap;justify-content:center;column-gap:34px;}
   #pageStart .startbtns .bigbtn.primary{flex:0 0 100%;min-height:58px;}
   #pageStart .startbtns .bigbtn:not(.primary),#pageStart .startbtns .daycard-change{min-height:46px;padding:0 6px;}
@@ -535,6 +535,29 @@
   #pageStart .quickcard{margin-top:2px;}
   #pageStart .quickrow{max-width:340px;margin-left:auto;margin-right:auto;}
   #pageStart .quickrow .qi .ic{stroke-width:1.5;}
+
+  /* Wochenübersicht: eine Schrift, bündige Spalten; Abstände zwischen den Texten vereinheitlicht */
+  #pageStart .wkcard{max-width:330px;font-family:'Inter',sans-serif;}
+  #pageStart .wkrow,#pageStart .wkrow.cur{font-family:'Inter',sans-serif;font-size:14px;padding:6px 0;gap:12px;}
+  #pageStart .wkrow.cur{font-weight:700;color:var(--text);padding-top:0;}
+  #pageStart .wkd{font-family:'Inter',sans-serif;font-size:14px;}
+  #pageStart .wkrow .wkl{flex:1;min-width:0;white-space:nowrap;}
+  #pageStart .wkc,#pageStart .wkrow.cur .wkc{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;}
+  #pageStart .wkcs{display:grid;grid-template-columns:repeat(4,46px);justify-content:end;}
+  #pageStart .wkcs .wc,#pageStart .wkc .wcs .wc{font-family:'Inter',sans-serif;font-size:14px;width:46px;justify-content:flex-start;}
+  #pageStart .wkc .wcs{display:grid;grid-auto-flow:column;grid-auto-columns:46px;}
+  #pageStart .wkc .wc b{font-weight:600;}
+  #pageStart .daycard-meta{margin-bottom:6px;}
+  #pageStart .daycard-title{margin-top:0;}
+  #pageStart .daycard-focus{margin-top:8px;}
+  #pageStart .daycard-last{margin-top:5px;}
+  #pageStart .planring{margin-top:14px;}
+  #pageStart .ring-l1{margin-top:8px;}
+  #pageStart .ring-l2{margin-top:3px;}
+  #pageStart .steiglink{margin-top:12px;}
+  #pageStart .startbtns{margin-top:10px;}
+  #pageStart .plancard{margin-top:12px;}
+  #pageStart .wkcard{margin-top:16px!important;}
 </style>
 </head>
 <body>
