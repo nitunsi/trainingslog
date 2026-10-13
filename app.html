@@ -698,7 +698,7 @@
     #pageStart .wkrow{padding:2px 0;}
   }
   /* Passt die Startseite auf den Bildschirm, wird gar nicht gescrollt (kein Wackeln) */
-  html.nofit,html.nofit body{overflow:hidden;}
+  html.nofit,html.nofit body{overflow:hidden;overscroll-behavior:none;}
 </style>
 </head>
 <body>
@@ -3229,7 +3229,11 @@ function fitStart(){
   const fits = document.documentElement.scrollHeight <= window.innerHeight + 1;
   root.classList.toggle("nofit", fits);
 }
-window.addEventListener("resize", fitStart);
+// Nach App-Wechsel / Drehen / Fenstergröße neu prüfen (der Browser meldet die Höhe nach dem Zurückkehren oft erst verzögert)
+function fitStartSoon(){ fitStart(); [120, 400, 1000].forEach(t => setTimeout(fitStart, t)); }
+["resize", "orientationchange", "pageshow", "focus"].forEach(ev => window.addEventListener(ev, fitStartSoon));
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") fitStartSoon(); });
+if(window.visualViewport) window.visualViewport.addEventListener("resize", fitStartSoon);
 (function(){
   const page = document.getElementById("pageStart");
   if(page && "ResizeObserver" in window) new ResizeObserver(fitStart).observe(page);
