@@ -458,6 +458,14 @@
   #pageStart .quickrow .qi{display:inline-flex;}
   #pageStart .quickrow .qi .ic{width:17px;height:17px;}
   #pageStart .quickrow .ql{margin-top:0;font-size:11.5px;}
+
+  /* Feinschliff Startseite: gleiche Farbe für alle Pillen, weniger Beschriftung */
+  #pageStart .steiglink{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-weight:600;}
+  #pageStart .steiglink span:last-child{color:var(--accent);font-weight:700;}
+  #pageStart .quickcap{display:none;}
+  #pageStart .plan-sub{display:none;}
+  #pageStart .plan-head{margin-bottom:8px;}
+  #pageStart #weeklyHistBtn{background:none!important;border:0!important;padding:4px 2px!important;color:var(--text-muted)!important;}
 </style>
 </head>
 <body>
@@ -504,8 +512,7 @@
   <button class="steiglink" id="steigLink" hidden><span id="steigLinkText"></span><span>›</span></button>
   <div id="weeklyGoalsHolder"></div>
   <div class="daycard quickcard">
-    <div class="quickcap">Weiterer Eintrag für den Tag</div>
-    <div class="quickrow">
+    <div class="quickrow" role="group" aria-label="Weiterer Eintrag für den Tag">
       <button data-type="lauf"><span class="qi" data-ic="lauf"></span><span class="ql">Lauf</span><i class="qdot"></i></button>
       <button data-type="schwimmen"><span class="qi" data-ic="schwimmen"></span><span class="ql">Schwimmen</span><i class="qdot"></i></button>
       <button data-type="koerper"><span class="qi" data-ic="koerper"></span><span class="ql">Körper</span><i class="qdot"></i></button>
