@@ -662,7 +662,7 @@
   #pageTrain .block-title{top:48px;}
 
   /* Startseite: restlicher Platz wird gleichmäßig zwischen Kopf, Heute, Plan, Wochen und Symbolen verteilt */
-  #pageStart.on{display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-sizing:border-box;min-height:100vh;min-height:100dvh;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px) + 22px);}
+  #pageStart.on{display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-sizing:border-box;min-height:100vh;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px) + 22px);}
   #pageStart.on::after{content:"";height:0;}
   #pageStart.on > *{margin-top:0!important;margin-bottom:0!important;}
   #pageStart #dayPanel[hidden]{display:none;}
@@ -3220,6 +3220,11 @@ document.getElementById("sessBack").addEventListener("click", () => showPage(ses
 
 // Startseite: wird so weit verdichtet (f1–f4), bis alles auf den Bildschirm passt; dann ist das Scrollen gesperrt.
 // Passt es selbst verdichtet nicht (oder ist "Tag ändern" offen), scrollt die Seite normal.
+function viewH(){
+  const c = [window.innerHeight, document.documentElement.clientHeight];
+  if(window.visualViewport) c.push(Math.round(window.visualViewport.height));
+  return Math.min(...c.filter(v => v > 0));
+}
 let fitBusy = false;
 function fitStart(){
   if(fitBusy) return;
@@ -3229,12 +3234,15 @@ function fitStart(){
     const on = currentPage === "start" && page && page.classList.contains("on");
     root.classList.remove("nofit");
     ["f1", "f2", "f3", "f4"].forEach(c => page && page.classList.remove(c));
-    if(!on) return;
+    if(!on){ if(page) page.style.minHeight = ""; return; }
+    // Sichtbare Höhe selbst messen: 100vh/100dvh ist in installierten Android-Apps nach dem Neuladen oft größer als das Fenster
+    const H = viewH();
+    page.style.minHeight = H + "px";
     let fits = false;
     if(document.getElementById("dayPanel").hidden){
       for(let lvl = 0; lvl <= 4; lvl++){
         if(lvl > 0) page.classList.add("f" + lvl);
-        fits = root.scrollHeight <= window.innerHeight + 1;
+        fits = root.scrollHeight <= H + 1;
         if(fits) break;
       }
     }
@@ -3252,6 +3260,16 @@ if(window.visualViewport) window.visualViewport.addEventListener("resize", fitSt
   if(page && "ResizeObserver" in window) new ResizeObserver(fitStart).observe(page);
   new MutationObserver(fitStart).observe(document.getElementById("weeklyGoalsHolder"), { childList: true, subtree: true });
   document.getElementById("dayPanelBtn").addEventListener("click", () => setTimeout(fitStart, 50));
+  // Diagnose (Logo lange gedrückt): zeigt die gemessenen Höhen, falls die Startseite einmal nicht passt
+  const hd = document.querySelector("#pageStart .header");
+  if(hd){
+    let t = null;
+    hd.addEventListener("pointerdown", () => { t = setTimeout(() => {
+      const root = document.documentElement, vv = window.visualViewport;
+      showToast("innen " + window.innerHeight + " · client " + root.clientHeight + " · vv " + (vv ? Math.round(vv.height) : "–") + " · inhalt " + root.scrollHeight + " · Stufe " + (document.getElementById("pageStart").className.match(/f\d/g) || ["0"]).length + " · gesperrt " + root.classList.contains("nofit") + " · dpr " + window.devicePixelRatio);
+    }, 700); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(ev => hd.addEventListener(ev, () => clearTimeout(t)));
+  }
 })();
 
 async function bootstrap(){
