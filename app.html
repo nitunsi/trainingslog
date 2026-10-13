@@ -466,6 +466,21 @@
   #pageStart .plan-sub{display:none;}
   #pageStart .plan-head{margin-bottom:8px;}
   #pageStart #weeklyHistBtn{background:none!important;border:0!important;padding:4px 2px!important;color:var(--text-muted)!important;}
+
+  /* ===== Startseite im Stil der Tunsi-Startseite: mittig, luftig, ein Ring, ein Hauptknopf ===== */
+  #pageStart .daycard{text-align:center;border-top:0!important;padding-top:6px!important;}
+  #pageStart .daycard-meta{justify-content:center;}
+  #pageStart .daycard-title{font-size:calc(32px*var(--fs));}
+  #pageStart .planring{display:flex;flex-direction:column;align-items:center;margin-top:12px;}
+  #pageStart .planring:empty{display:none;}
+  #pageStart .ring-l1{margin-top:4px;font-size:13.5px;font-weight:700;}
+  #pageStart .ring-l2{margin-top:1px;font-size:12px;color:var(--text-muted);}
+  #pageStart .steiglink{background:none;border:0;color:var(--text-muted);min-height:36px;margin:8px auto 0;padding:0 8px;font-weight:500;}
+  #pageStart .steiglink span:last-child{color:var(--accent);}
+  #pageStart .startbtns{margin-top:6px;}
+  #pageStart .plancard{margin-top:12px;}
+  #pageStart .plan-head{display:none;}
+  #pageStart .wkcard{padding-top:10px!important;}
 </style>
 </head>
 <body>
@@ -490,7 +505,9 @@
         <div class="daycard-last" id="dayCardLast"></div>
       </div>
     </div>
+    <div class="planring" id="planRing"></div>
     <div id="dayCardNext"></div>
+    <button class="steiglink" id="steigLink" hidden><span id="steigLinkText"></span><span>›</span></button>
     <div class="startbtns">
       <button class="bigbtn" id="goWarmup"><span class="bt">Aufwärmen</span><span class="bs">vorbereiten</span></button>
       <button class="bigbtn primary" id="goTrain"><span class="bt">Training</span><span class="bs" id="goTrainSub">starten</span></button>
@@ -509,7 +526,6 @@
     <div id="calendarHolder"></div>
   </div>
   <div class="plancard" id="planCard"></div>
-  <button class="steiglink" id="steigLink" hidden><span id="steigLinkText"></span><span>›</span></button>
   <div id="weeklyGoalsHolder"></div>
   <div class="daycard quickcard">
     <div class="quickrow" role="group" aria-label="Weiterer Eintrag für den Tag">
@@ -1030,6 +1046,12 @@ function renderPlanCard(w, idx){
   const wk = WEEK_PLAN[w];
   const extra = wk.woche.replace(/^\d+\s*/, "");
   const doneCnt = Math.max(0, Math.min(4, idx - w * 4));
+  const ring = document.getElementById("planRing");
+  if(ring){
+    const R = 52, C = 2 * Math.PI * R, frac = doneCnt / 4;
+    ring.innerHTML = `<svg viewBox="0 0 130 130" width="124" height="124" aria-hidden="true"><circle cx="65" cy="65" r="${R}" fill="none" stroke="var(--line)" stroke-width="11"/><circle cx="65" cy="65" r="${R}" fill="none" stroke="var(--accent)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${(C * frac).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 65 65)"/><text x="65" y="65" text-anchor="middle" dominant-baseline="central" font-family="Space Grotesk,sans-serif" font-size="40" font-weight="700" fill="var(--text)">${doneCnt}</text></svg>
+      <div class="ring-l1">von 4 Einheiten</div><div class="ring-l2">Woche ${w + 1} von ${WEEK_PLAN.length}${extra ? " · " + escapeHtml(extra.replace(/[()]/g, "")) : ""}</div>`;
+  }
   el.innerHTML = `<div class="plan-head"><span class="plan-title">Plan · Woche ${w + 1} von ${WEEK_PLAN.length}${extra ? " " + escapeHtml(extra) : ""}</span><span class="plan-sub">${doneCnt} von 4 erledigt</span></div>
     <div class="slots">${wk.tage.map((key, i)=>{
       const slot = w * 4 + i;
