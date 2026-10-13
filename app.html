@@ -591,6 +591,7 @@
   .exrow .exacts .noteBtn span:empty{display:none;}
 
   /* Aufwärmen: eine Seite ohne Überschrift und Weiter-Knopf (Leiste unten reicht), kompakte Zeilen */
+  #pageWarmup{padding-bottom:0;}
   #pageWarmup .pagehead{padding:10px 16px 2px;}
   #pageWarmup .pagehead h1{display:none;}
   #pageWarmup .pagehead .sub{margin:0;text-align:center;font-size:12.5px;color:var(--text-muted);}
@@ -1368,6 +1369,9 @@ function fitWarmup(){
     best = pad;
   }
   page.style.setProperty("--wupad", best + "px");
+  // Passt es selbst mit engsten Zeilen nicht (sehr kleiner Bildschirm), unten Platz für die Leiste lassen
+  const lastEl = page.querySelector("#warmupHolder").lastElementChild;
+  page.style.paddingBottom = (lastEl && lastEl.getBoundingClientRect().bottom + window.scrollY > avail - 6) ? "84px" : "";
 }
 window.addEventListener("resize", fitWarmup);
 
