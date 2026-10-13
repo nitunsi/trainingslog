@@ -600,6 +600,22 @@
   #pageWarmup .wu-group table{font-size:calc(13.5px*var(--fs));}
   #pageWarmup .wu-group td{padding:var(--wupad,4px) 2px;border-bottom:0;}
   #pageWarmup .wu-group td:last-child{font-size:calc(12.5px*var(--fs));}
+
+  /* ===== Training: ruhiger Kopf, Verlauf/Notiz als Symbole in der Titelzeile, leiser Hinweis ===== */
+  #pageTrain .pagehead{padding:14px 16px 4px;text-align:center;}
+  #pageTrain .pagehead h1{font-size:calc(26px*var(--fs));line-height:1.15;}
+  #pageTrain .pagehead .daycard-focus{margin:3px 0 0;font-size:calc(13px*var(--fs));}
+  #pageTrain .pagehead .daycard-meta{justify-content:center;margin-top:3px;font-family:'Inter',sans-serif;font-size:calc(12.5px*var(--fs));}
+  .exrow .exname{align-items:center;}
+  .exrow .exacts{margin:-8px -8px -8px 0;gap:0;}
+  .exrow .exacts button{width:38px;height:44px;padding:0;opacity:.7;color:var(--text-muted);}
+  .exrow .exacts button .ic{width:19px;height:19px;}
+  .exrow .exacts .noteBtn.has{opacity:1;color:var(--accent);}
+  .exrow .exziel,.exrow .extempo{font-family:'Inter',sans-serif;}
+  .exrow .exziel{font-size:calc(12.5px*var(--fs));}
+  .exrow .goalhint{background:none;border:0;border-radius:0;padding:0;margin-top:6px;font-weight:500;color:var(--text-muted);}
+  .exrow .goalhint::first-letter{color:var(--accent);font-weight:700;}
+  .exrow .last-hint{margin-top:3px;}
 </style>
 </head>
 <body>
@@ -1428,13 +1444,13 @@ function renderExRow(it){
   const { base, tempo } = it.stretch ? { base: it.uebung, tempo: null } : splitExName(it.uebung);
   const zielLine = it.stretch ? it.ziel : it.ziel + (it.saetze!=="-" ? " · "+it.saetze+" Sätze" : "");
   row.innerHTML = `
-    <div class="exname"><span class="exn">${base}<span class="okmark" aria-label="fertig">✓</span></span></div>
+    <div class="exname"><span class="exn">${base}<span class="okmark" aria-label="fertig">✓</span></span><span class="exacts"><button class="histBtn" type="button" title="Verlauf" aria-label="Verlauf">${ICON.clock}</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}</button></span></div>
     ${tempo ? `<div class="extempo">${tempo}</div>` : ""}
     <div class="exziel">${zielLine}</div>
     <div class="steig" hidden></div>
     <div class="prevnote"></div>
     <div class="setboxes">${boxes}</div>
-    <div class="exfoot"><div class="last-hint"></div><span class="exacts"><button class="histBtn" type="button" title="Verlauf" aria-label="Verlauf">${ICON.clock}<span>Verlauf</span></button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}<span>Notiz</span></button></span></div>
+    <div class="last-hint"></div>
     ${it.stretch ? "" : `<div class="goalhint">✓ Obergrenze in allen Sätzen erreicht – Zeit für die nächste Stufe?</div>`}
     <textarea class="exnote" data-ex="${escapeAttr(it.uebung)}" rows="2" placeholder="Notiz zu dieser Übung – wird beim nächsten Mal angezeigt" hidden></textarea>
   `;
