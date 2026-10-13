@@ -660,6 +660,12 @@
   .tcount{min-width:3.2rem;font-size:12.5px;}
   .tsave{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;padding:0;font-size:16px;}
   #pageTrain .block-title{top:48px;}
+
+  /* Startseite: restlicher Platz wird gleichmäßig zwischen Kopf, Heute, Plan, Wochen und Symbolen verteilt */
+  #pageStart.on{display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:calc(100vh - 64px - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - 64px - env(safe-area-inset-bottom,0px));padding-bottom:0;}
+  #pageStart.on::after{content:"";height:0;}
+  #pageStart.on > *{margin-top:0!important;margin-bottom:0!important;}
+  #pageStart #dayPanel[hidden]{display:none;}
 </style>
 </head>
 <body>
