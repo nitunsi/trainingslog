@@ -627,6 +627,31 @@
   .exrow.stretch .exname{font-style:normal;font-weight:600;font-size:calc(14px*var(--fs));color:var(--text-muted);}
   .exrow.stretch .exziel{font-size:calc(12.5px*var(--fs));}
   .exrow.stretch .setboxes input{font-size:calc(13px*var(--fs));font-weight:400;font-family:'Inter',sans-serif;padding:9px 10px;}
+
+  /* ===== Alte Sessions: Ansicht (nur lesen) ===== */
+  .sv-top{padding:10px 16px 0;}
+  .sv-top button{background:none;border:0;padding:6px 0;min-height:36px;color:var(--accent);font-weight:600;font-size:14px;font-family:'Inter',sans-serif;}
+  .sv-head{padding:4px 16px 8px;text-align:center;}
+  .sv-head h1{font-size:calc(26px*var(--fs));line-height:1.15;margin:0;}
+  .sv-meta{margin-top:4px;font-size:13px;color:var(--text-muted);}
+  .sv-block{margin:0 16px 20px;}
+  .sv-row{padding:10px 0;border-top:1px solid var(--hair);display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:baseline;}
+  .sv-name b{display:block;font-size:calc(14.5px*var(--fs));font-weight:600;line-height:1.3;}
+  .sv-name span{display:block;margin-top:1px;font-size:12px;color:var(--text-muted);}
+  .sv-val{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;font-size:calc(15px*var(--fs));text-align:right;white-space:nowrap;}
+  .sv-val.long{grid-column:1/-1;text-align:left;white-space:normal;font-size:calc(14px*var(--fs));}
+  .sv-sub{grid-column:1/-1;font-size:12.5px;color:var(--text-muted);line-height:1.4;}
+  .sv-sub b{color:var(--amber);}
+  .sv-note{padding:6px 0;font-size:14px;line-height:1.45;white-space:pre-wrap;}
+  .sv-foot{padding:6px 16px 0;text-align:center;}
+  .sv-foot button{background:none;border:0;color:var(--text-muted);font-size:13px;font-weight:600;text-decoration:underline;padding:12px;font-family:'Inter',sans-serif;}
+  /* Eine alte Session wird bearbeitet: nichts abdunkeln, keine Stufen-Hinweise */
+  body.p-old .exrow.done{opacity:1;}
+  body.p-old .exrow .goalhint{display:none!important;}
+
+  .recent-row .rline{display:block;width:100%;text-align:left;background:none;border:0;padding:3px 0;color:inherit;font:inherit;line-height:1.45;}
+  .recent-row .rline b{font-weight:700;}
+  .recent-row .rline .ic{color:var(--accent);}
 </style>
 </head>
 <body>
@@ -716,7 +741,7 @@
     <div class="recentbox" id="steigList"></div>
   </div>
   <div class="block">
-    <div class="block-title">Verlauf · zum Ändern antippen</div>
+    <div class="block-title">Verlauf</div>
     <div class="recentbox" id="entriesRecent"></div>
   </div>
 </main>
@@ -749,6 +774,10 @@
   <div id="sessionsListHolder" style="display:none;margin-top:10px;"></div>
 </div>
   </div>
+</main>
+<main class="page" id="pageSession">
+  <div class="sv-top"><button id="sessBack">‹ Zurück</button></div>
+  <div id="sessionView"></div>
 </main>
 
 <!-- ===== Untere Leiste ===== -->
@@ -1290,7 +1319,7 @@ document.querySelectorAll("#fsSeg button").forEach(b => b.addEventListener("clic
 setFs(currentFs());
 
 // ---------- Seiten und untere Leiste: Start · Aufwärmen · Training · Einträge · Mehr ----------
-const PAGES = ["start", "warmup", "train", "entries", "more"];
+const PAGES = ["start", "warmup", "train", "entries", "more", "session"];
 let currentPage = "start";
 const pageScroll = {};   // gemerkte Scroll-Position je Seite (zurück zum Training = gleiche Stelle)
 const pageEl = name => document.getElementById("page" + name[0].toUpperCase() + name.slice(1));
@@ -1303,13 +1332,13 @@ function showPage(name, opts){
   currentPage = name;
   PAGES.forEach(pg => pageEl(pg).classList.toggle("on", pg === name));
   document.body.classList.toggle("p-train", name === "train");
-  document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("a", b.dataset.page === name));
+  document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("a", b.dataset.page === name || (name === "session" && b.dataset.page === "entries")));
   window.scrollTo(0, opts.top ? 0 : (pageScroll[name] || 0));
   if(!opts.noHistory){ try{ history.pushState({ page: name }, ""); }catch(e){} }
   if(name === "warmup") fitWarmup();
   if((name === "start" || name === "entries") && typeof refreshSteigern === "function") refreshSteigern();
   if(name === "entries" && typeof renderEntriesRecent === "function"){
-    if(prevPage !== "entries") entriesShown = 10;
+    if(prevPage !== "entries" && prevPage !== "session") entriesShown = 10;
     renderEntriesRecent();
   }
 }
@@ -2387,9 +2416,15 @@ document.getElementById("saveBtn").addEventListener("click", async ()=>{
 })();
 document.getElementById("historySelect").addEventListener("change", (e)=>{
   if(e.target.value){
-    document.getElementById("dateInput").value = e.target.value;
-    loadSessionInto(e.target.value);
-    updateDayCard();
+    const d = e.target.value;
+    e.target.value = "";
+    if(d === todayStr()){
+      document.getElementById("dateInput").value = d;
+      loadSessionInto(d);
+      updateDayCard();
+    } else {
+      openSessionView(currentDay, d);   // ältere Sessions: erst nur ansehen
+    }
   }
 });
 document.getElementById("dateInput").value = todayStr();
@@ -2497,6 +2532,7 @@ async function renderSessionsList(){
             <div style="font-size:11.5px;color:var(--text-muted);">${et ? title + " · " : ""}${sub}</div>
           </div>
           <div style="display:flex;gap:6px;">
+            ${DAYS[row.day_key] ? `<button class="viewSessBtn" data-day="${row.day_key}" data-date="${row.session_date}" style="background:var(--accent);border:1px solid var(--accent);color:var(--on-accent);border-radius:7px;padding:7px 10px;font-size:11.5px;font-weight:600;">Ansehen</button>` : ""}
             <button class="editSessBtn" data-day="${row.day_key}" data-date="${row.session_date}" style="background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:7px;padding:7px 10px;font-size:11.5px;font-weight:600;">Bearbeiten</button>
             <button class="delSessBtn" data-day="${row.day_key}" data-date="${row.session_date}" style="background:transparent;border:1px solid var(--danger);color:var(--danger);border-radius:7px;padding:7px 10px;font-size:11.5px;font-weight:600;">Löschen</button>
           </div>
@@ -2504,6 +2540,9 @@ async function renderSessionsList(){
     }).join("");
     holder.querySelectorAll(".delSessBtn").forEach(btn=>{
       btn.onclick = ()=> deleteSession(btn.getAttribute("data-day"), btn.getAttribute("data-date"));
+    });
+    holder.querySelectorAll(".viewSessBtn").forEach(btn=>{
+      btn.onclick = ()=> openSessionView(btn.getAttribute("data-day"), btn.getAttribute("data-date"));
     });
     holder.querySelectorAll(".editSessBtn").forEach(btn=>{
       btn.onclick = ()=> editSession(btn.getAttribute("data-day"), btn.getAttribute("data-date"));
@@ -2607,6 +2646,7 @@ async function fetchDayEntries(date){
 let dayCardToken = 0;
 async function updateDayCard(){
   const date = document.getElementById("dateInput").value || todayStr();
+  document.body.classList.toggle("p-old", date !== todayStr());
   document.getElementById("dayCardTitle").textContent = DAYS[currentDay].title;
   const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
   const metaHtml = date === todayStr()
@@ -2873,9 +2913,17 @@ let entriesShown = 10;
 const ENTRIES_STEP = 10;
 async function renderEntriesRecent(){
   await renderRecentInto(document.getElementById("entriesRecent"), date => openDaySheet(null, date), {
+    withTraining: true,
     maxDates: entriesShown,
     onMore: ()=>{ entriesShown += ENTRIES_STEP; renderEntriesRecent(); },
   });
+}
+// Anzahl eingetragener Sätze einer Trainingseinheit (Dehnungsfelder zählen nicht)
+function trainingSetCount(dayKey, data){
+  const stretch = new Set();
+  (DAYS[dayKey] ? DAYS[dayKey].blocks : []).forEach(b => b.items.forEach(i => { if(i.stretch) namesFor(i.uebung).forEach(n => stretch.add(n)); }));
+  return Object.keys(data || {}).filter(k => k[0] !== "_" && Array.isArray(data[k]) && !stretch.has(k))
+    .reduce((a, k) => a + data[k].filter(v => String(v == null ? "" : v).trim() !== "").length, 0);
 }
 async function renderRecentInto(holder, onPick, opts){
   opts = opts || {};
@@ -2885,9 +2933,9 @@ async function renderRecentInto(holder, onPick, opts){
       .from("training_sessions")
       .select("day_key, session_date, data")
       .eq("person", PERSON)
-      .in("day_key", ENTRY_KEYS)
+      .in("day_key", opts.withTraining ? [...ENTRY_KEYS, ...Object.keys(DAYS)] : ENTRY_KEYS)
       .order("session_date", { ascending: false })
-      .limit(500);
+      .limit(opts.withTraining ? 1500 : 500);
     if(error) throw error;
     if(!data || data.length === 0){ holder.innerHTML = `<div style="font-size:12px;color:var(--text-muted);padding:6px 2px;">Noch keine Einträge.</div>`; return; }
     // Körperwerte: Veränderung zum vorherigen Eintrag
@@ -2902,8 +2950,11 @@ async function renderRecentInto(holder, onPick, opts){
     const byDate = new Map();
     data.forEach(r => { if(!byDate.has(r.session_date)) byDate.set(r.session_date, []); byDate.get(r.session_date).push(r); });
     const allDates = [...byDate.entries()];
-    holder.innerHTML = allDates.slice(0, maxDates).map(([date, rows])=>{
+    holder.innerHTML = allDates.slice(0, maxDates).map(([date, rows0])=>{
+      // Trainingseinheiten zuerst, dann Lauf/Schwimmen/…
+      const rows = opts.withTraining ? rows0.slice().sort((a, b) => (DAYS[b.day_key] ? 1 : 0) - (DAYS[a.day_key] ? 1 : 0)) : rows0;
       const lines = rows.map(r=>{
+        if(DAYS[r.day_key]) return `${ICON.training} <b>${escapeHtml(DAYS[r.day_key].title)}</b> · ${trainingSetCount(r.day_key, r.data)} Sätze`;
         const t = ENTRY_TYPES[typeOfKey(r.day_key)];
         if(r.day_key === "koerperwerte"){
           const d = r.data || {}, parts = [];
@@ -2915,11 +2966,15 @@ async function renderRecentInto(holder, onPick, opts){
         return `${t.icon} ${summarizeEntry(r.day_key, r.data)}`;
       });
       const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday:"short" });
+      if(opts.withTraining){
+        return `<div class="recent-row"><span class="rd">${wd} ${fmtShort(date)}${date.slice(0,4) === String(new Date().getFullYear()) ? "" : date.slice(2,4)}</span><span class="rs">${rows.map((r, i) => `<button class="rline" data-day="${r.day_key}" data-date="${date}">${lines[i]}</button>`).join("")}</span></div>`;
+      }
       return `<button class="recent-row${date === sheetDate ? " cur" : ""}" data-date="${date}"><span class="rd">${wd} ${fmtShort(date)}${date.slice(0,4) === String(new Date().getFullYear()) ? "" : date.slice(2,4)}</span><span class="rs">${lines.join("<br>")}</span></button>`;
     }).join("") + (opts.onMore ? (allDates.length > maxDates
       ? `<button class="morebtn" id="entriesMoreBtn">Verlauf · ${Math.min(ENTRIES_STEP, allDates.length - maxDates)} weitere laden</button>`
       : (allDates.length > ENTRIES_STEP ? `<div class="moreend">Das waren alle Einträge.</div>` : "")) : "");
-    holder.querySelectorAll(".recent-row").forEach(btn => btn.onclick = ()=> onPick(btn.dataset.date));
+    holder.querySelectorAll("button.recent-row").forEach(btn => btn.onclick = ()=> onPick(btn.dataset.date));
+    holder.querySelectorAll(".rline").forEach(btn => btn.onclick = ()=> DAYS[btn.dataset.day] ? openSessionView(btn.dataset.day, btn.dataset.date) : onPick(btn.dataset.date));
     const moreBtn = holder.querySelector(".morebtn");
     if(moreBtn && opts.onMore) moreBtn.onclick = opts.onMore;
   }catch(e){
@@ -3041,6 +3096,72 @@ async function renderWeeklyGoals(){
     holder.innerHTML = "";
   }
 }
+
+// ---------- Alte Sessions ansehen (nur lesen: genau das, was damals eingetragen wurde) ----------
+let sessReturn = "entries";
+async function openSessionView(dayKey, date){
+  if(currentPage !== "session") sessReturn = currentPage;
+  const host = document.getElementById("sessionView");
+  host.innerHTML = `<p class="plhint">Lade …</p>`;
+  showPage("session", { top: true });
+  try{
+    const { data, error } = await sb.from("training_sessions").select("data")
+      .eq("person", PERSON).eq("day_key", dayKey).eq("session_date", date).maybeSingle();
+    if(error) throw error;
+    renderSessionView(dayKey, date, data && data.data);
+  }catch(e){
+    console.error("openSessionView", e);
+    host.innerHTML = `<p class="plhint">Fehler beim Laden: ${escapeHtml(e && e.message ? e.message : "unbekannt")}</p>`;
+  }
+}
+function renderSessionView(dayKey, date, sd){
+  const host = document.getElementById("sessionView");
+  if(!sd){ host.innerHTML = `<p class="plhint">Für dieses Datum gibt es keine Einträge.</p>`; return; }
+  const day = DAYS[dayKey];
+  const wd = new Date(date + "T12:00:00").toLocaleDateString("de-DE", { weekday: "long" });
+  const longDate = date.slice(8) + "." + date.slice(5, 7) + "." + date.slice(0, 4);
+  const exn = sd["_exnotes"] || {}, sg = sd["_steigern"] || {};
+  const used = new Set();
+  let sets = 0;
+  const vals = arr => {
+    const a = (Array.isArray(arr) ? arr : []).map(v => String(v == null ? "" : v).trim());
+    return a.some(Boolean) ? a : null;
+  };
+  const line = (name, key, stretch) => {
+    const a = vals(sd[key]); if(!a) return "";
+    used.add(key);
+    if(!stretch) sets += a.filter(Boolean).length;
+    const { base, tempo } = splitExName(name);
+    const note = exn[key] || exn[name];
+    const flag = sg[key] || sg[name];
+    return `<div class="sv-row"><div class="sv-name"><b>${escapeHtml(base)}</b>${tempo ? `<span>${escapeHtml(tempo)}</span>` : ""}</div>
+      <div class="sv-val${(stretch ? (a[0] || "").length : a.join(" · ").length) > 22 ? " long" : ""}">${stretch ? escapeHtml(a[0] || "–") : a.map(v => escapeHtml(v || "–")).join(" · ")}</div>
+      ${flag && flag.on ? `<div class="sv-sub"><b>↑ Steigern</b>${flag.note ? " · " + escapeHtml(flag.note) : ""}</div>` : ""}
+      ${note ? `<div class="sv-sub">${escapeHtml(note)}</div>` : ""}</div>`;
+  };
+  const blocks = [];
+  (day ? day.blocks : []).forEach(b => {
+    const rows = b.items.map(it => {
+      const key = namesFor(it.uebung).find(n => sd[n] !== undefined);
+      return key ? line(it.uebung, key, it.stretch) : "";
+    }).join("");
+    if(rows) blocks.push({ name: b.name, rows });
+  });
+  const rest = Object.keys(sd).filter(k => k[0] !== "_" && Array.isArray(sd[k]) && !used.has(k))
+    .map(k => line(k, k, false)).join("");
+  if(rest) blocks.push({ name: "Weitere Übungen", rows: rest });
+  host.innerHTML = `
+    <div class="sv-head"><h1>${escapeHtml(day ? day.title : dayKey)}</h1>
+      <div class="sv-meta">${escapeHtml(wd)}, ${longDate}${sets ? " · " + sets + " Sätze" : ""}</div></div>
+    ${blocks.map(b => `<div class="sv-block"><div class="block-title">${escapeHtml(b.name || "")}</div>${b.rows}</div>`).join("")}
+    ${sd["_notes"] ? `<div class="sv-block"><div class="block-title">Notizen zur Session</div><div class="sv-note">${escapeHtml(sd["_notes"])}</div></div>` : ""}
+    <div class="sv-foot"><button id="sessEdit" data-day="${escapeAttr(dayKey)}" data-date="${escapeAttr(date)}">Bearbeiten</button></div>`;
+  document.getElementById("sessEdit").onclick = ev => {
+    const b = ev.currentTarget;
+    if(confirm("Die Session vom " + longDate + " bearbeiten? Speichern überschreibt dann diesen Termin.")) editSession(b.dataset.day, b.dataset.date);
+  };
+}
+document.getElementById("sessBack").addEventListener("click", () => showPage(sessReturn && sessReturn !== "session" ? sessReturn : "entries"));
 
 async function bootstrap(){
   // Zuerst liegengebliebene Eingaben senden (Zeiger stimmt danach); ohne Netz bleiben sie gesichert
