@@ -558,6 +558,37 @@
   #pageStart .startbtns{margin-top:10px;}
   #pageStart .plancard{margin-top:12px;}
   #pageStart .wkcard{margin-top:16px!important;}
+
+  /* Kompakt für kleine Handys (z. B. 360 x 740): alles ohne Scrollen */
+  #pageStart #weeklyHistBtn{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;display:inline-flex;align-items:center;gap:6px;min-height:30px;}
+  #pageStart #weeklyHistBtn{color:var(--text)!important;font-weight:700;padding:0!important;}
+  #pageStart .wkrow.cur{padding:0 0 2px;}
+  #pageStart #weeklyHistBtn i{font-style:normal;font-size:11px;color:var(--text-muted);}
+  #pageStart .planring svg{width:min(100px,13vh);height:min(100px,13vh);}
+  #pageStart .planring{margin-top:10px;}
+  #pageStart .ring-l1{margin-top:6px;font-weight:600;}
+  #pageStart .daycard-title{font-size:calc(30px*var(--fs));}
+  #pageStart .daycard-focus{margin-top:5px;}
+  #pageStart .daycard-last{margin-top:2px;}
+  #pageStart .steiglink{margin-top:8px;min-height:32px;}
+  #pageStart .startbtns .bigbtn.primary{min-height:54px;}
+  #pageStart .startbtns .bigbtn:not(.primary),#pageStart .startbtns .daycard-change{min-height:40px;}
+  #pageStart .plancard{margin-top:6px;}
+  #pageStart .slot{min-height:36px;}
+  #pageStart .wkcard{margin-top:8px!important;}
+  #pageStart .wkrow{padding:4px 0;}
+  #pageStart .quickcard{margin-top:0;}
+  #pageStart .quickrow button{min-height:48px;}
+
+  /* Verlauf und Notiz: eigene Zeile unter den Feldern, größer und beschriftet (Tippfläche mind. 44 px) */
+  .exrow .exfoot{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;margin-top:2px;}
+  .exrow .exfoot .last-hint{flex:1 1 230px;min-width:0;margin-top:0;}
+  .exrow .exacts{margin:0;margin-left:auto;gap:0;}
+  .exrow .exacts button{width:auto;height:42px;padding:0 9px;gap:5px;font-size:12.5px;font-weight:600;font-family:'Inter',sans-serif;opacity:1;}
+  .exrow .exacts button .ic{width:18px;height:18px;}
+  .exrow .exacts .noteBtn{opacity:.8;}
+  .exrow .exacts .noteBtn.has{opacity:1;color:var(--accent);}
+  .exrow .exacts .noteBtn span:empty{display:none;}
 </style>
 </head>
 <body>
@@ -1127,7 +1158,7 @@ function renderPlanCard(w, idx){
   if(ring){
     const R = 52, C = 2 * Math.PI * R, frac = doneCnt / 4;
     ring.innerHTML = `<svg viewBox="0 0 130 130" width="124" height="124" aria-hidden="true"><circle cx="65" cy="65" r="${R}" fill="none" stroke="var(--line)" stroke-width="11"/><circle cx="65" cy="65" r="${R}" fill="none" stroke="var(--accent)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${(C * frac).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 65 65)"/><text x="65" y="65" text-anchor="middle" dominant-baseline="central" font-family="Space Grotesk,sans-serif" font-size="40" font-weight="700" fill="var(--text)">${doneCnt}</text></svg>
-      <div class="ring-l1">von 4 Einheiten</div><div class="ring-l2">Woche ${w + 1} von ${WEEK_PLAN.length}${extra ? " · " + escapeHtml(extra.replace(/[()]/g, "")) : ""}</div>`;
+      <div class="ring-l1">von 4 Einheiten · Woche ${w + 1} von ${WEEK_PLAN.length}</div>`;
   }
   el.innerHTML = `<div class="plan-head"><span class="plan-title">Plan · Woche ${w + 1} von ${WEEK_PLAN.length}${extra ? " " + escapeHtml(extra) : ""}</span><span class="plan-sub">${doneCnt} von 4 erledigt</span></div>
     <div class="slots">${wk.tage.map((key, i)=>{
@@ -1367,13 +1398,13 @@ function renderExRow(it){
   const { base, tempo } = it.stretch ? { base: it.uebung, tempo: null } : splitExName(it.uebung);
   const zielLine = it.stretch ? it.ziel : it.ziel + (it.saetze!=="-" ? " · "+it.saetze+" Sätze" : "");
   row.innerHTML = `
-    <div class="exname"><span class="exn">${base}<span class="okmark" aria-label="fertig">✓</span></span><span class="exacts"><button class="histBtn" type="button" title="Verlauf" aria-label="Verlauf">${ICON.clock}</button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}</button></span></div>
+    <div class="exname"><span class="exn">${base}<span class="okmark" aria-label="fertig">✓</span></span></div>
     ${tempo ? `<div class="extempo">${tempo}</div>` : ""}
     <div class="exziel">${zielLine}</div>
     <div class="steig" hidden></div>
     <div class="prevnote"></div>
     <div class="setboxes">${boxes}</div>
-    <div class="last-hint"></div>
+    <div class="exfoot"><div class="last-hint"></div><span class="exacts"><button class="histBtn" type="button" title="Verlauf" aria-label="Verlauf">${ICON.clock}<span>Verlauf</span></button><button class="noteBtn" type="button" title="Notiz zur Übung" aria-label="Notiz zur Übung">${ICON.note}<span>Notiz</span></button></span></div>
     ${it.stretch ? "" : `<div class="goalhint">✓ Obergrenze in allen Sätzen erreicht – Zeit für die nächste Stufe?</div>`}
     <textarea class="exnote" data-ex="${escapeAttr(it.uebung)}" rows="2" placeholder="Notiz zu dieser Übung – wird beim nächsten Mal angezeigt" hidden></textarea>
   `;
@@ -2929,11 +2960,10 @@ async function renderWeeklyGoals(){
     const recent = weeks.slice(1,3).map((w,i)=> rowHtml(w, i+1)).join("");
     const older = weeks.slice(3).map((w,i)=> rowHtml(w, i+3)).join("");
 
-    const curRow = `<div class="wkrow cur"><span class="wkl">Diese Woche</span><span class="wkc">${counts(weeks[0])}</span></div>`;
+    const curRow = `<div class="wkrow cur"><span class="wkl"><button id="weeklyHistBtn" aria-expanded="${weeklyOpen}" aria-label="Verlauf der Wochen">Diese Woche <i>${weeklyOpen ? "▴" : "▾"}</i></button></span><span class="wkc">${counts(weeks[0])}</span></div>`;
     holder.innerHTML = `<div class="wkcard">
       ${curRow}
       ${recent}
-      <div class="wkmore"><button id="weeklyHistBtn" aria-expanded="${weeklyOpen}">${ICON.clock} Verlauf ${weeklyOpen ? "▴" : "▾"}</button></div>
       <div id="weeklyHistoryHolder" style="display:${weeklyOpen ? "block" : "none"};">
         ${older}
         ${hasMore ? `<button id="weeklyMoreBtn" style="width:100%;margin-top:6px;background:none;border:1px dashed var(--line);color:var(--text-muted);border-radius:10px;min-height:44px;padding:10px;font-size:12.5px;font-weight:600;font-family:'Inter',sans-serif;">Mehr laden (${WEEKLY_STEP} weitere Wochen)</button>`
@@ -2946,7 +2976,7 @@ async function renderWeeklyGoals(){
       document.getElementById("weeklyHistoryHolder").style.display = weeklyOpen ? "block" : "none";
       const btn = document.getElementById("weeklyHistBtn");
       btn.setAttribute("aria-expanded", String(weeklyOpen));
-      btn.innerHTML = ICON.clock + " Verlauf " + (weeklyOpen ? "▴" : "▾");
+      btn.innerHTML = "Diese Woche <i>" + (weeklyOpen ? "▴" : "▾") + "</i>";
     });
     const more = document.getElementById("weeklyMoreBtn");
     if(more) more.addEventListener("click", async ()=>{
