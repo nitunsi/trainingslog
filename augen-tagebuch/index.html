@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#3A6B65">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Augen">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Augen-Tagebuch</title>
+<style>
+  :root{
+    --bg:#FAF9F6;
+    --surface:#FFFFFF;
+    --ink:#2B2A28;
+    --ink-muted:#726F65;
+    --accent:#3A6B65;
+    --accent-soft:#E8F0EE;
+    --accent-soft-border:#CFDEDB;
+    --alert:#B5533F;
+    --alert-soft:#F5E7E3;
+    --border:#E4E0D6;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:max(28px,env(safe-area-inset-top)) 20px max(60px,env(safe-area-inset-bottom));}
+  header.top{
+    display:flex;align-items:baseline;gap:14px;margin-bottom:6px;
+    border-bottom:1px solid var(--border);padding-bottom:16px;
+  }
+  .eye-mark{width:34px;height:34px;flex:none;}
+  h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-weight:600;font-size:26px;margin:0;letter-spacing:0.2px;
+  }
+  .sub{color:var(--ink-muted);font-size:13.5px;margin-top:2px;}
+  .sync-bar{
+    display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-muted);
+    margin:10px 0 22px;
+  }
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:#9aa;flex:none;}
+  .sync-dot.ok{background:#4f8f66;}
+  .sync-dot.err{background:var(--alert);}
+  .sync-dot.busy{background:#c9a227;}
+  .refresh-btn{
+    margin-left:auto;border:1px solid var(--border);background:#fff;border-radius:6px;
+    padding:4px 10px;font-size:12px;cursor:pointer;color:var(--ink-muted);
+  }
+  .refresh-btn:hover{background:var(--accent-soft);}
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start;}
+  @media (max-width:820px){.grid{grid-template-columns:1fr;}}
+  .card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:20px;
+  }
+  .card h2{
+    font-family:Georgia,serif;font-size:16px;margin:0 0 14px;
+    font-weight:600;
+  }
+  label{display:block;font-size:12.5px;color:var(--ink-muted);margin:14px 0 5px;font-weight:600;letter-spacing:0.2px;}
+  label.first{margin-top:0;}
+  input[type=text], input[type=date], textarea, select{
+    width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:7px;
+    font-size:14px;font-family:inherit;color:var(--ink);background:#fff;
+  }
+  textarea{resize:vertical;min-height:60px;}
+  input:focus, textarea:focus, select:focus{
+    outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent);
+  }
+  .req::after{content:" *";color:var(--alert);}
+  .cats{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+  .cat-item{
+    display:flex;align-items:center;gap:9px;padding:8px 10px;
+    border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:13.5px;
+    transition:background .12s, border-color .12s;
+  }
+  .cat-item:hover{background:var(--accent-soft);}
+  .cat-item input{width:auto;margin:0;accent-color:var(--accent);}
+  .cat-item.checked{background:var(--accent-soft);border-color:var(--accent-soft-border);}
+  .allergy-row{display:flex;gap:8px;margin-top:6px;}
+  .allergy-row button{flex:1;}
+  .pill-btn{
+    padding:8px 10px;border-radius:7px;border:1px solid var(--border);background:#fff;
+    font-size:13px;cursor:pointer;color:var(--ink-muted);
+  }
+  .pill-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .primary-btn{
+    width:100%;margin-top:18px;padding:11px;border:none;border-radius:7px;
+    background:var(--accent);color:#fff;font-size:14.5px;font-weight:600;cursor:pointer;
+  }
+  .primary-btn:hover{background:#2f5852;}
+  .primary-btn:disabled{opacity:0.6;cursor:default;}
+  .secondary-btn{
+    padding:9px 14px;border:1px solid var(--border);border-radius:7px;background:#fff;
+    color:var(--ink);font-size:13.5px;cursor:pointer;
+  }
+  .secondary-btn:hover{background:var(--accent-soft);}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
+  .count{color:var(--ink-muted);font-size:13px;}
+  .timeline{display:flex;flex-direction:column;}
+  .entry{
+    display:grid;grid-template-columns:26px 1fr;gap:12px;padding-bottom:20px;position:relative;
+  }
+  .entry:not(:last-child)::before{
+    content:"";position:absolute;left:12px;top:26px;bottom:0;width:1px;background:var(--border);
+  }
+  .dot-col{display:flex;justify-content:center;}
+  .dot{
+    width:12px;height:12px;border-radius:50%;background:var(--accent);margin-top:6px;flex:none;
+  }
+  .dot.alert{background:var(--alert);}
+  .entry-body{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:13px 15px;
+  }
+  .entry-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .entry-date{font-weight:700;font-size:14.5px;}
+  .entry-meta{font-size:12.5px;color:var(--ink-muted);}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
+  .tag{
+    font-size:12px;padding:3px 9px;border-radius:100px;background:var(--accent-soft);
+    color:var(--accent);border:1px solid var(--accent-soft-border);
+  }
+  .tag.alert{background:var(--alert-soft);color:var(--alert);border-color:#e6c9c1;}
+  .entry-note{margin-top:9px;font-size:13.5px;color:var(--ink);line-height:1.5;}
+  .entry-actions{margin-top:10px;display:flex;gap:8px;}
+  .entry-actions button{
+    font-size:12px;padding:4px 9px;border-radius:6px;border:1px solid var(--border);
+    background:#fff;color:var(--ink-muted);cursor:pointer;
+  }
+  .entry-actions button:hover{color:var(--alert);border-color:var(--alert);}
+  .empty{
+    text-align:center;color:var(--ink-muted);padding:50px 10px;font-size:14px;
+    border:1px dashed var(--border);border-radius:var(--radius);
+  }
+  .allergy-badge{
+    font-size:11.5px;padding:2px 8px;border-radius:100px;background:#fff3e0;color:#9a6b17;
+    border:1px solid #f0dcb0;
+  }
+  dialog{
+    border:none;border-radius:12px;padding:0;max-width:640px;width:92vw;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+  }
+  dialog::backdrop{background:rgba(30,28,24,0.45);}
+  .modal-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px 20px;border-bottom:1px solid var(--border);
+  }
+  .modal-head h2{margin:0;font-family:Georgia,serif;font-size:17px;}
+  .modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink-muted);}
+  .modal-body{padding:18px 20px;max-height:60vh;overflow:auto;}
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+  .range-row{display:flex;gap:10px;}
+  .range-row > div{flex:1;}
+  #reportOutput{
+    font-size:13px;line-height:1.6;white-space:pre-wrap;font-family:Georgia,serif;
+    background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;
+  }
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{position:absolute;top:0;left:0;width:100%;padding:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <svg class="eye-mark" viewBox="0 0 40 40" fill="none">
+      <path d="M2 20C2 20 10 8 20 8C30 8 38 20 38 20C38 20 30 32 20 32C10 32 2 20 2 20Z" stroke="#3A6B65" stroke-width="2.2"/>
+      <circle cx="20" cy="20" r="6.5" fill="#3A6B65"/>
+    </svg>
+    <div>
+      <h1>Augen-Tagebuch</h1>
+      <div class="sub">Tägliche Notizen für den Arztbesuch — synchronisiert über alle Geräte</div>
+    </div>
+  </header>
+  <div class="sync-bar">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncText">Verbinde…</span>
+    <button class="refresh-btn" id="refreshBtn">↻ Aktualisieren</button>
+  </div>
+
+  <div class="grid">
+    <!-- FORM -->
+    <div class="card">
+      <h2 id="formTitle">Neuer Eintrag</h2>
+
+      <label class="first req">Datum</label>
+      <input type="date" id="fDate">
+
+      <label>Ort</label>
+      <input type="text" id="fOrt" placeholder="z. B. zuhause, Kita, draußen">
+
+      <label>Allergie</label>
+      <div class="allergy-row">
+        <button type="button" class="pill-btn" data-allergy="unbekannt">unbekannt</button>
+        <button type="button" class="pill-btn" data-allergy="ja">ja</button>
+        <button type="button" class="pill-btn" data-allergy="nein">nein</button>
+      </div>
+
+      <label>Kategorien</label>
+      <div class="cats" id="catList"></div>
+
+      <label>Bemerkung</label>
+      <textarea id="fNote" placeholder="Weitere Beobachtungen…"></textarea>
+
+      <button class="primary-btn" id="saveBtn">Eintrag speichern</button>
+      <button class="secondary-btn" id="cancelEdit" style="width:100%;margin-top:8px;display:none;">Bearbeitung abbrechen</button>
+    </div>
+
+    <!-- TIMELINE -->
+    <div>
+      <div class="toolbar">
+        <div class="count" id="entryCount">Lade Einträge…</div>
+        <div style="display:flex;gap:8px;">
+          <button class="secondary-btn" id="reportBtn">📄 Bericht erstellen</button>
+        </div>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<dialog id="reportDialog">
+  <div class="modal-head">
+    <h2>Bericht für den Arzt</h2>
+    <button class="modal-close" id="closeReport">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="range-row">
+      <div>
+        <label class="first">Von</label>
+        <input type="date" id="rFrom">
+      </div>
+      <div>
+        <label class="first">Bis</label>
+        <input type="date" id="rTo">
+      </div>
+    </div>
+    <div id="printArea">
+      <div id="reportOutput" style="margin-top:14px;">Zeitraum wählen und "Bericht anzeigen" klicken.</div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="secondary-btn" id="buildReport">Bericht anzeigen</button>
+    <button class="secondary-btn" id="printReport">Drucken</button>
+  </div>
+</dialog>
+
+<script>
+const CATEGORIES = [
+  "Augenlider geschwollen",
+  "Augen trüb",
+  "Augen stark rot",
+  "Reibt extrem stark",
+  "Nase läuft",
+  "Brennende Augen"
+];
+const ALERT_CATS = new Set(["Augen stark rot","Reibt extrem stark","Augen trüb"]);
+
+// --- Supabase REST config ---
+const SUPABASE_URL = "https://dnziimlhlvpmizrqkxte.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuemlpbWxobHZwbWl6cnFreHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MDA2MzgsImV4cCI6MjA5OTM3NjYzOH0.r6g0_IsU8tDxtKVgFjKAnLkiE-Md0tq2KVKTbYwv6qI";
+const REST_URL = SUPABASE_URL + "/rest/v1/eye_log";
+const REST_HEADERS = {
+  "apikey": SUPABASE_ANON_KEY,
+  "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+  "Content-Type": "application/json"
+};
+
+let entries = [];
+let editingId = null;
+let selectedAllergy = "unbekannt";
+let autoRefreshTimer = null;
+
+const $ = sel => document.querySelector(sel);
+
+function todayISO(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function setSync(state, text){
+  const dot = $("#syncDot");
+  dot.className = "sync-dot" + (state ? " "+state : "");
+  $("#syncText").textContent = text;
+}
+
+function renderCatList(){
+  const wrap = $("#catList");
+  wrap.innerHTML = "";
+  CATEGORIES.forEach(cat=>{
+    const id = "cat_"+cat.replace(/\s+/g,'_');
+    const item = document.createElement("label");
+    item.className = "cat-item";
+    item.setAttribute("for", id);
+    item.innerHTML = `<input type="checkbox" id="${id}" value="${cat}"><span>${cat}</span>`;
+    item.querySelector("input").addEventListener("change", e=>{
+      item.classList.toggle("checked", e.target.checked);
+    });
+    wrap.appendChild(item);
+  });
+}
+
+function getSelectedCats(){
+  return Array.from(document.querySelectorAll('#catList input:checked')).map(i=>i.value);
+}
+function setSelectedCats(cats){
+  document.querySelectorAll('#catList input').forEach(i=>{
+    i.checked = cats.includes(i.value);
+    i.closest('.cat-item').classList.toggle('checked', i.checked);
+  });
+}
+
+function setAllergy(val){
+  selectedAllergy = val;
+  document.querySelectorAll('.pill-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.allergy===val);
+  });
+}
+
+document.querySelectorAll('.pill-btn').forEach(b=>{
+  b.addEventListener('click', ()=> setAllergy(b.dataset.allergy));
+});
+
+// map DB row <-> app entry
+function fromRow(r){
+  return {
+    id: r.id,
+    date: r.entry_date,
+    ort: r.ort || "",
+    allergie: r.allergie || "unbekannt",
+    kategorien: r.kategorien || [],
+    bemerkung: r.bemerkung || "",
+    createdAt: r.created_at
+  };
+}
+
+async function loadEntries(showBusy){
+  if(showBusy) setSync("busy","Lade…");
+  try{
+    const res = await fetch(`${REST_URL}?select=*&order=entry_date.desc`, {
+      headers: REST_HEADERS
+    });
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const rows = await res.json();
+    entries = rows.map(fromRow);
+    setSync("ok","Synchronisiert · "+new Date().toLocaleTimeString("de-DE",{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){
+    console.error(e);
+    setSync("err","Keine Verbindung — letzter Stand wird angezeigt");
+  }
+  renderTimeline();
+}
+
+$("#refreshBtn").addEventListener("click", ()=> loadEntries(true));
+
+function startAutoRefresh(){
+  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(()=> loadEntries(false), 20000);
+}
+
+function resetForm(){
+  editingId = null;
+  $("#fDate").value = todayISO();
+  $("#fOrt").value = "";
+  $("#fNote").value = "";
+  setSelectedCats([]);
+  setAllergy("unbekannt");
+  $("#formTitle").textContent = "Neuer Eintrag";
+  $("#cancelEdit").style.display = "none";
+  $("#saveBtn").textContent = "Eintrag speichern";
+}
+
+$("#saveBtn").addEventListener("click", async ()=>{
+  const date = $("#fDate").value;
+  if(!date){
+    alert("Bitte ein Datum angeben — das ist die einzige Pflichtangabe.");
+    return;
+  }
+  const payload = {
+    entry_date: date,
+    ort: $("#fOrt").value.trim() || null,
+    allergie: selectedAllergy,
+    kategorien: getSelectedCats(),
+    bemerkung: $("#fNote").value.trim() || null
+  };
+
+  const btn = $("#saveBtn");
+  btn.disabled = true;
+  btn.textContent = "Speichere…";
+  try{
+    let res;
+    if(editingId){
+      payload.updated_at = new Date().toISOString();
+      res = await fetch(`${REST_URL}?id=eq.${editingId}`, {
+        method: "PATCH",
+        headers: {...REST_HEADERS, "Prefer":"return=representation"},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await fetch(REST_URL, {
+        method: "POST",
+        headers: {...REST_HEADERS, "Prefer":"return=representation"},
+        body: JSON.stringify(payload)
+      });
+    }
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    await loadEntries(true);
+    resetForm();
+  }catch(e){
+    console.error(e);
+    alert("Speichern ist fehlgeschlagen. Bitte Internetverbindung prüfen und erneut versuchen.");
+  }
+  btn.disabled = false;
+  btn.textContent = editingId ? "Änderungen speichern" : "Eintrag speichern";
+});
+
+$("#cancelEdit").addEventListener("click", resetForm);
+
+function editEntry(id){
+  const e = entries.find(x=>x.id===id);
+  if(!e) return;
+  editingId = id;
+  $("#fDate").value = e.date;
+  $("#fOrt").value = e.ort || "";
+  $("#fNote").value = e.bemerkung || "";
+  setSelectedCats(e.kategorien || []);
+  setAllergy(e.allergie || "unbekannt");
+  $("#formTitle").textContent = "Eintrag bearbeiten";
+  $("#cancelEdit").style.display = "block";
+  $("#saveBtn").textContent = "Änderungen speichern";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+async function deleteEntry(id){
+  if(!confirm("Diesen Eintrag wirklich löschen?")) return;
+  try{
+    const res = await fetch(`${REST_URL}?id=eq.${id}`, {
+      method: "DELETE",
+      headers: REST_HEADERS
+    });
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    await loadEntries(true);
+  }catch(e){
+    console.error(e);
+    alert("Löschen ist fehlgeschlagen. Bitte erneut versuchen.");
+  }
+}
+
+function fmtDate(iso){
+  const [y,m,d] = iso.split("-");
+  return `${d}.${m}.${y}`;
+}
+
+function renderTimeline(){
+  const wrap = $("#timeline");
+  const sorted = [...entries].sort((a,b)=> b.date.localeCompare(a.date));
+  $("#entryCount").textContent = entries.length === 0
+    ? "Noch keine Einträge"
+    : `${entries.length} Eintrag${entries.length===1?"":"e"}`;
+
+  if(sorted.length===0){
+    wrap.innerHTML = `<div class="empty">Noch keine Einträge. Trage den ersten Tag links ein — auch rückwirkend möglich, einfach das Datum anpassen.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = sorted.map(e=>{
+    const hasAlert = e.kategorien.some(c=>ALERT_CATS.has(c));
+    const tags = e.kategorien.map(c=>
+      `<span class="tag ${ALERT_CATS.has(c)?'alert':''}">${c}</span>`
+    ).join("");
+    const metaBits = [];
+    if(e.ort) metaBits.push(e.ort);
+    let allergyBadge = "";
+    if(e.allergie === "ja") allergyBadge = `<span class="allergy-badge">Allergie: ja</span>`;
+    else if(e.allergie === "nein") allergyBadge = `<span class="allergy-badge" style="background:#eef4ee;color:#4a7a4a;border-color:#cfe3cf;">Allergie: nein</span>`;
+
+    return `
+    <div class="entry">
+      <div class="dot-col"><div class="dot ${hasAlert?'alert':''}"></div></div>
+      <div class="entry-body">
+        <div class="entry-head">
+          <div class="entry-date">${fmtDate(e.date)}</div>
+          <div class="entry-meta">${[metaBits.join(" · "), allergyBadge].filter(Boolean).join(" &nbsp; ")}</div>
+        </div>
+        ${tags ? `<div class="tags">${tags}</div>` : ""}
+        ${e.bemerkung ? `<div class="entry-note">${escapeHtml(e.bemerkung)}</div>` : ""}
+        <div class="entry-actions">
+          <button data-edit="${e.id}">Bearbeiten</button>
+          <button data-del="${e.id}">Löschen</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  wrap.querySelectorAll('[data-edit]').forEach(b=>
+    b.addEventListener('click', ()=> editEntry(b.dataset.edit))
+  );
+  wrap.querySelectorAll('[data-del]').forEach(b=>
+    b.addEventListener('click', ()=> deleteEntry(b.dataset.del))
+  );
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+// ---- Report ----
+$("#reportBtn").addEventListener("click", ()=>{
+  const dlg = $("#reportDialog");
+  const dates = entries.map(e=>e.date).sort();
+  $("#rFrom").value = dates[0] || todayISO();
+  $("#rTo").value = dates[dates.length-1] || todayISO();
+  $("#reportOutput").textContent = "Zeitraum wählen und \"Bericht anzeigen\" klicken.";
+  dlg.showModal();
+});
+$("#closeReport").addEventListener("click", ()=> $("#reportDialog").close());
+
+$("#buildReport").addEventListener("click", ()=>{
+  const from = $("#rFrom").value;
+  const to = $("#rTo").value;
+  const filtered = entries
+    .filter(e => (!from || e.date>=from) && (!to || e.date<=to))
+    .sort((a,b)=> a.date.localeCompare(b.date));
+
+  if(filtered.length===0){
+    $("#reportOutput").textContent = "Keine Einträge in diesem Zeitraum.";
+    return;
+  }
+
+  const lines = [];
+  lines.push(`AUGEN-TAGEBUCH — BERICHT`);
+  lines.push(`Zeitraum: ${fmtDate(from)} – ${fmtDate(to)}`);
+  lines.push(`Erstellt am: ${fmtDate(todayISO())}`);
+  lines.push(`Anzahl Einträge: ${filtered.length}`);
+  lines.push(`${"─".repeat(46)}`);
+  filtered.forEach(e=>{
+    lines.push("");
+    lines.push(`${fmtDate(e.date)}${e.ort ? "  ·  Ort: "+e.ort : ""}`);
+    lines.push(`Allergie: ${e.allergie}`);
+    lines.push(`Kategorien: ${e.kategorien.length ? e.kategorien.join(", ") : "—"}`);
+    if(e.bemerkung) lines.push(`Bemerkung: ${e.bemerkung}`);
+  });
+
+  const freq = {};
+  filtered.forEach(e => e.kategorien.forEach(c => freq[c] = (freq[c]||0)+1));
+  const freqEntries = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+  if(freqEntries.length){
+    lines.push("");
+    lines.push(`${"─".repeat(46)}`);
+    lines.push("Häufigkeit der Symptome im Zeitraum:");
+    freqEntries.forEach(([cat,count])=> lines.push(`  ${cat}: ${count}x`));
+  }
+
+  $("#reportOutput").textContent = lines.join("\n");
+});
+
+$("#printReport").addEventListener("click", ()=> window.print());
+
+// init
+renderCatList();
+resetForm();
+loadEntries(true);
+startAutoRefresh();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(e => console.error("sw", e)); });
+}
+</script>
+</body>
+</html>
