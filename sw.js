@@ -43,7 +43,6 @@ self.addEventListener("fetch", e => {
   if(req.method !== "GET") return;
   const url = new URL(req.url);
   if(url.origin !== self.location.origin) return;
-  if(url.pathname.startsWith("/augen-tagebuch/")) return;   // eigene PWA mit eigenem Service Worker
   if(req.mode === "navigate" || url.pathname.endsWith("/app.html") || url.pathname.endsWith("/index.html") || url.pathname.endsWith("/")){
     e.respondWith(networkFirst(req, "app.html"));
     return;
