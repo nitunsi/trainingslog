@@ -55,12 +55,6 @@ Angezeigt werden Titel, Kürzel und Untertitel aus `DAYS`; die **internen Schlü
 Frühere Bezeichnungen (L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und älteren Gesprächen vor und meinen dieselben Tage.
 
 
-## Zweite App im Repo: Augen-Tagebuch
-
-Unter `augen-tagebuch/` liegt eine eigene PWA (Augen-Tagebuch, Tabelle `eye_log`, gleiches Supabase-Projekt) mit eigenem Manifest, Service Worker (`augen-shell-v1`, Scope `/augen-tagebuch/`) und eigenen Icons. Erreichbar unter `/augen-tagebuch/`.
-
-**Wichtig:** Der Service Worker von Training (`sw.js` im Wurzelverzeichnis, Scope `/`) muss `/augen-tagebuch/` ignorieren (Zeile `if(url.pathname.startsWith("/augen-tagebuch/")) return;` im `fetch`-Handler). Sonst beantwortet er die Navigation mit `app.html` und überschreibt dessen Offline-Kopie. Beim Umbau von `sw.js` diese Zeile behalten.
-
 ## Offline und Ladezeit
 
 - **Service Worker `sw.js`**: App-Hülle, Schriften, Icons und Bibliothek liegen im Cache (`training-shell-v1`); `app.html` wird network-first geladen (3 s, sonst Cache) — Änderungen an `app.html` brauchen **keinen** Versions-Bump. Neue Dateien in `PRECACHE` eintragen; ändert sich eine Datei in `fonts/`, `vendor/` oder `icons/`, dem Dateinamen eine neue Version geben (sie werden cache-first und `immutable` ausgeliefert, siehe `vercel.json`) und `training-shell-v1` in `sw.js` hochzählen.
