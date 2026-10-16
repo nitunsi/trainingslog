@@ -955,6 +955,12 @@ const RENAMES = {
   // Für Progressions-Wechsel (neue Stufe, neues Ziel) NICHT eintragen - die sollen wie jeder
   // andere Übungswechsel eine eigene, saubere Historie bekommen.
 };
+// "Nächstes Mal steigern"-Kennzeichen, die schon umgesetzt sind (Plan inzwischen geändert, ohne dass sich der Name ändert):
+// Kennzeichen aus Sessions bis einschließlich diesem Datum werden ignoriert. Neue Kennzeichen danach zählen wieder.
+const STEIGERN_ERLEDIGT = {
+  "One Leg Front Lever": "2026-10-16",   // Ziel 20 s -> 30 s
+  "Navel Up Explosive Pull-Up": "2026-10-16",   // bleibt vorerst, Nils entscheidet später
+};
 function namesFor(exName){
   return [exName, ...(RENAMES[exName] || [])];
 }
@@ -2044,7 +2050,8 @@ async function loadLastSession(){
         if(Array.isArray(rawVal) && !isEmptyTrackedValue(rawVal)){
           const list = lastSessionsByEx[exName] || (lastSessionsByEx[exName] = []);
           const sg = row.data["_steigern"] && row.data["_steigern"][exName];
-          if(list.length < 2) list.push({ date: row.session_date, value: rawVal, flag: sg && sg.on ? sg : null });
+          const erledigt = STEIGERN_ERLEDIGT[exName] && row.session_date <= STEIGERN_ERLEDIGT[exName];   // Kennzeichen von früher: Stufe inzwischen umgestellt
+          if(list.length < 2) list.push({ date: row.session_date, value: rawVal, flag: sg && sg.on && !erledigt ? sg : null });
         }
         if(!Array.isArray(rawVal)){
           if(lastSessionValues[exName] !== undefined) return;

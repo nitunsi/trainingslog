@@ -23,6 +23,10 @@ Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umge
 | Handstand Hold (Entry Back to Wall) | … (Zehen 3s lösen) |
 | Elephant Stance, One Leg Front Lever | gleicher Name, Ziel 30 s statt 20 s |
 
+Bleibt der Name einer Übung gleich und wird nur das Ziel angehoben, das „Steigern“-Kennzeichen der Vorgänger-Einheit aber damit erledigt ist, steht die Übung in `STEIGERN_ERLEDIGT` (`app.html`, Datum = letzte Session, deren Kennzeichen ignoriert wird).
+
+**Geplante nächste Stufe, noch nicht umgestellt:** Navel Up Explosive Pull-Up (Nils bleibt vorerst dabei, 9/9 bei Ziel 5–15; Stange nur im Türrahmen, kein Muscle-up möglich). Reihenfolge der Ideen: „Navel Up Explosive Pull-Up (3s runter)“ (2 Sätze, 5–10, bis Muskelversagen, explosiv hoch, langsam ab), später gewichtet (2–4 kg Rucksack ab 10 sauberen Wdh), Falschgriff-Hangs/-Pull-ups (Handgelenke beachten), Brust zur Stange mit 1 s Pause (nur falls Platz). Erst eintragen, wenn Nils es sagt. Sein „Steigern“-Kennzeichen (15.10.) ist über `STEIGERN_ERLEDIGT` ausgeblendet.
+
 **Nicht ändern** (Nils): One Arm Push-up bleibt; Sätze und Tagesverteilung bleiben. Im Reise-Training (`travel`) wurden nur Hollow Body (4s am Ende) und Headstand 10 cm angepasst. Weitere Progressionen erst eintragen, wenn Nils es sagt.
 
 ## Kennzeichen „Nächstes Mal steigern“
