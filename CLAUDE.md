@@ -23,7 +23,7 @@ Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umge
 | Handstand Hold (Entry Back to Wall) | … (Zehen 3s lösen) |
 | Elephant Stance, One Leg Front Lever | gleicher Name, Ziel 30 s statt 20 s |
 
-**Nicht ändern** (Nils): One Arm Push-up bleibt; Sätze und Tagesverteilung bleiben. Das Reise-Training (`travel`) wurde nicht angepasst. Weitere Progressionen erst eintragen, wenn Nils es sagt.
+**Nicht ändern** (Nils): One Arm Push-up bleibt; Sätze und Tagesverteilung bleiben. Im Reise-Training (`travel`) wurden nur Hollow Body (4s am Ende) und Headstand 10 cm angepasst. Weitere Progressionen erst eintragen, wenn Nils es sagt.
 
 ## Kennzeichen „Nächstes Mal steigern“
 
