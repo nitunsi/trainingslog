@@ -6,19 +6,24 @@ Trainings-App (`app.html`, Plan in `const DAYS`), Daten in Supabase (`training_s
 
 ## Geplante Progressionen
 
-Noch **nicht** umgestellt — Nils trainiert die aktuelle Übung weiter und entscheidet selbst, wann er wechselt. Erst in `DAYS` eintragen, wenn er es sagt.
+Nils trainiert die aktuelle Übung weiter und entscheidet selbst, wann er wechselt. Neue Stufen erst in `DAYS` eintragen, wenn er es sagt.
 
-| aktuelle Übung | nächste Stufe (neue Übung, eigene Historie, kein `RENAMES`) | Stand |
-|---|---|---|
-| Tuck Planche Press-up | Tuck Planche Press-up (1s Pause oben, jede Wdh) — 3 Sätze, sammeln, Ziel 10 Wdh | Paket B, nach 1 Woche des neuen Zyklus |
-| Crow to Tuck Headstand Press (1s Pause in der Krähe) | … (2s Pause in der Krähe) — 2 Sätze, sammeln, Ziel 10 Wdh | Paket B |
-| One-Legged Advanced Tuck Front Lever Raise | … (1s Pause oben, jede Wdh) — Sätze/Ziel wie bisher | Paket C, Woche 3–4 |
-| Hip to Bar | Hip to Bar (1s Pause oben) — 2 Sätze, 5–10, bis Muskelversagen | Paket C |
-| Hollow Body Walk Out + Halten (2s am Ende) | … (4s am Ende) — 3 Sätze, sammeln, Ziel 10 Wdh | Paket C |
-| Wall Push Out + Balance (Facing Wall / Back 2 Wall) | … (2s Balance halten) — 3 Sätze, sammeln, Ziel 5–10 Versuche | Paket C |
-| Handstand Hold (Entry Back to Wall) | … (Zehen 3s lösen) — 3 Sätze, bis Ermüdung, Anzahl Versuche | Paket C |
+Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umgestellt, jeweils als neue Übung mit eigener Historie (kein `RENAMES`):
 
-Paket A ist umgestellt (16.10.2026): Headstand 10 cm von der Wand (Einarm, Planche, Handstand), Negative Archer Pull-up (3–4s Ablassen) (Einarm, Planche, HSPU), Ziel 30 s bei Elephant Stance und One Leg Front Lever. **Nicht ändern** (Nils): One Arm Push-up bleibt, Sätze und Tagesverteilung bleiben. Pakete B und C erst auf Nils' Ansage eintragen.
+| bisher | jetzt |
+|---|---|
+| Headstand an der Wand (Wandkontakt lösen) | Headstand 10 cm von der Wand (Wandkontakt lösen) |
+| Negative Archer Pull-up (5–15) | Negative Archer Pull-up (3–4s Ablassen) (5–10) |
+| Tuck Planche Press-up | Tuck Planche Press-up (1s Pause oben, jede Wdh) |
+| Crow to Tuck Headstand Press (1s Pause in der Krähe) | … (2s Pause in der Krähe) |
+| One-Legged Advanced Tuck Front Lever Raise | … (1s Pause oben, jede Wdh) |
+| Hip to Bar (5–15) | Hip to Bar (1s Pause oben) (5–10) |
+| Hollow Body Walk Out + Halten (2s am Ende) | … (4s am Ende), Ziel „sammeln, Ziel 10 Wdh“ |
+| Wall Push Out + Balance (Facing Wall / Back 2 Wall) | … (2s Balance halten) |
+| Handstand Hold (Entry Back to Wall) | … (Zehen 3s lösen) |
+| Elephant Stance, One Leg Front Lever | gleicher Name, Ziel 30 s statt 20 s |
+
+**Nicht ändern** (Nils): One Arm Push-up bleibt; Sätze und Tagesverteilung bleiben. Das Reise-Training (`travel`) wurde nicht angepasst. Weitere Progressionen erst eintragen, wenn Nils es sagt.
 
 ## Kennzeichen „Nächstes Mal steigern“
 
