@@ -958,20 +958,20 @@ const RENAMES = {
 function namesFor(exName){
   return [exName, ...(RENAMES[exName] || [])];
 }
-const KOPFSTAND = ex("Headstand an der Wand (Wandkontakt lösen)", "3", "sammeln, Ziel 10s ohne Wandkontakt");
+const KOPFSTAND = ex("Headstand 10 cm von der Wand (Wandkontakt lösen)", "3", "sammeln, Ziel 10s ohne Wandkontakt");
 
 const DAYS = {
   l2a: { label: "Einarm", title: "Einarm", sub: "Einarm-Liegestütz, Archer, Einarm-Rudern", warmup: ALLGEMEIN_WARMUP, blocks: [
     { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
     { name:"Push + Pull-ups", items:[
       ex("One Arm Push-up (links)","3","5–10, bis Muskelversagen"),
-      ex("Negative Archer Pull-up","3","5–15, bis Muskelversagen"),
+      ex("Negative Archer Pull-up (3–4s Ablassen)","3","5–10, bis Muskelversagen"),
       ex("One Arm Push-up (rechts)","3","5–10, bis Muskelversagen"),
       ex("Taube (Pigeon Pose)","-","20–30s je Seite",true),
     ]},
     { name:"Straight Arm & Core", items:[
-      ex("Elephant Stance","3","sammeln, Ziel 20s"),
-      ex("One Leg Front Lever","3","sammeln, Ziel 20s"),
+      ex("Elephant Stance","3","sammeln, Ziel 30s"),
+      ex("One Leg Front Lever","3","sammeln, Ziel 30s"),
       ex("Toes to Bar (3s runter, 1s halten, 3s hoch)","3","8, bis Muskelversagen"),
       KOPFSTAND,
       ex("Stehende Vorbeuge","-","20–30s",true),
@@ -989,7 +989,7 @@ const DAYS = {
     { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
     { name:"Push + Pull-ups", items:[
       ex("One Arm Push-up (links)","3","5–10, bis Muskelversagen"),
-      ex("Negative Archer Pull-up","3","5–15, bis Muskelversagen"),
+      ex("Negative Archer Pull-up (3–4s Ablassen)","3","5–10, bis Muskelversagen"),
       ex("One Arm Push-up (rechts)","3","5–10, bis Muskelversagen"),
       ex("Schneidersitz-Vorbeuge","-","20–30s",true),
     ]},
@@ -1011,11 +1011,11 @@ const DAYS = {
     { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
     { name:"Push + Pull-ups", items:[
       ex("Facing Wall Hspu","3","5–15, bis Muskelversagen"),
-      ex("Negative Archer Pull-up","3","5–15, bis Muskelversagen"),
+      ex("Negative Archer Pull-up (3–4s Ablassen)","3","5–10, bis Muskelversagen"),
       ex("Schneidersitz-Vorbeuge","-","20–30s",true),
     ]},
     { name:"Straight Arm & Core", items:[
-      ex("One Leg Front Lever","3","sammeln, Ziel 20s"),
+      ex("One Leg Front Lever","3","sammeln, Ziel 30s"),
       ex("One-Legged Advanced Tuck Front Lever Raise","3","sammeln, Ziel 10 Wdh"),
       ex("World's Greatest Stretch","-","je Seite 20–30s",true),
     ]},
@@ -1036,7 +1036,7 @@ const DAYS = {
       ex("Schneidersitz-Vorbeuge","-","20–30s",true),
     ]},
     { name:"Front Lever", items:[
-      ex("One Leg Front Lever","2","sammeln, Ziel 20s"),
+      ex("One Leg Front Lever","2","sammeln, Ziel 30s"),
       ex("One-Legged Advanced Tuck Front Lever Raise","2","sammeln, Ziel 10 Wdh"),
       ex("Brustöffnung (Türrahmen/Wand)","-","20–30s",true),
     ]},
