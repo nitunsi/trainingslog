@@ -6,11 +6,24 @@ Trainings-App (`app.html`, Plan in `const DAYS`), Daten in Supabase (`training_s
 
 ## Geplante Progressionen
 
-Noch **nicht** umgestellt — Nils trainiert die aktuelle Übung weiter und entscheidet selbst, wann er wechselt. Erst in `DAYS` eintragen, wenn er es sagt.
+Nils trainiert die aktuelle Übung weiter und entscheidet selbst, wann er wechselt. Neue Stufen erst in `DAYS` eintragen, wenn er es sagt.
 
-| aktuelle Übung | nächste Stufe | Stand / Auslöser |
-|---|---|---|
-| Negative Archer Pull-up (L2A/L2B/L2C) | Negative Archer Pull-up mit 3–4s Ablassen — als eigene neue Übung (kein `RENAMES`-Eintrag) | 04.10.2026: erster Satz 10 Wdh am Stück, aber mit schnellem Ablassen |
+Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umgestellt, jeweils als neue Übung mit eigener Historie (kein `RENAMES`):
+
+| bisher | jetzt |
+|---|---|
+| Headstand an der Wand (Wandkontakt lösen) | Headstand 10 cm von der Wand (Wandkontakt lösen) |
+| Negative Archer Pull-up (5–15) | Negative Archer Pull-up (3–4s Ablassen) (5–10) |
+| Tuck Planche Press-up | Tuck Planche Press-up (1s Pause oben, jede Wdh) |
+| Crow to Tuck Headstand Press (1s Pause in der Krähe) | … (2s Pause in der Krähe) |
+| One-Legged Advanced Tuck Front Lever Raise | … (1s Pause oben, jede Wdh) |
+| Hip to Bar (5–15) | Hip to Bar (1s Pause oben) (5–10) |
+| Hollow Body Walk Out + Halten (2s am Ende) | … (4s am Ende), Ziel „sammeln, Ziel 10 Wdh“ |
+| Wall Push Out + Balance (Facing Wall / Back 2 Wall) | … (2s Balance halten) |
+| Handstand Hold (Entry Back to Wall) | … (Zehen 3s lösen) |
+| Elephant Stance, One Leg Front Lever | gleicher Name, Ziel 30 s statt 20 s |
+
+**Nicht ändern** (Nils): One Arm Push-up bleibt; Sätze und Tagesverteilung bleiben. Im Reise-Training (`travel`) wurden nur Hollow Body (4s am Ende) und Headstand 10 cm angepasst. Weitere Progressionen erst eintragen, wenn Nils es sagt.
 
 ## Kennzeichen „Nächstes Mal steigern“
 
