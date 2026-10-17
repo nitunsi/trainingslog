@@ -13,7 +13,7 @@ Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umge
 | bisher | jetzt |
 |---|---|
 | Headstand an der Wand (Wandkontakt lösen) | Headstand 10 cm von der Wand (Wandkontakt lösen) |
-| Negative Archer Pull-up (5–15) | Negative Archer Pull-up (3–4s Ablassen) (5–10) |
+| Negative Archer Pull-up (5–15) | Negative Archer Pull-up (3s Ablassen) (5–10) |
 | Tuck Planche Press-up | Tuck Planche Press-up (1s Pause oben, jede Wdh) |
 | Crow to Tuck Headstand Press (1s Pause in der Krähe) | … (2s Pause in der Krähe) |
 | One-Legged Advanced Tuck Front Lever Raise | … (1s Pause oben, jede Wdh) |
