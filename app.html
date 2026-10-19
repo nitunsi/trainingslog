@@ -1306,9 +1306,7 @@ async function renderNextSession(){
   const weekOptions = WEEK_PLAN.map((wk,i)=>`<option value="${i}" ${i===w?"selected":""}>Woche ${wk.woche}</option>`).join("");
   const dayOptions = [0,1,2,3].map(i=>`<option value="${i}" ${i===d?"selected":""}>Tag ${i+1}</option>`).join("");
 
-  if(isOpen) chip.innerHTML = "";
-  else if(nextKey) chip.innerHTML = `<button class="nextchip" id="goNextBtn">Als nächstes dran: <b>${label}</b> · Öffnen →</button>`;
-  else chip.innerHTML = `<div class="nextchip">Als nächstes dran: <b>${label}</b>${note}</div>`;
+  chip.innerHTML = "";   // Hinweis „Als nächstes dran“ entfällt: der Plan zeigt den nächsten Tag, und es gibt nie zwei Trainings an einem Tag
 
   holder.innerHTML = `
     <div style="margin:0 16px 12px;padding:11px 14px;background:var(--surface-2);border:1px solid var(--accent-dim);border-radius:10px;">
