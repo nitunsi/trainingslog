@@ -187,7 +187,11 @@
   .setboxes .sb{position:relative;flex:1;min-width:0;}
   .setboxes .sb .dlt{position:absolute;top:2px;right:6px;font-size:9.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;pointer-events:none;}
   .last-hint:empty,.prevnote:empty{display:none;}
-  .last-hint .takeBtn{background:none;border:none;padding:0;color:var(--accent);font-size:calc(11px*var(--fs));font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+  .last-hint .takeBtn{background:var(--accent-tint);border:0;border-radius:9px;min-height:36px;padding:0 12px;color:var(--accent);font-size:calc(12.5px*var(--fs));font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;white-space:nowrap;}
+  .last-hint .takeBtn:active{filter:brightness(.92);}
+  .last-hint .takeBtn[hidden]{display:none;}
+  .last-hint.hasTake{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;}
+  .last-hint .takeRow{display:flex;gap:8px;margin-left:auto;}
   .steig{margin-top:6px;display:inline-block;max-width:100%;padding:3px 9px;border-radius:8px;background:var(--amber-tint-2);color:var(--amber);font-size:calc(12px*var(--fs));font-weight:700;}
   .steig[hidden]{display:none;}
   .flagrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);}
@@ -205,8 +209,8 @@
   .trainsum{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);}
   .trainsum[hidden]{display:none;}
   .prevnote{margin-top:7px;padding-left:8px;border-left:2px solid var(--amber);font-size:calc(12px*var(--fs));line-height:1.4;color:var(--text-muted);font-style:italic;white-space:pre-wrap;}
-  .histBtn,.noteBtn,.last-hint .takeBtn{position:relative;}
-  .histBtn::after,.noteBtn::after,.last-hint .takeBtn::after{content:"";position:absolute;inset:-14px -8px;}
+  .histBtn,.noteBtn{position:relative;}
+  .histBtn::after,.noteBtn::after{content:"";position:absolute;inset:-14px -8px;}
   .okmark{display:none;color:var(--accent);font-weight:700;margin-left:2px;}
   .exrow.done{border-color:var(--accent-dim);background:var(--accent-tint-2);}
   .exrow.done .last-hint,.exrow.done .prevnote{display:none;}
@@ -1622,8 +1626,11 @@ function renderExRow(it){
 
   // Live: ▲/▼ gegenüber dem letzten Mal pro Satz, Ziel-Hinweis, Übernehmen-Knopf nur solange noch etwas offen ist
   const live = ()=>{
-    const takeBtn = hintEl.querySelector(".takeBtn");
-    if(takeBtn) takeBtn.style.display = nextTakeIndex() >= 0 ? "" : "none";
+    const takeBtn = hintEl.querySelector(".takeBtn"), plusBtn = hintEl.querySelector(".plusBtn");
+    const ti = nextTakeIndex(), tv = ti >= 0 ? String(last.value[ti]).trim() : "";
+    if(takeBtn){ takeBtn.style.display = ti >= 0 ? "" : "none"; takeBtn.textContent = ti >= 0 ? "↺ Wie zuletzt: " + tv : ""; }
+    // +1 nur, wenn der Wert vom letzten Mal eine reine Zahl ist (kein "6+5", "20s" o. Ä.)
+    if(plusBtn){ const ok = ti >= 0 && /^\d+$/.test(tv); plusBtn.hidden = !ok; plusBtn.textContent = ok ? "＋1 → " + (parseInt(tv, 10) + 1) : ""; }
     inputs.forEach((inp, i)=>{
       const el = inp.parentElement.querySelector(".dlt");
       if(!el) return;
@@ -1651,17 +1658,23 @@ function renderExRow(it){
   // Statisch (bei Aufbau, Datumswechsel, Laden einer Session): "zuletzt am …" + Übernehmen, letzte Notiz
   const refresh = ()=>{
     last = (!it.stretch && prev.length) ? lastRealSession(it.uebung) : null;
-    hintEl.innerHTML = last ? `zuletzt am ${fmtShort(last.date)} · <button type="button" class="takeBtn">↺ nächsten Satz übernehmen</button>` : "";
-    const take = hintEl.querySelector(".takeBtn");
-    if(take) take.onclick = ()=>{
-      // Nur EIN Satz pro Tipp: der erste noch leere Satz, zu dem es einen Wert vom letzten Mal gibt
+    hintEl.classList.toggle("hasTake", !!last);
+    hintEl.innerHTML = last ? `zuletzt am ${fmtShort(last.date)}<div class="takeRow"><button type="button" class="takeBtn"></button><button type="button" class="takeBtn plusBtn" hidden></button></div>` : "";
+    // Nur EIN Satz pro Tipp: der erste noch leere Satz, zu dem es einen Wert vom letzten Mal gibt
+    const takeInto = (plus)=>{
       const i = nextTakeIndex();
       if(i < 0){ showToast("Alle Sätze sind schon ausgefüllt"); return; }
-      inputs[i].value = last.value[i];
+      const old = String(last.value[i]).trim();
+      if(plus && !/^\d+$/.test(old)) return;
+      const v = plus ? String(parseInt(old, 10) + 1) : last.value[i];
+      inputs[i].value = v;
       live();
       scheduleAutosave(400);
-      showToast("Satz " + (i + 1) + ": " + last.value[i] + " übernommen");
+      showToast("Satz " + (i + 1) + ": " + v + (plus ? " (+1)" : " übernommen"));
     };
+    const take = hintEl.querySelector(".takeBtn:not(.plusBtn)"), plus = hintEl.querySelector(".plusBtn");
+    if(take) take.onclick = ()=> takeInto(false);
+    if(plus) plus.onclick = ()=> takeInto(true);
     const pn = lastRealNote(it.uebung);
     prevNoteEl.innerHTML = pn ? `${ICON.note} ${fmtShort(pn.date)} · ${escapeHtml(pn.text)}` : "";
     live();
