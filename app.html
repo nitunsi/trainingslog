@@ -654,12 +654,12 @@
   /* Training: Blockname ohne Linie daneben (direkt darunter steht schon die Trennlinie der ersten Übung) */
   #pageTrain .block-title::after{display:none;}
   /* Training: schmale Kopfleiste (Fortschritt, Zähler, Speicherstatus, Auswertung), kein ✕ mehr */
-  .trainbar{padding:6px 16px;gap:10px;}
+  .trainbar{padding:6px 16px;gap:10px;top:var(--vvt,0px);}
   .trainsum{width:36px;height:36px;border-radius:10px;}
   .tbar{height:6px;}
   .tcount{min-width:3.2rem;font-size:12.5px;}
   .tsave{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;padding:0;font-size:16px;}
-  #pageTrain .block-title{top:48px;}
+  #pageTrain .block-title{top:calc(48px + var(--vvt,0px));}
 
   /* Startseite: restlicher Platz wird gleichmäßig zwischen Kopf, Heute, Plan, Wochen und Symbolen verteilt */
   #pageStart.on{display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-sizing:border-box;min-height:100vh;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px) + 22px);}
@@ -1899,6 +1899,11 @@ function jumpToNextOpen(){
   hit.step.inp.classList.remove("jumpflash"); void hit.step.inp.offsetWidth; hit.step.inp.classList.add("jumpflash");
 }
 document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
+// Einen Eintrag gelöscht: gemerkte Dehnungs-Position ist veraltet, sonst überspringt „Weiter“ Übungen
+document.addEventListener("input", e => {
+  const t = e.target;
+  if(t && t.matches && t.matches("#blocksHolder .setboxes input") && t.value.trim() === "") trainCursorSet(-1);
+});
 
 // Stimmt das Ergebnis noch? Ziel erreicht, oder im Schnitt pro Satz mindestens so viel wie zum Zeitpunkt des Kennzeichnens
 function flagHolds(prevVals, curVals, ziel){
@@ -3336,6 +3341,26 @@ if(window.visualViewport) window.visualViewport.addEventListener("resize", fitSt
     }, 700); });
     ["pointerup", "pointerleave", "pointercancel"].forEach(ev => hd.addEventListener(ev, () => clearTimeout(t)));
   }
+})();
+
+// Kopfleiste und Blocküberschriften bleiben oben sichtbar, auch wenn die Tastatur den sichtbaren Bereich nach unten verschiebt
+// (Chrome auf Android verschiebt dann den sichtbaren Ausschnitt gegenüber dem Seitenlayout; "sticky" bliebe sonst oben außerhalb).
+(function(){
+  const vv = window.visualViewport;
+  if(!vv) return;
+  let raf = 0;
+  const pin = () => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      const t = Math.max(0, Math.round(vv.offsetTop));
+      document.documentElement.style.setProperty("--vvt", t + "px");
+    });
+  };
+  vv.addEventListener("resize", pin);
+  vv.addEventListener("scroll", pin);
+  window.addEventListener("scroll", pin, { passive: true });
+  document.addEventListener("focusin", () => { pin(); setTimeout(pin, 250); });
+  document.addEventListener("focusout", () => setTimeout(pin, 250));
 })();
 
 async function bootstrap(){
