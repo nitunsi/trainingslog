@@ -23,6 +23,7 @@ Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umge
 | Handstand Hold (Entry Back to Wall) | … (Zehen 3s lösen) |
 | Elephant Stance, One Leg Front Lever | gleicher Name, Ziel 30 s statt 20 s |
 | One Arm Push-up (links / rechts), Füße breit | One Arm Push-up (Füße schulterbreit, links / rechts) (21.10.2026; nächste Stufen: + 1s Pause unten, Füße enger, erhöht) |
+| Toes to Bar (3s runter, 1s halten, 3s hoch) (8, bis Muskelversagen) | Toes to Bar (3s runter, 2s halten, 3s hoch) (6–10, bis Muskelversagen) (20.10.2026; nächste Stufen: Beine gestreckter/Straddle, 4–5s runter, gewichtet) |
 
 Bleibt der Name einer Übung gleich und wird nur das Ziel angehoben, das „Steigern“-Kennzeichen der Vorgänger-Einheit aber damit erledigt ist, steht die Übung in `STEIGERN_ERLEDIGT` (`app.html`, Datum = letzte Session, deren Kennzeichen ignoriert wird).
 
