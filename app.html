@@ -712,6 +712,11 @@
   .varsw button + button{border-left:1px solid var(--line);}
   .varsw button.on{background:var(--accent);color:var(--on-accent);}
   #blocksHolder .block[hidden]{display:none;}
+
+  /* „Weiter“ fest oben rechts in der Kopfleiste (wird nie von der Tastatur verdeckt); unten nur Abschließen/Speichern */
+  .trainbar .wbtn{flex:none;min-height:36px;padding:0 13px;border-radius:18px;border:0;background:var(--accent);color:var(--on-accent);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;white-space:nowrap;}
+  .trainbar .wbtn:active{transform:scale(.96);}
+  .fabs[hidden]{display:none!important;}
 </style>
 </head>
 <body>
@@ -781,6 +786,7 @@
     <span class="tcount" id="trainCount"></span>
     <button class="tsave" id="trainSave" type="button" role="status" aria-live="polite" aria-label="Speichern"></button>
     <button class="trainsum" id="trainSumBtn" aria-label="Auswertung" title="Auswertung" hidden data-ic="clipboard"></button>
+    <button class="wbtn" id="nextOpenBtn" type="button" aria-label="Weiter zum nächsten Eintrag" title="Weiter zum nächsten Eintrag">Weiter ↓</button>
   </div>
   <div class="pagehead"><h1 id="trainTitle"></h1><div class="daycard-focus" id="trainFocus"></div><div class="sub daycard-meta" id="trainSub"></div></div>
   <div id="editModeHolder"></div>
@@ -891,7 +897,7 @@
 </div>
 
 <div class="toast" id="toast">Gespeichert</div>
-<div class="fabs" id="fabs"><button class="fab" id="nextOpenBtn" aria-label="Zum nächsten offenen Satz" title="Zum nächsten offenen Satz">↓ Offen</button><button class="fab" id="saveBtn" hidden>Training abschließen</button></div>
+<div class="fabs" id="fabs" hidden><button class="fab" id="saveBtn" hidden>Training abschließen</button></div>
 <script>
 // Einfache Linien-Symbole (statt Emojis): sehen auf jedem Gerät gleich aus und passen in Hell und Dunkel
 const _svg = d => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
@@ -1701,12 +1707,12 @@ function updateProgress(){
   if(sumBtn) sumBtn.hidden = done === 0;
   // Unten ein Knopf: „↓ Offen“, solange Sätze fehlen; danach „Training abschließen“.
   // Alte Sessions (kein Auto-Speichern): beide, der zweite heißt „Speichern“.
-  const btn = document.getElementById("saveBtn"), nextBtn = document.getElementById("nextOpenBtn");
+  const btn = document.getElementById("saveBtn"), fabs = document.getElementById("fabs");
   const oldSess = document.body.classList.contains("p-old"), complete = sets.length > 0 && done === sets.length;
-  if(nextBtn) nextBtn.hidden = !oldSess && complete;
   if(btn){
     btn.hidden = !oldSess && !complete;
     if(!btn.classList.contains("saved")) btn.textContent = oldSess ? "Speichern" : "Training abschließen";
+    if(fabs) fabs.hidden = btn.hidden;
   }
   updateTrainSub();
 }
@@ -1847,36 +1853,50 @@ document.getElementById("sumBackdrop").addEventListener("click", closeSummary);
 document.getElementById("sumBack").addEventListener("click", closeSummary);
 document.getElementById("sumHome").addEventListener("click", ()=>{ closeSummary(); showPage("start", { top: true }); });
 
-// Springt (ohne Tastatur) zum nächsten einzutragenden Satz. Reihenfolge je Block: erster Satz jeder Übung, dann (einmal) die Dehnung,
-// dann der zweite Satz jeder Übung, wieder die Dehnung usw. Die Dehnung steht nur einmal im Block, wird aber jede Runde gemacht:
-// leere Dehnungsfelder gelten deshalb pro Runde als einmal besucht (block._stretchVisits), nicht als "offen".
-function nextOpenInput(){
-  for(const block of document.querySelectorAll("#blocksHolder .block:not([hidden])")){
+// „Weiter“: springt (ohne Tastatur) zum nächsten Schritt nach dem zuletzt Eingetragenen – Satz oder Dehnung, je nachdem, was dran ist.
+// Reihenfolge je Block: erster Satz jeder Übung, dann die Dehnung(en), dann der zweite Satz jeder Übung, wieder die Dehnung usw.
+// Wo es schon Einträge gibt, gilt alles davor als erledigt (auch Dehnungen, die man leer lässt). Eine angesprungene Dehnung wird
+// zusätzlich für diese Session gemerkt (localStorage), damit „Weiter“ nach einem Neuladen nicht wieder bei ihr landet.
+function trainSteps(){
+  const steps = [];
+  document.querySelectorAll("#blocksHolder .block:not([hidden])").forEach(block => {
     const rows = [...block.querySelectorAll(".exrow:not(.stretch)")].map(r => [...r.querySelectorAll(".setboxes input")]);
     const stretch = [...block.querySelectorAll(".exrow.stretch .setboxes input")];
+    const hasSets = rows.some(r => r.length);
     const rounds = Math.max(1, ...rows.map(r => r.length));
-    const visits = block._stretchVisits || 0;
-    for(let s = 0; s < rounds; s++){
-      for(const inputs of rows){
-        if(inputs[s] && inputs[s].value.trim() === "") return { inp: inputs[s], block, stretch: false };
-      }
-      // Dehnung fällig, wenn die Runde fertig ist und die nächste noch nicht begonnen hat (sonst wurde sie schon gemacht)
-      const nextStarted = rows.some(r => r[s + 1] && r[s + 1].value.trim() !== "");
-      if(stretch.length && rows.some(r => r.length) && visits <= s && !nextStarted) return { inp: stretch[0], block, stretch: true };
+    for(let r = 0; r < rounds; r++){
+      rows.forEach(inputs => { if(inputs[r]) steps.push({ inp: inputs[r], stretch: false }); });
+      if(stretch.length && (hasSets || r === 0)) steps.push({ inp: stretch[0], inputs: stretch, stretch: true });
     }
-  }
+  });
+  return steps;
+}
+const stepDone = st => st.stretch ? st.inputs.some(i => i.value.trim() !== "") : st.inp.value.trim() !== "";
+const trainCursorKey = () => currentDay + "|" + (document.getElementById("dateInput").value || todayStr()) + "|" + currentVariant;
+function trainCursorGet(){
+  try{ const c = JSON.parse(localStorage.getItem("training_cursor") || "null"); return c && c.k === trainCursorKey() ? c.i : -1; }catch(e){ return -1; }
+}
+function trainCursorSet(i){ try{ localStorage.setItem("training_cursor", JSON.stringify({ k: trainCursorKey(), i })); }catch(e){} }
+function nextTrainStep(){
+  const steps = trainSteps();
+  let last = -1;
+  steps.forEach((st, i) => { if(stepDone(st)) last = i; });
+  const start = Math.max(last, trainCursorGet()) + 1;
+  for(let i = start; i < steps.length; i++) if(!stepDone(steps[i])) return { step: steps[i], index: i };
+  // hinter dem letzten Eintrag ist nichts mehr dran: übersprungene Sätze davor?
+  for(let i = 0; i < steps.length; i++) if(!steps[i].stretch && !stepDone(steps[i])) return { step: steps[i], index: i };
   return null;
 }
 function jumpToNextOpen(){
-  const hit = nextOpenInput();
+  const hit = nextTrainStep();
   if(!hit){ showToast("Alles eingetragen ✓"); return; }
-  if(hit.stretch) hit.block._stretchVisits = (hit.block._stretchVisits || 0) + 1;
-  const row = hit.inp.closest(".exrow");
+  if(hit.step.stretch) trainCursorSet(hit.index);
+  const row = hit.step.inp.closest(".exrow");
   const offset = document.querySelector(".trainbar").getBoundingClientRect().height + 54;
   window.scrollTo({ top: row.getBoundingClientRect().top + window.scrollY - offset - 40, behavior: "smooth" });
   // Tastatur bleibt eingeklappt: nur hinscrollen, das Feld kurz hervorheben (Tippen öffnet die Tastatur dann selbst)
   if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
-  hit.inp.classList.remove("jumpflash"); void hit.inp.offsetWidth; hit.inp.classList.add("jumpflash");
+  hit.step.inp.classList.remove("jumpflash"); void hit.step.inp.offsetWidth; hit.step.inp.classList.add("jumpflash");
 }
 document.getElementById("nextOpenBtn").addEventListener("click", jumpToNextOpen);
 

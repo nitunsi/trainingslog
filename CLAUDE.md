@@ -83,3 +83,7 @@ Frühere Bezeichnungen (L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und 
 ## Reise-Training mit Varianten
 
 `DAYS.travel` hat `variants: true` und drei Blöcke mit `variant: "A" | "B" | "C"` (Handstand · Druck & Core · Beine & Rücken, je 15–20 Min, mit Wand, ohne Stange). Auf dem Training-Tab steht oben ein Umschalter; nur die gewählte Variante ist sichtbar (`setVariant`), Fortschritt, „Offen“-Sprung und „Training abschließen“ zählen nur sie. Nach dem Laden einer Session wird die Variante mit den meisten Einträgen gewählt (`pickVariantWithData`), zuletzt benutzte Variante in `localStorage` (`training_variant`). Übungsnamen entsprechen dem Hauptplan, wo möglich (gemeinsame Historie und Platzhalter). Kein „Nach dem Workout“-Block für `variants`-Tage. Warm-up: `TRAVEL_WARMUP` (kurz, ca. 4 Min).
+
+## Training-Tab: „Weiter“-Knopf
+
+`Weiter ↓` sitzt fest in der Kopfleiste (rechts, nie von der Tastatur verdeckt). `trainSteps()` legt die Reihenfolge je Block fest (Sätze einer Runde, dann Dehnung, dann nächste Runde), `nextTrainStep()` springt zum Schritt **nach dem zuletzt Eingetragenen** – Satz oder Dehnung. Alles davor gilt als erledigt, auch leer gelassene Dehnungen; eine angesprungene Dehnung wird zusätzlich in `localStorage` (`training_cursor`, je Tag/Datum/Variante) gemerkt. Unten bleibt nur der Knopf „Training abschließen“ (alte Sessions: „Speichern“).
