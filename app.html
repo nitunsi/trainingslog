@@ -705,6 +705,13 @@
   .hgrid .hday{white-space:nowrap;}
   .hgrid .hval{color:var(--text);font-variant-numeric:tabular-nums;}
   .hgrid .hnote{grid-column:1/-1;margin:0 0 4px;color:var(--text-muted);}
+
+  /* Reise-Tag: Umschalter A / B / C */
+  .varsw{display:flex;margin:6px 16px 12px;border:1px solid var(--line-strong);border-radius:24px;overflow:hidden;}
+  .varsw button{flex:1;min-height:44px;background:none;border:0;color:var(--text-muted);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;}
+  .varsw button + button{border-left:1px solid var(--line);}
+  .varsw button.on{background:var(--accent);color:var(--on-accent);}
+  #blocksHolder .block[hidden]{display:none;}
 </style>
 </head>
 <body>
@@ -934,22 +941,11 @@ const HS_WARMUP = [
 ];
 
 const TRAVEL_WARMUP = [
-  { title:"Pulserhoehung (1x)", rows:[
-    ["Hampelmaenner / auf der Stelle huepfen","60s"],
-  ]},
-  { title:"Handgelenke (1x)", rows:[
-    ["Handgelenkskreisen","15 Wdh je Richtung"],["Wrist Rocks (Vierfuesslerstand, Gewicht vor/zurueck)","10 Wdh"],
-    ["Handruecken-Dehnung","20s"],["Handinnenflaechen-Dehnung","20s"],
-  ]},
-  { title:"Schultern (1x)", rows:[
-    ["Armkreisen gross","10 Wdh je Richtung"],["Scapula Push-up","10 Wdh"],["Cat-Cow","8 Wdh"],
-  ]},
-  { title:"Huefte/Knie/Sprunggelenk (1x)", rows:[
-    ["Beinschwingen vor/zurueck","10 Wdh je Seite"],["Beinschwingen seitlich","10 Wdh je Seite"],
-    ["Ausfallschritt mit Rotation","2 Wdh je Seite"],["Air Squat","10 Wdh"],["Wadenheben","10 Wdh"],
-  ]},
-  { title:"Einschleichen (1x)", rows:[
-    ["Liegestuetz locker","3 Wdh"],["Wandkontakt-Handstand-Aufbau","2x 5-10s"],
+  { title:"Kurz (ca. 4 Min, 1x)", rows:[
+    ["Hampelmänner / auf der Stelle hüpfen","60s"],
+    ["Handgelenke kreisen","15 Wdh je Richtung"],
+    ["Arm Swing vorwärts / rückwärts","je 10 Wdh"],
+    ["Deep Squat + Fold","6 Wdh"],
   ]},
 ];
 
@@ -1095,29 +1091,33 @@ const DAYS = {
       ex("Nacken-/oberer Trapezius-Dehnung","2","30–45s je Seite",true),
     ]},
   ]},
-  travel: { label: "Reise", title: "Reise-Training", sub: "ohne Wand und Stange", warmup: TRAVEL_WARMUP, blocks: [
-    { name:"Push & Handstand", items:[
-      ex("Facing Wall Hspu / Pike Push-up (falls keine Wand)","3","Hspu 5-15 oder Pike Push-up 8-12, bis Muskelversagen"),
-      ex("One Arm Push-up (links)","3","5-10, bis Muskelversagen"),
-      ex("One Arm Push-up (rechts)","3","5-10, bis Muskelversagen"),
+  travel: { label: "Reise", title: "Reise-Training", sub: "Handstand, Druck oder Beine · je 15–20 Min", warmup: TRAVEL_WARMUP, variants: true, blocks: [
+    { name:"A · Handstand", variant:"A", items:[
+      ex("Forearm Stand","-","so lange sauber"),
+      ex("Handstand Hold (Entry Back to Wall, Zehen 3s lösen)","3","bis Ermüdung, Anzahl Versuche"),
+      ex("Wall Push Out + Balance (Facing Wall, 2s Balance halten)","3","sammeln, Ziel 5–10 Versuche"),
+      ex("Headstand 10 cm von der Wand (Wandkontakt lösen)","3","sammeln, Ziel 10s ohne Wandkontakt"),
+      ex("Facing Wall Hspu","3","5–15, bis Muskelversagen"),
+      ex("Hollow Body Walk Out + Halten (4s am Ende)","3","sammeln, Ziel 10 Wdh"),
+      ex("Brustöffnung (Türrahmen/Wand)","-","20–30s",true),
     ]},
-    { name:"Beine & Core", items:[
-      ex("One Leg Squat (links)","3","10-12, bis Muskelversagen"),
-      ex("One Leg Squat (rechts)","3","10-12, bis Muskelversagen"),
-      ex("Sissy Squat","3","6-7, bis Muskelversagen"),
-      ex("Hollow Body Walk Out + Halten (4s am Ende)","3","5-6 Wdh"),
+    { name:"B · Druck & Core", variant:"B", items:[
+      ex("One Arm Push-up (links)","3","5–10, bis Muskelversagen"),
+      ex("One Arm Push-up (rechts)","3","5–10, bis Muskelversagen"),
+      ex("Planche Lean (Fingerspitzen nach vorn, Füße hinten)","3","sammeln, Ziel 20s"),
+      ex("Stuhl-Dips (3s runter)","3","8–12, bis Muskelversagen"),
+      ex("Hollow Body Halten","3","sammeln, Ziel 30s"),
+      ex("Taube (Pigeon Pose)","-","20–30s je Seite",true),
     ]},
-    { name:"Zusatz (optional, falls Zeit/Energie)", items:[
-      ex("Headstand 10 cm von der Wand (Wandkontakt loesen) / Pike Push-up (falls keine Wand)","2","Headstand 3-4 bzw. Pike Push-up 5-6"),
-      ex("Wadenheben","2","10, bis Muskelversagen"),
-    ]},
-    { name:"Optional, nur falls Bar/Gelaender vorhanden", items:[
-      ex("Pull-up / Negative Pull-up (falls Bar)","2","so viele sauber wie moeglich"),
-      ex("Australian Row (falls niedrige Bar/Gelaender)","2","8-12, bis Muskelversagen"),
-    ]},
-    { name:"", items:[
-      ex("Taube (Pigeon Pose)","-","20-30s je Seite",true),
-      ex("World's Greatest Stretch","-","je Seite 20-30s",true),
+    { name:"C · Beine & Rücken", variant:"C", items:[
+      ex("One Leg Squat (links)","3","10–15, bis Muskelversagen"),
+      ex("One Leg Squat (rechts)","3","10–15, bis Muskelversagen"),
+      ex("Sissy Squat","3","5–15, bis Muskelversagen"),
+      ex("Negative Nordic Curl","3","5–8, bis Muskelversagen"),
+      ex("Australian Row (Tisch oder Handtuch an der Tür)","3","8–12, bis Muskelversagen"),
+      ex("Wadenheben (links)","2","15–20, bis Muskelversagen"),
+      ex("Wadenheben (rechts)","2","15–20, bis Muskelversagen"),
+      ex("World's Greatest Stretch","-","je Seite 20–30s",true),
     ]},
   ]},
 };
@@ -1126,7 +1126,7 @@ const DAYS = {
 const COOLDOWN_BLOCK = { name:"Nach dem Workout", items:[
   ex("Rumpfrotation im aufrechten Kniestand (beide Knie unten), Gewicht quer bewegen, Richtung wechselnd","2-3","5-8 Wdh je Richtung, sehr sauber"),
 ]};
-Object.keys(DAYS).forEach(key => DAYS[key].blocks.push(COOLDOWN_BLOCK));
+Object.keys(DAYS).forEach(key => { if(!DAYS[key].variants) DAYS[key].blocks.push(COOLDOWN_BLOCK); });   // Reise: kurze Varianten, ohne Zusatzblock
 
 // Typ eines Ziels grob klassifizieren, um Platzhalter aus anderen Tagestypen nur
 // zu übernehmen, wenn der Übungstyp (sammeln vs. bis Muskelversagen) übereinstimmt.
@@ -1482,10 +1482,40 @@ function fitWarmup(){
 }
 window.addEventListener("resize", fitWarmup);
 
+// Reise-Tag: eine Variante (A/B/C) wird trainiert, die anderen sind ausgeblendet
+let currentVariant = (function(){ try{ return localStorage.getItem("training_variant") || "A"; }catch(e){ return "A"; } })();
+function setVariant(v, opts){
+  currentVariant = v;
+  try{ localStorage.setItem("training_variant", v); }catch(e){}
+  document.querySelectorAll("#blocksHolder .block[data-variant]").forEach(b => { b.hidden = b.dataset.variant !== v; });
+  document.querySelectorAll("#blocksHolder .varsw button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  updateProgress();
+  if(!(opts && opts.keepScroll)) window.scrollTo({ top: 0 });
+}
+// Nach dem Laden einer Session: die Variante mit den meisten Einträgen auswählen
+function pickVariantWithData(){
+  if(!DAYS[currentDay] || !DAYS[currentDay].variants) return;
+  let best = null, bestN = 0;
+  document.querySelectorAll("#blocksHolder .block[data-variant]").forEach(b => {
+    const n = [...b.querySelectorAll("input")].filter(i => i.value.trim() !== "").length;
+    if(n > bestN){ best = b.dataset.variant; bestN = n; }
+  });
+  if(best) setVariant(best, { keepScroll: true });
+}
 function renderBlocks(){
   const holder = document.getElementById("blocksHolder");
   holder.innerHTML = "";
   const day = DAYS[currentDay];
+  if(day.variants){
+    const labels = { A: "A Handstand", B: "B Druck", C: "C Beine" };
+    const sw = document.createElement("div");
+    sw.className = "varsw";
+    sw.setAttribute("role", "group");
+    sw.setAttribute("aria-label", "Variante");
+    sw.innerHTML = Object.keys(labels).map(v => `<button type="button" data-v="${v}">${labels[v]}</button>`).join("");
+    sw.addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if(b) setVariant(b.dataset.v); });
+    holder.appendChild(sw);
+  }
   day.blocks.forEach(block=>{
     if(block.name) {
       const bt = document.createElement("div");
@@ -1493,6 +1523,7 @@ function renderBlocks(){
       bt.textContent = block.name;
       const wrap = document.createElement("div");
       wrap.className = "block";
+      if(block.variant) wrap.dataset.variant = block.variant;
       wrap.appendChild(bt);
       block.items.forEach(it=> wrap.appendChild(renderExRow(it)));
       holder.appendChild(wrap);
@@ -1503,7 +1534,8 @@ function renderBlocks(){
       holder.appendChild(wrap);
     }
   });
-  updateProgress();
+  if(day.variants) setVariant(currentVariant, { keepScroll: true });   // blendet die anderen Varianten aus und zählt den Fortschritt
+  else updateProgress();
 }
 
 function renderExRow(it){
@@ -1658,7 +1690,7 @@ function renderExRow(it){
 // Fortschritt der Session: fertig = alle Sätze einer Übung eingetragen (Dehnübungen sind freiwillig und zählen nicht)
 function updateProgress(){
   // Gezählt werden Sätze (Eingabefelder), nicht Übungen. Dehnübungen sind freiwillig und zählen nicht.
-  const sets = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch) .setboxes input")];
+  const sets = [...document.querySelectorAll("#blocksHolder .exrow:not(.stretch) .setboxes input")].filter(inp => !inp.closest(".block[hidden]"));
   const done = sets.filter(inp => inp.value.trim() !== "").length;
   const fill = document.getElementById("trainFill");
   if(fill) fill.style.width = sets.length ? Math.round(done / sets.length * 100) + "%" : "0%";
@@ -1819,7 +1851,7 @@ document.getElementById("sumHome").addEventListener("click", ()=>{ closeSummary(
 // dann der zweite Satz jeder Übung, wieder die Dehnung usw. Die Dehnung steht nur einmal im Block, wird aber jede Runde gemacht:
 // leere Dehnungsfelder gelten deshalb pro Runde als einmal besucht (block._stretchVisits), nicht als "offen".
 function nextOpenInput(){
-  for(const block of document.querySelectorAll("#blocksHolder .block")){
+  for(const block of document.querySelectorAll("#blocksHolder .block:not([hidden])")){
     const rows = [...block.querySelectorAll(".exrow:not(.stretch)")].map(r => [...r.querySelectorAll(".setboxes input")]);
     const stretch = [...block.querySelectorAll(".exrow.stretch .setboxes input")];
     const rounds = Math.max(1, ...rows.map(r => r.length));
@@ -2155,6 +2187,7 @@ function applySessionData(sessionData, date){
     if(srcKey) matchedNames.add(srcKey);
   });
   document.querySelectorAll("#blocksHolder .exrow").forEach(r => r._refresh && r._refresh());
+  pickVariantWithData();
   const orphaned = Object.keys(sessionData).filter(name => !matchedNames.has(name));
   const box = document.getElementById("orphanedHolder");
   if(orphaned.length > 0){
