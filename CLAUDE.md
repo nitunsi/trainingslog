@@ -27,7 +27,7 @@ Bleibt der Name einer Übung gleich und wird nur das Ziel angehoben, das „Stei
 
 **Geplante nächste Stufe, noch nicht umgestellt:** Navel Up Explosive Pull-Up (Nils bleibt vorerst dabei, 9/9 bei Ziel 5–15; Stange nur im Türrahmen, kein Muscle-up möglich). Reihenfolge der Ideen: „Navel Up Explosive Pull-Up (3s runter)“ (2 Sätze, 5–10, bis Muskelversagen, explosiv hoch, langsam ab), später gewichtet (2–4 kg Rucksack ab 10 sauberen Wdh), Falschgriff-Hangs/-Pull-ups (Handgelenke beachten), Brust zur Stange mit 1 s Pause (nur falls Platz). Erst eintragen, wenn Nils es sagt. Sein „Steigern“-Kennzeichen (15.10.) ist über `STEIGERN_ERLEDIGT` ausgeblendet.
 
-**Nicht ändern** (Nils): One Arm Push-up bleibt; Sätze und Tagesverteilung bleiben. Im Reise-Training (`travel`) wurden nur Hollow Body (4s am Ende) und Headstand 10 cm angepasst. Weitere Progressionen erst eintragen, wenn Nils es sagt.
+**Nicht ändern** (Nils): One Arm Push-up bleibt; Sätze und Tagesverteilung bleiben. Weitere Progressionen erst eintragen, wenn Nils es sagt.
 
 ## Kennzeichen „Nächstes Mal steigern“
 
@@ -67,7 +67,7 @@ Angezeigt werden Titel, Kürzel und Untertitel aus `DAYS`; die **internen Schlü
 | `skill` | Skill | Skill | Elbow Lever, Handstand-Technik, Muscle-up |
 | `hs2` | Handstand | HS | Balance, Freistand, Einstiege |
 | `deload` | Deload | Deload | Mobility & Erholung (Review-Woche) |
-| `travel` | Reise-Training | Reise | ohne Wand und Stange |
+| `travel` | Reise-Training | Reise | Handstand, Druck oder Beine · je 15–20 Min |
 
 Frühere Bezeichnungen (L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und älteren Gesprächen vor und meinen dieselben Tage.
 
@@ -78,3 +78,7 @@ Frühere Bezeichnungen (L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und 
 - **Schriften und supabase-js liegen im Repo** (`fonts/`, `vendor/supabase-<version>.js`), nichts mehr von Google/CDN.
 - **Lese-Cache** (IndexedDB `training_cache`): `cachedFetch` um den Supabase-Client; GETs werden gespeichert und bei Funkloch daraus beantwortet, dann zeigt die Startseite „Offline“. Schreibzugriffe gehen nie durch den Cache.
 - **Eingaben gehen nicht verloren**: heutige Eingaben werden sofort in `localStorage` (`training_pending_v1`, Schlüssel `tag|datum`) gesichert und nach Bestätigung durch Supabase entfernt. Ohne Netz bleibt der Status „⏳“ (`queued`); gesendet wird bei `online`, beim Zurückkehren in die App, alle 20 s und beim Start (`flushPending`, über dieselbe `saveChain`). Beim Start ohne Netz wird die ungesendete Einheit wiederhergestellt. Der Zeiger rückt beim Nachsenden nur für wirklich neue Einheiten weiter.
+
+## Reise-Training mit Varianten
+
+`DAYS.travel` hat `variants: true` und drei Blöcke mit `variant: "A" | "B" | "C"` (Handstand · Druck & Core · Beine & Rücken, je 15–20 Min, mit Wand, ohne Stange). Auf dem Training-Tab steht oben ein Umschalter; nur die gewählte Variante ist sichtbar (`setVariant`), Fortschritt, „Offen“-Sprung und „Training abschließen“ zählen nur sie. Nach dem Laden einer Session wird die Variante mit den meisten Einträgen gewählt (`pickVariantWithData`), zuletzt benutzte Variante in `localStorage` (`training_variant`). Übungsnamen entsprechen dem Hauptplan, wo möglich (gemeinsame Historie und Platzhalter). Kein „Nach dem Workout“-Block für `variants`-Tage. Warm-up: `TRAVEL_WARMUP` (kurz, ca. 4 Min).
