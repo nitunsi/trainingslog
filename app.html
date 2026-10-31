@@ -721,6 +721,12 @@
   .trainbar .wbtn{flex:none;min-height:36px;padding:0 13px;border-radius:18px;border:0;background:var(--accent);color:var(--on-accent);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;white-space:nowrap;}
   .trainbar .wbtn:active{transform:scale(.96);}
   .fabs[hidden]{display:none!important;}
+  /* Abschließen ganz unten am Ende der Seite: immer erreichbar, auch bei offenen Sätzen */
+  .endwrap{margin:22px 0 28px;display:flex;justify-content:center;}
+  .endwrap[hidden]{display:none;}
+  .endbtn{min-height:54px;min-width:220px;padding:0 28px;border-radius:30px;border:0;background:var(--accent);color:var(--on-accent);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;}
+  .endbtn:active{transform:scale(.97);}
+  .endbtn.saved,.fab.saved{opacity:.85;}
 </style>
 </head>
 <body>
@@ -800,6 +806,7 @@
   <div class="block-title" style="margin-bottom:6px;">Notizen zur Session</div>
   <textarea id="sessionNotes" placeholder="Allgemeines zur Session (optional) – z. B. wie es sich angefühlt hat, Auffälligkeiten, Ideen für Anpassungen…" style="width:100%;min-height:70px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;border-radius:10px;padding:11px 13px;resize:vertical;"></textarea>
 </div>
+  <div class="endwrap" id="endWrap" hidden><button class="endbtn" id="endBtn" type="button">Training abschließen</button></div>
 </main>
 
 <!-- ===== Seite: Einträge ===== -->
@@ -1724,13 +1731,25 @@ function updateProgress(){
   const btn = document.getElementById("saveBtn"), fabs = document.getElementById("fabs");
   const oldSess = document.body.classList.contains("p-old"), complete = sets.length > 0 && done === sets.length;
   if(btn){
-    btn.hidden = !oldSess && !complete;
-    if(!btn.classList.contains("saved")) btn.textContent = oldSess ? "Speichern" : "Training abschließen";
+    // Schwebender Knopf nur bei vollständiger Einheit und solange der Knopf am Seitenende nicht im Bild ist; alte Sessions: nur am Seitenende
+    btn.hidden = !oldSess && !complete || oldSess || endInView;
+    if(!btn.classList.contains("saved")) btn.textContent = "Training abschließen";
     if(fabs) fabs.hidden = btn.hidden;
+    const eb = document.getElementById("endBtn"), ew = document.getElementById("endWrap");
+    if(eb){
+      if(ew) ew.hidden = sets.length === 0;
+      if(!eb.classList.contains("saved")) eb.textContent = oldSess ? "Speichern" : "Training abschließen";
+    }
   }
   updateTrainSub();
 }
-let progressDone = 0, progressTotal = 0, trainSavedToday = false;
+let progressDone = 0, progressTotal = 0, trainSavedToday = false, endInView = false;
+// Der schwebende Knopf verschwindet, sobald der Knopf am Seitenende sichtbar ist (nie zwei gleichzeitig)
+(function(){
+  const ew = document.getElementById("endWrap");
+  if(!ew || !("IntersectionObserver" in window)) return;
+  new IntersectionObserver(es => { endInView = es[es.length - 1].isIntersecting; updateProgress(); }).observe(ew);
+})();
 function updateTrainSub(){
   const el = document.getElementById("goTrainSub");
   if(!el) return;
@@ -2414,10 +2433,9 @@ async function doSaveSession(opts){
     autosaveErrorShown = false;
     if(!auto){
       clearTimeout(autosaveTimer); autosaveTimer = null; autosaveBlocked = false;
-      const btn = document.getElementById("saveBtn");
-      btn.classList.add("saved");
-      btn.textContent = "Gespeichert ✓";
-      setTimeout(()=>{ btn.classList.remove("saved"); updateProgress(); }, 1800);
+      const btns = [document.getElementById("saveBtn"), document.getElementById("endBtn")].filter(Boolean);
+      btns.forEach(b => { b.classList.add("saved"); b.textContent = "Gespeichert ✓"; });
+      setTimeout(()=>{ btns.forEach(b => b.classList.remove("saved")); updateProgress(); }, 1800);
     }
     // Wurde zwischenzeitlich weitergetippt, bleibt es "ausstehend", sonst alles gespeichert
     setSaveState(autosaveTimer ? "pending" : pendingCount() ? "queued" : "saved");
@@ -2540,10 +2558,10 @@ async function maybeLoadTodaySession(){
   }catch(e){ console.error("maybeLoadTodaySession", e); }
 }
 
-document.getElementById("saveBtn").addEventListener("click", async ()=>{
+["saveBtn", "endBtn"].forEach(id => document.getElementById(id).addEventListener("click", async ()=>{
   const complete = progressTotal > 0 && progressDone === progressTotal;
   await saveSession({ onSaved: complete ? openSummary : null });
-});
+}));
 
 // Auslöser fürs automatische Speichern: Eintippen (gesammelt), Feld verlassen (sofort), "Satz übernehmen"
 (function(){
