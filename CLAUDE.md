@@ -27,6 +27,8 @@ Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umge
 
 **Ergänzungen (31.10.2026, nur Skill- und Handstand-Tag, weil die anderen Tage schon lang sind):** Skill-Tag: neuer Block „Handstand frei“ am Ende (Freistehender Handstand-Versuch, 2 Sätze, zweiter Termin pro Woche neben dem Handstand-Tag). Handstand-Tag, Block „Strength“: Planche Lean (2 Sätze, Ziel 20 s, gleiche Historie wie in der Reise-Variante B) und Band-Außenrotation (2 Sätze, 12–15 je Seite; Schulter-Prehab).
 
+**Wadenheben (31.10.2026):** links und rechts vom Einarm-Tag in den Block „Rows & Squats“ des Handstand-Druck-Tags verlegt (Einarm 41 → 35 Sätze, Handstand-Druck 26 → 32), gleiche Namen, gleiche Historie.
+
 Bleibt der Name einer Übung gleich und wird nur das Ziel angehoben, das „Steigern“-Kennzeichen der Vorgänger-Einheit aber damit erledigt ist, steht die Übung in `STEIGERN_ERLEDIGT` (`app.html`, Datum = letzte Session, deren Kennzeichen ignoriert wird).
 
 **Geplante nächste Stufe, noch nicht umgestellt:** Navel Up Explosive Pull-Up (Nils bleibt vorerst dabei, 9/9 bei Ziel 5–15; Stange nur im Türrahmen, kein Muscle-up möglich). Reihenfolge der Ideen: „Navel Up Explosive Pull-Up (3s runter)“ (2 Sätze, 5–10, bis Muskelversagen, explosiv hoch, langsam ab), später gewichtet (2–4 kg Rucksack ab 10 sauberen Wdh), Falschgriff-Hangs/-Pull-ups (Handgelenke beachten), Brust zur Stange mit 1 s Pause (nur falls Platz). Erst eintragen, wenn Nils es sagt. Sein „Steigern“-Kennzeichen (15.10.) ist über `STEIGERN_ERLEDIGT` ausgeblendet.
