@@ -2559,8 +2559,7 @@ async function maybeLoadTodaySession(){
 }
 
 ["saveBtn", "endBtn"].forEach(id => document.getElementById(id).addEventListener("click", async ()=>{
-  const complete = progressTotal > 0 && progressDone === progressTotal;
-  await saveSession({ onSaved: complete ? openSummary : null });
+  await saveSession({ onSaved: openSummary });   // Auswertung immer, bei offenen Sätzen als „Zwischenstand“
 }));
 
 // Auslöser fürs automatische Speichern: Eintippen (gesammelt), Feld verlassen (sofort), "Satz übernehmen"
