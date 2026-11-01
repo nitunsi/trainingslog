@@ -1026,7 +1026,7 @@ const DAYS = {
       KOPFSTAND,
       ex("Stehende Vorbeuge","-","dynamisch",true),
     ]},
-    { name:"Dips, Rows & Squats", items:[
+    { name:"HSPU, Rows & Legs", items:[
       ex("Facing Wall Hspu","3","5–15, bis Muskelversagen"),
       ex("Sissy Squat","3","5–15, bis Muskelversagen"),
       ex("One Arm Row (2s Pause oben, jede Wdh)","3","8–10, bis Muskelversagen"),
@@ -1046,7 +1046,7 @@ const DAYS = {
       ex("One-Legged Advanced Tuck Front Lever Raise (1s Pause oben, jede Wdh)","3","sammeln, Ziel 10 Wdh"),
       ex("World's Greatest Stretch","-","dynamisch, je Seite",true),
     ]},
-    { name:"Rows & Squats", items:[
+    { name:"Rows & Legs", items:[
       ex("One Leg Squat (links)","3","10–15, bis Muskelversagen"),
       ex("Wadenheben (links)","3","15–20, bis Muskelversagen"),
       ex("One Arm Row (2s Pause oben, jede Wdh)","3","8–10, bis Muskelversagen"),
@@ -1069,18 +1069,18 @@ const DAYS = {
       ex("One-Legged Advanced Tuck Front Lever Raise (1s Pause oben, jede Wdh)","2","sammeln, Ziel 10 Wdh"),
       ex("Brustöffnung (Türrahmen/Wand)","-","dynamisch",true),
     ]},
-    { name:"Muscle-up Technik & Kraft", items:[
+    { name:"Muscle-up Skill & Strength", items:[
       ex("Navel Up Explosive Pull-Up","2","5–15, bis Muskelversagen"),
       ex("Hip to Bar (1s Pause oben)","2","5–10, bis Muskelversagen"),
       ex("Kniestand-Rückbeuge","2","dynamisch",true),
     ]},
-    { name:"Handstand frei", items:[
+    { name:"Freestanding Handstand", items:[
       ex("Freistehender Handstand-Versuch (Shoulder Focus)","2","sammeln, Ziel 15s"),
     ]},
   ]},
   hs2: { label: "HS", title: "Handstand", sub: "Balance, Freistand, Einstiege", warmup: HS_WARMUP, blocks: [
     { name:"Balance Play", items:[ ex("Forearm Stand","-","so lange sauber") ]},
-    { name:"Handstand-Versuche", items:[
+    { name:"Handstand Attempts", items:[
       ex("Handstand Hold (Entry Back to Wall, Zehen 3s lösen)","3","bis Ermüdung, Anzahl Versuche"),
       ex("Loaded Chair Bend","3","dynamisch, langsam rein und raus",true),
     ]},
@@ -1089,7 +1089,7 @@ const DAYS = {
       ex("Wall Push Out + Balance (Back 2 Wall, 2s Balance halten)","3","sammeln, Ziel 5–10 Versuche"),
       ex("Nacken-/oberer Trapezius-Dehnung","-","dynamisch, je Seite",true),
     ]},
-    { name:"Wandunabhängigkeit", items:[
+    { name:"Freestanding", items:[
       ex("Freistehender Handstand-Versuch (Shoulder Focus)","3","sammeln, Ziel 15s"),
       KOPFSTAND,
       ex("Schneidersitz-Vorbeuge","-","dynamisch",true),
@@ -1098,7 +1098,7 @@ const DAYS = {
       ex("Wall Assisted Handstand Kick-up + Balance","3","sammeln, Ziel 5–10 Versuche"),
       ex("Hollow Body Walk Out + Halten (4s am Ende)","3","sammeln, Ziel 10 Wdh"),
     ]},
-    { name:"Strength", items:[
+    { name:"Strength & Shoulders", items:[
       ex("Wall Supported Handstand Shrug (1s Pause oben, 2s runter)","2","bis Muskelversagen"),
       ex("Planche Lean (Fingerspitzen nach vorn, Füße hinten)","2","sammeln, Ziel 20s"),
       ex("Band-Außenrotation (je Seite)","2","12–15 je Seite"),
@@ -1106,7 +1106,7 @@ const DAYS = {
     ]},
   ]},
   deload: { label: "Deload", title: "Deload", sub: "Mobility & Erholung (Review-Woche)", warmup: ALLGEMEIN_WARMUP, blocks: [
-    { name:"Mobility-Zirkel (2 Runden, langsam und dynamisch)", items:[
+    { name:"Mobility Circuit (2 rounds, slow and dynamic)", items:[
       ex("Schneidersitz-Vorbeuge","2","dynamisch",true),
       ex("Taube (Pigeon Pose)","2","dynamisch, je Seite",true),
       ex("World's Greatest Stretch","2","dynamisch, je Seite",true),
@@ -1126,7 +1126,7 @@ const DAYS = {
       ex("Hollow Body Walk Out + Halten (4s am Ende)","3","sammeln, Ziel 10 Wdh"),
       ex("Brustöffnung (Türrahmen/Wand)","-","dynamisch",true),
     ]},
-    { name:"B · Druck & Core", variant:"B", items:[
+    { name:"B · Push & Core", variant:"B", items:[
       ex("One Arm Push-up (Füße schulterbreit, links)","3","5–10, bis Muskelversagen"),
       ex("One Arm Push-up (Füße schulterbreit, rechts)","3","5–10, bis Muskelversagen"),
       ex("Planche Lean (Fingerspitzen nach vorn, Füße hinten)","3","sammeln, Ziel 20s"),
@@ -1134,7 +1134,7 @@ const DAYS = {
       ex("Hollow Body Halten","3","sammeln, Ziel 30s"),
       ex("Taube (Pigeon Pose)","-","dynamisch, je Seite",true),
     ]},
-    { name:"C · Beine & Rücken", variant:"C", items:[
+    { name:"C · Legs & Back", variant:"C", items:[
       ex("One Leg Squat (links)","3","10–15, bis Muskelversagen"),
       ex("One Leg Squat (rechts)","3","10–15, bis Muskelversagen"),
       ex("Sissy Squat","3","5–15, bis Muskelversagen"),
@@ -1532,7 +1532,7 @@ function renderBlocks(){
   holder.innerHTML = "";
   const day = DAYS[currentDay];
   if(day.variants){
-    const labels = { A: "A Handstand", B: "B Druck", C: "C Beine" };
+    const labels = { A: "A Handstand", B: "B Push", C: "C Legs" };
     const sw = document.createElement("div");
     sw.className = "varsw";
     sw.setAttribute("role", "group");
