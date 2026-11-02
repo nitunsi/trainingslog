@@ -1027,7 +1027,7 @@ const DAYS = {
       ex("Stehende Vorbeuge","-","dynamisch",true),
     ]},
     { name:"HSPU, Rows & Legs", items:[
-      ex("Facing Wall Hspu","3","5–15, bis Muskelversagen"),
+      ex("Facing Wall Hspu (Deficit)","3","5–10, bis Muskelversagen"),
       ex("Sissy Squat","3","5–15, bis Muskelversagen"),
       ex("One Arm Row (2s Pause oben, jede Wdh)","3","8–10, bis Muskelversagen"),
       ex("One Leg Hamstring Chair Curl","3","5–15, bis Muskelversagen"),
@@ -1036,7 +1036,7 @@ const DAYS = {
   l2c: { label: "HSPU", title: "Handstand Press", sub: "Handstand push-up, front lever, nordic", warmup: ALLGEMEIN_WARMUP, blocks: [
     { name:"Skill Play", items:[ ex("Superman Push-up","-","so lange sauber") ]},
     { name:"Push + Pull-ups", items:[
-      ex("Facing Wall Hspu","3","5–15, bis Muskelversagen"),
+      ex("Facing Wall Hspu (Deficit)","3","5–10, bis Muskelversagen"),
       ex("Negative Archer Pull-up (links) (3s Ablassen)","3","5–10, bis Muskelversagen"),
       ex("Negative Archer Pull-up (rechts) (3s Ablassen)","3","5–10, bis Muskelversagen"),
       ex("Schneidersitz-Vorbeuge","-","dynamisch",true),
@@ -1902,12 +1902,13 @@ function trainSteps(){
   const steps = [];
   document.querySelectorAll("#blocksHolder .block:not([hidden])").forEach(block => {
     const rows = [...block.querySelectorAll(".exrow:not(.stretch)")].map(r => [...r.querySelectorAll(".setboxes input")]);
-    const stretch = [...block.querySelectorAll(".exrow.stretch .setboxes input")];
+    // jede Dehnung ist ein eigener Schritt (sonst wird die zweite im Block nie angesprungen)
+    const stretch = [...block.querySelectorAll(".exrow.stretch")].map(r => [...r.querySelectorAll(".setboxes input")]).filter(r => r.length);
     const hasSets = rows.some(r => r.length);
     const rounds = Math.max(1, ...rows.map(r => r.length));
     for(let r = 0; r < rounds; r++){
       rows.forEach(inputs => { if(inputs[r]) steps.push({ inp: inputs[r], stretch: false }); });
-      if(stretch.length && (hasSets || r === 0)) steps.push({ inp: stretch[0], inputs: stretch, stretch: true });
+      if(hasSets || r === 0) stretch.forEach(inputs => steps.push({ inp: inputs[0], inputs, stretch: true, first: r === 0 }));
     }
   });
   return steps;
@@ -1915,13 +1916,14 @@ function trainSteps(){
 const stepDone = st => st.stretch ? st.inputs.some(i => i.value.trim() !== "") : st.inp.value.trim() !== "";
 const trainCursorKey = () => currentDay + "|" + (document.getElementById("dateInput").value || todayStr()) + "|" + currentVariant;
 function trainCursorGet(){
-  try{ const c = JSON.parse(localStorage.getItem("training_cursor") || "null"); return c && c.k === trainCursorKey() ? c.i : -1; }catch(e){ return -1; }
+  try{ const c = JSON.parse(localStorage.getItem("training_cursor2") || "null"); return c && c.k === trainCursorKey() ? c.i : -1; }catch(e){ return -1; }
 }
-function trainCursorSet(i){ try{ localStorage.setItem("training_cursor", JSON.stringify({ k: trainCursorKey(), i })); }catch(e){} }
+function trainCursorSet(i){ try{ localStorage.setItem("training_cursor2", JSON.stringify({ k: trainCursorKey(), i })); }catch(e){} }
 function nextTrainStep(){
   const steps = trainSteps();
   let last = -1;
-  steps.forEach((st, i) => { if(stepDone(st)) last = i; });
+  // Eine Dehnung hat in jeder Runde dasselbe Feld: nur ihr erster Schritt zählt als „zuletzt eingetragen“, sonst springt „Weiter“ über spätere Runden hinweg
+  steps.forEach((st, i) => { if(stepDone(st) && (!st.stretch || st.first)) last = i; });
   const start = Math.max(last, trainCursorGet()) + 1;
   for(let i = start; i < steps.length; i++) if(!stepDone(steps[i])) return { step: steps[i], index: i };
   // hinter dem letzten Eintrag ist nichts mehr dran: übersprungene Sätze davor?
