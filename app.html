@@ -1901,14 +1901,15 @@ document.getElementById("sumHome").addEventListener("click", ()=>{ closeSummary(
 function trainSteps(){
   const steps = [];
   document.querySelectorAll("#blocksHolder .block:not([hidden])").forEach(block => {
-    const rows = [...block.querySelectorAll(".exrow:not(.stretch)")].map(r => [...r.querySelectorAll(".setboxes input")]);
-    // jede Dehnung ist ein eigener Schritt (sonst wird die zweite im Block nie angesprungen)
-    const stretch = [...block.querySelectorAll(".exrow.stretch")].map(r => [...r.querySelectorAll(".setboxes input")]).filter(r => r.length);
-    const hasSets = rows.some(r => r.length);
-    const rounds = Math.max(1, ...rows.map(r => r.length));
+    // alle Zeilen in der Reihenfolge, wie sie im Plan stehen; jede Dehnung ist ein eigener Schritt an ihrer Stelle
+    const rows = [...block.querySelectorAll(".exrow")].map(r => ({ stretch: r.classList.contains("stretch"), inputs: [...r.querySelectorAll(".setboxes input")] })).filter(r => r.inputs.length);
+    const hasSets = rows.some(r => !r.stretch);
+    const rounds = Math.max(1, ...rows.filter(r => !r.stretch).map(r => r.inputs.length));
     for(let r = 0; r < rounds; r++){
-      rows.forEach(inputs => { if(inputs[r]) steps.push({ inp: inputs[r], stretch: false }); });
-      if(hasSets || r === 0) stretch.forEach(inputs => steps.push({ inp: inputs[0], inputs, stretch: true, first: r === 0 }));
+      rows.forEach(row => {
+        if(!row.stretch){ if(row.inputs[r]) steps.push({ inp: row.inputs[r], stretch: false }); }
+        else if(hasSets || r === 0) steps.push({ inp: row.inputs[0], inputs: row.inputs, stretch: true, first: r === 0 });
+      });
     }
   });
   return steps;
