@@ -73,15 +73,15 @@ Angezeigt werden Titel, Kürzel und Untertitel aus `DAYS`; die **internen Schlü
 
 | Schlüssel | Titel | Kürzel (Tabs, Plan) | Untertitel |
 |---|---|---|---|
-| `l2a` | Einarm | Einarm | Einarm-Liegestütz, Archer, Einarm-Rudern |
+| `l2a` | One Arm | One Arm | Einarm-Liegestütz, Archer, Einarm-Rudern |
 | `l2b` | Planche | Planche | Tuck Planche, Front-Lever-Raise, Beine |
-| `l2c` | Handstand-Druck | HSPU | Handstand-Liegestütz, Front Lever, Nordic |
+| `l2c` | Handstand Press | HSPU | Handstand-Liegestütz, Front Lever, Nordic |
 | `skill` | Skill | Skill | Elbow Lever, Handstand-Technik, Muscle-up |
 | `hs2` | Handstand | HS | Balance, Freistand, Einstiege |
 | `deload` | Deload | Deload | Mobility & Erholung (Review-Woche) |
-| `travel` | Reise-Training | Reise | Handstand, Druck oder Beine · je 15–20 Min |
+| `travel` | Travel Workout | Travel | Handstand, Druck oder Beine · je 15–20 Min |
 
-Frühere Bezeichnungen (L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und älteren Gesprächen vor und meinen dieselben Tage.
+Seit 2.11.2026 englisch (Einarm → One Arm, Handstand-Druck → Handstand Press, Reise-Training → Travel Workout); frühere Bezeichnungen (Einarm, Handstand-Druck, Reise, L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und älteren Gesprächen vor und meinen dieselben Tage.
 
 
 ## Offline und Ladezeit
