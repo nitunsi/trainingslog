@@ -1636,19 +1636,31 @@ function renderExRow(it){
   };
 
   // Index des ersten leeren Satzes mit Vorgabe vom letzten Mal (-1 = keiner)
-  const nextTakeIndex = ()=> last ? inputs.findIndex((inp, i) => inp.value.trim() === "" && String(last.value[i] ?? "").trim() !== "") : -1;
+  // Vorgabewert für Satz i: aus der letzten Einheit; hatte die weniger Sätze (z. B. Skill-Tag mit 2 statt Handstand-Tag mit 3), aus der nächstälteren mit einem Wert an dieser Stelle
+  const takeVal = i => {
+    if(!last) return "";
+    const v = String(last.value[i] ?? "").trim();
+    if(v) return v;
+    for(const n of namesFor(it.uebung)){
+      const e = lastSessionValues[n];
+      const w = e && Array.isArray(e.value) ? String(e.value[i] ?? "").trim() : "";
+      if(w) return w;
+    }
+    return "";
+  };
+  const nextTakeIndex = ()=> last ? inputs.findIndex((inp, i) => inp.value.trim() === "" && takeVal(i) !== "") : -1;
 
   // Live: ▲/▼ gegenüber dem letzten Mal pro Satz, Ziel-Hinweis, Übernehmen-Knopf nur solange noch etwas offen ist
   const live = ()=>{
     const takeBtn = hintEl.querySelector(".takeBtn"), plusBtn = hintEl.querySelector(".plusBtn");
-    const ti = nextTakeIndex(), tv = ti >= 0 ? String(last.value[ti]).trim() : "";
+    const ti = nextTakeIndex(), tv = ti >= 0 ? takeVal(ti) : "";
     if(takeBtn){ takeBtn.style.display = ti >= 0 ? "" : "none"; takeBtn.textContent = ti >= 0 ? "↺ Wie zuletzt: " + tv : ""; }
     // +1 nur, wenn der Wert vom letzten Mal eine reine Zahl ist (kein "6+5", "20s" o. Ä.)
     if(plusBtn){ const ok = ti >= 0 && /^\d+$/.test(tv); plusBtn.hidden = !ok; plusBtn.textContent = ok ? "＋1 → " + (parseInt(tv, 10) + 1) : ""; }
     inputs.forEach((inp, i)=>{
       const el = inp.parentElement.querySelector(".dlt");
       if(!el) return;
-      const cur = numTotal(inp.value), old = last ? numTotal(last.value[i]) : null;
+      const cur = numTotal(inp.value), old = last ? numTotal(takeVal(i)) : null;
       if(cur !== null && old !== null && cur !== old){
         el.textContent = (cur > old ? "▲" : "▼") + fmtNum(Math.abs(cur - old));
         el.style.color = cur > old ? "var(--accent)" : "var(--amber)";
@@ -1678,9 +1690,9 @@ function renderExRow(it){
     const takeInto = (plus)=>{
       const i = nextTakeIndex();
       if(i < 0){ showToast("Alle Sätze sind schon ausgefüllt"); return; }
-      const old = String(last.value[i]).trim();
+      const old = takeVal(i);
       if(plus && !/^\d+$/.test(old)) return;
-      const v = plus ? String(parseInt(old, 10) + 1) : last.value[i];
+      const v = plus ? String(parseInt(old, 10) + 1) : old;
       inputs[i].value = v;
       live();
       scheduleAutosave(400);
