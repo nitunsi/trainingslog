@@ -97,6 +97,10 @@ Seit 2.11.2026 englisch (Einarm → One Arm, Handstand-Druck → Handstand Press
 
 `DAYS.travel` hat `variants: true` und drei Blöcke mit `variant: "A" | "B" | "C"` (Handstand · Push & Core · Legs & Back, je 15–20 Min, mit Wand, ohne Stange). Auf dem Training-Tab steht oben ein Umschalter; nur die gewählte Variante ist sichtbar (`setVariant`), Fortschritt, „Offen“-Sprung und „Training abschließen“ zählen nur sie. Nach dem Laden einer Session wird die Variante mit den meisten Einträgen gewählt (`pickVariantWithData`), zuletzt benutzte Variante in `localStorage` (`training_variant`). Übungsnamen entsprechen dem Hauptplan, wo möglich (gemeinsame Historie und Platzhalter). Kein „Nach dem Workout“-Block für `variants`-Tage. Warm-up: `TRAVEL_WARMUP` (kurz, ca. 4 Min).
 
+## Training-Tab: „Wie zuletzt“ / „+1“
+
+Die Vorgabe für Satz i kommt aus der letzten Einheit; hatte die weniger Sätze (z. B. Freistehender Handstand: Skill-Tag 2 Sätze, Handstand-Tag 3), nimmt `takeVal()` den Wert der nächstälteren Einheit an dieser Stelle (`lastSessionValues`), sonst fehlten die Knöpfe beim letzten Satz.
+
 ## Training-Tab: „Weiter“-Knopf
 
 `Weiter ↓` sitzt fest in der Kopfleiste (rechts, nie von der Tastatur verdeckt). `trainSteps()` legt die Reihenfolge je Block fest (Sätze einer Runde, dann jede Dehnung als eigener Schritt an der Stelle, an der sie im Plan steht, nächste Runde), `nextTrainStep()` springt zum Schritt **nach dem zuletzt Eingetragenen** – Satz oder Dehnung. Alles davor gilt als erledigt, auch leer gelassene Dehnungen; jede Dehnung des Blocks ist ein eigener Schritt, und eine Dehnung zählt nur in der ersten Runde als „zuletzt eingetragen“ (sie hat in jeder Runde dasselbe Feld); eine angesprungene Dehnung wird zusätzlich in `localStorage` (`training_cursor2`, je Tag/Datum/Variante) gemerkt. „Training abschließen“ (alte Sessions: „Speichern“) steht ganz am Seitenende (`#endBtn`, immer, auch bei offenen Sätzen) und zeigt nach dem Speichern immer die Auswertung (bei offenen Sätzen als „Zwischenstand“); zusätzlich schwebt er (`#saveBtn`) über der Tab-Leiste, sobald alles eingetragen ist und solange der Knopf am Seitenende nicht im Bild ist.
