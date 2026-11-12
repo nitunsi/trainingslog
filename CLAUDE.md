@@ -25,6 +25,9 @@ Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umge
 | One Arm Push-up (links / rechts), Füße breit | One Arm Push-up (Füße schulterbreit, links / rechts) (21.10.2026; nächste Stufen: + 1s Pause unten, Füße enger, erhöht) |
 | Toes to Bar (3s runter, 1s halten, 3s hoch) (8, bis Muskelversagen) | Toes to Bar (3s runter, 2s halten, 3s hoch) (6–10, bis Muskelversagen) (20.10.2026; nächste Stufen: Beine gestreckter/Straddle, 4–5s runter, gewichtet) |
 | One Arm Row (2s Pause oben, jede Wdh) (8–10, bis Muskelversagen) | One Arm Row (3s Pause oben, jede Wdh) (5–10, bis Muskelversagen) (11.11.2026; Verlauf 2s: 3 → 10 Wdh in 6 Wochen; nächste Stufen: steilerer Winkel, Zusatzgewicht) |
+| Crow to Tuck Headstand Press (2s Pause in der Krähe) | … (3s Pause in der Krähe) (12.11.2026; Verlauf 2s: 10/10; Alternative später: flacherer Winkel) |
+| One-Legged Advanced Tuck Front Lever Raise (1s Pause oben, jede Wdh) | … (2s Pause oben, jede Wdh) (12.11.2026; Verlauf 1s: 6+4 → 10/10 in 3 Wochen, Ziel bleibt „sammeln, Ziel 10 Wdh“; danach Straddle Front Lever Raise statt längerer Pause) |
+| Wall Assisted Handstand Kick-up + Balance | … (2s Balance halten) (12.11.2026; Verlauf 8 → 10/10/10) |
 
 **Ergänzungen (31.10.2026, nur Skill- und Handstand-Tag, weil die anderen Tage schon lang sind):** Skill-Tag: neuer Block „Handstand frei“ (seit 2.11.2026 „Freestanding Handstand“, direkt nach dem Block „HSPU Strength/Technique“; 2 Sätze je auf maximale Zeit, Ziel „max Zeit, Ziel 15s“; am Handstand-Tag 3 Sätze, ebenfalls „max Zeit, Ziel 15s“) (Freistehender Handstand-Versuch, 2 Sätze auf max, zweiter Termin pro Woche neben dem Handstand-Tag). Handstand-Tag, Block „Strength“: Planche Lean (2 Sätze, Ziel 20 s, gleiche Historie wie in der Reise-Variante B) und Band-Außenrotation (2 Sätze, 12–15 je Seite; Schulter-Prehab).
 
