@@ -2534,6 +2534,17 @@ function flushPending(){
 }
 window.addEventListener("online", ()=>flushPending());
 document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible") flushPending(); else flushAutosave(); });
+// Neuer Tag, App lag im Hintergrund: Startseite und Datum waren noch die vom letzten Start -> wie ein frischer Start neu laden.
+// (Nur nach längerer Pause, damit eine Einheit nach Mitternacht nicht mittendrin neu lädt; Eingaben sind vorher gespeichert bzw. liegen in der Warteschlange.)
+let appDay = todayStr(), hiddenAt = 0;
+function checkNewDay(){
+  if(todayStr() === appDay) return;
+  if(hiddenAt && Date.now() - hiddenAt < 30 * 60 * 1000) return;
+  try{ flushAutosave(); }catch(e){}
+  location.reload();
+}
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) hiddenAt = Date.now(); else checkNewDay(); });
+window.addEventListener("pageshow", e => { if(e.persisted) checkNewDay(); });
 window.addEventListener("pagehide", ()=>{ if(!autosaveTimer) return; try{ const d = collectSessionData(); if(sessionHasContent(d) && (document.getElementById("dateInput").value || todayStr()) === todayStr()) pendingSet(currentDay, todayStr(), d); }catch(e){} });
 
 async function init(){
