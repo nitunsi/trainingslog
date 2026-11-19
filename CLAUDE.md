@@ -90,6 +90,10 @@ Angezeigt werden Titel, Kürzel und Untertitel aus `DAYS`; die **internen Schlü
 Seit 2.11.2026 englisch (Einarm → One Arm, Handstand-Druck → Handstand Press, Reise-Training → Travel Workout); frühere Bezeichnungen (Einarm, Handstand-Druck, Reise, L2A, L2B, L2C, Skill Day L2, HS2) kommen in Notizen und älteren Gesprächen vor und meinen dieselben Tage.
 
 
+## Neuer Tag bei laufender App
+
+Lag die App im Hintergrund und ist seitdem ein neuer Kalendertag, zeigte sie Startseite und Datum vom letzten Start. `checkNewDay()` (bei `visibilitychange`/`pageshow`) lädt dann nach ≥ 30 Min Pause neu (wie ein frischer Start; offene Eingaben werden vorher gespeichert bzw. liegen in der Warteschlange). Kürzere Pausen (z. B. Einheit nach Mitternacht) laden nicht neu.
+
 ## Offline und Ladezeit
 
 - **Service Worker `sw.js`**: App-Hülle, Schriften, Icons und Bibliothek liegen im Cache (`training-shell-v1`); `app.html` wird network-first geladen (3 s, sonst Cache) — Änderungen an `app.html` brauchen **keinen** Versions-Bump. Neue Dateien in `PRECACHE` eintragen; ändert sich eine Datei in `fonts/`, `vendor/` oder `icons/`, dem Dateinamen eine neue Version geben (sie werden cache-first und `immutable` ausgeliefert, siehe `vercel.json`) und `training-shell-v1` in `sw.js` hochzählen.
