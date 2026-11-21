@@ -1652,11 +1652,22 @@ function renderExRow(it){
 
   // Live: ▲/▼ gegenüber dem letzten Mal pro Satz, Ziel-Hinweis, Übernehmen-Knopf nur solange noch etwas offen ist
   const live = ()=>{
-    const takeBtn = hintEl.querySelector(".takeBtn"), plusBtn = hintEl.querySelector(".plusBtn");
+    const takeBtn = hintEl.querySelector(".takeBtn:not(.plusBtn):not(.copyBtn)"), plusBtn = hintEl.querySelector(".plusBtn");
     const ti = nextTakeIndex(), tv = ti >= 0 ? takeVal(ti) : "";
     if(takeBtn){ takeBtn.style.display = ti >= 0 ? "" : "none"; takeBtn.textContent = ti >= 0 ? "↺ Wie zuletzt: " + tv : ""; }
     // +1 nur, wenn der Wert vom letzten Mal eine reine Zahl ist (kein "6+5", "20s" o. Ä.)
     if(plusBtn){ const ok = ti >= 0 && /^\d+$/.test(tv); plusBtn.hidden = !ok; plusBtn.textContent = ok ? "＋1 → " + (parseInt(tv, 10) + 1) : ""; }
+    // „Wie Satz N“: Zahl des vorigen Satzes übernehmen, nur wenn sie weder dem Wert vom letzten Mal noch dem +1 entspricht (sonst gibt es dafür schon einen Knopf)
+    const copyBtn = hintEl.querySelector(".copyBtn");
+    if(copyBtn){
+      const ei = inputs.findIndex(inp => inp.value.trim() === "");
+      const pv = ei > 0 ? inputs[ei - 1].value.trim() : "";
+      const base = ei >= 0 ? takeVal(ei) : "";
+      const same = pv === base || (/^\d+$/.test(base) && pv === String(parseInt(base, 10) + 1));
+      const ok = ei > 0 && pv !== "" && !same;
+      copyBtn.hidden = !ok;
+      copyBtn.textContent = ok ? "＝ Wie Satz " + ei + ": " + pv : "";
+    }
     inputs.forEach((inp, i)=>{
       const el = inp.parentElement.querySelector(".dlt");
       if(!el) return;
@@ -1684,8 +1695,9 @@ function renderExRow(it){
   // Statisch (bei Aufbau, Datumswechsel, Laden einer Session): "zuletzt am …" + Übernehmen, letzte Notiz
   const refresh = ()=>{
     last = (!it.stretch && prev.length) ? lastRealSession(it.uebung) : null;
-    hintEl.classList.toggle("hasTake", !!last);
-    hintEl.innerHTML = last ? `zuletzt am ${fmtShort(last.date)}<div class="takeRow"><button type="button" class="takeBtn"></button><button type="button" class="takeBtn plusBtn" hidden></button></div>` : "";
+    const hasCopy = !it.stretch && inputs.length > 1;
+    hintEl.classList.toggle("hasTake", !!last || hasCopy);
+    hintEl.innerHTML = last || hasCopy ? (last ? `zuletzt am ${fmtShort(last.date)}` : "") + `<div class="takeRow">${last ? `<button type="button" class="takeBtn"></button><button type="button" class="takeBtn plusBtn" hidden></button>` : ""}${hasCopy ? `<button type="button" class="takeBtn copyBtn" hidden></button>` : ""}</div>` : "";
     // Nur EIN Satz pro Tipp: der erste noch leere Satz, zu dem es einen Wert vom letzten Mal gibt
     const takeInto = (plus)=>{
       const i = nextTakeIndex();
@@ -1699,9 +1711,19 @@ function renderExRow(it){
       showToast("Satz " + (i + 1) + ": " + v + (plus ? " (+1)" : " übernommen"));
       jumpToNextOpen();   // gleich zum nächsten Satz bzw. zur nächsten Dehnung
     };
-    const take = hintEl.querySelector(".takeBtn:not(.plusBtn)"), plus = hintEl.querySelector(".plusBtn");
+    const take = hintEl.querySelector(".takeBtn:not(.plusBtn):not(.copyBtn)"), plus = hintEl.querySelector(".plusBtn"), copy = hintEl.querySelector(".copyBtn");
     if(take) take.onclick = ()=> takeInto(false);
     if(plus) plus.onclick = ()=> takeInto(true);
+    if(copy) copy.onclick = ()=>{
+      const ei = inputs.findIndex(inp => inp.value.trim() === "");
+      if(ei < 1 || inputs[ei - 1].value.trim() === "") return;
+      const v = inputs[ei - 1].value.trim();
+      inputs[ei].value = v;
+      live();
+      scheduleAutosave(400);
+      showToast("Satz " + (ei + 1) + ": " + v + " übernommen");
+      jumpToNextOpen();
+    };
     const pn = lastRealNote(it.uebung);
     prevNoteEl.innerHTML = pn ? `${ICON.note} ${fmtShort(pn.date)} · ${escapeHtml(pn.text)}` : "";
     live();
