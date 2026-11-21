@@ -25,6 +25,8 @@ Aktueller Stand (16.10.2026, Start des neuen Zyklus): die Pakete A–C sind umge
 | One Arm Push-up (links / rechts), Füße breit | One Arm Push-up (Füße schulterbreit, links / rechts) (21.10.2026; nächste Stufen: + 1s Pause unten, Füße enger, erhöht) |
 | Toes to Bar (3s runter, 1s halten, 3s hoch) (8, bis Muskelversagen) | Toes to Bar (3s runter, 2s halten, 3s hoch) (6–10, bis Muskelversagen) (20.10.2026; nächste Stufen: Beine gestreckter/Straddle, 4–5s runter, gewichtet) |
 | One Arm Row (2s Pause oben, jede Wdh) (8–10, bis Muskelversagen) | One Arm Row (3s Pause oben, jede Wdh) (5–10, bis Muskelversagen) (11.11.2026; Verlauf 2s: 3 → 10 Wdh in 6 Wochen; nächste Stufen: steilerer Winkel, Zusatzgewicht) |
+| One Leg Front Lever (sammeln, Ziel 30s) | Straddle Front Lever (sammeln, Ziel 10s), gleiche Satzzahl (One Arm 3, Handstand Press 3, Skill 2) (21.11.2026; Verlauf One Leg: 25+5 → 30/30/30) |
+| One Leg Squat (links / rechts) (10–15, bis Muskelversagen) | One Leg Squat Jump (links / rechts), 3 Sätze, „5–10, sauber und explosiv“ (21.11.2026; Verlauf: 13 → 15/15/15; weiche Landung; Reise C und Pistol-Halten bleiben Pistol; Wunsch: Pistol unten halten können) |
 | Crow to Tuck Headstand Press (2s Pause in der Krähe) | … (3s Pause in der Krähe) (12.11.2026; Verlauf 2s: 10/10; Alternative später: flacherer Winkel) |
 | One-Legged Advanced Tuck Front Lever Raise (1s Pause oben, jede Wdh) | … (2s Pause oben, jede Wdh) (12.11.2026; Verlauf 1s: 6+4 → 10/10 in 3 Wochen, Ziel bleibt „sammeln, Ziel 10 Wdh“; danach Straddle Front Lever Raise statt längerer Pause) |
 | Wall Assisted Handstand Kick-up + Balance | … (2s Balance halten) (12.11.2026; Verlauf 8 → 10/10/10) |
