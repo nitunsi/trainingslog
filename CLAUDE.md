@@ -107,7 +107,7 @@ Lag die App im Hintergrund und ist seitdem ein neuer Kalendertag, zeigte sie Sta
 
 ## Training-Tab: „Wie zuletzt“ / „+1“
 
-Die Vorgabe für Satz i kommt aus der letzten Einheit; hatte die weniger Sätze (z. B. Freistehender Handstand: Skill-Tag 2 Sätze, Handstand-Tag 3), nimmt `takeVal()` den Wert der nächstälteren Einheit an dieser Stelle (`lastSessionValues`), sonst fehlten die Knöpfe beim letzten Satz.
+Die Vorgabe für Satz i kommt aus der letzten Einheit; hatte die weniger Sätze (z. B. Freistehender Handstand: Skill-Tag 2 Sätze, Handstand-Tag 3), nimmt `takeVal()` den Wert der nächstälteren Einheit an dieser Stelle (`lastSessionValues`), sonst fehlten die Knöpfe beim letzten Satz. Dritter Knopf „＝ Wie Satz N“ (`.copyBtn`): übernimmt die Zahl des vorigen Satzes in den nächsten leeren; nur sichtbar, wenn sie weder dem „Wie zuletzt“-Wert noch dem „+1“-Wert entspricht (dann gibt es schon einen Knopf). Auch bei Übungen ohne Historie.
 
 ## Training-Tab: „Weiter“-Knopf
 
